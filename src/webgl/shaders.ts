@@ -36,6 +36,7 @@ export const plateFragmentShader = /* glsl */ `
   uniform sampler2D uLabel; // 版面に刷る事例名
   uniform float uLabelAspect;
   uniform float uHasLabel;
+  uniform float uLabelScale;  // 版が小さく出る画面では、文字だけ大きくする
 
   varying vec2 vUv;
 
@@ -493,11 +494,11 @@ export const plateFragmentShader = /* glsl */ `
     // 版面の名前。左上の柱に、通し番号と事例名を刷る。
     float label = 0.0;
     if (uHasLabel > 0.5) {
-      float lh = 0.034;
+      float lh = 0.034 * uLabelScale;
       float lw = lh * uLabelAspect;
       vec2 luv = (pa - vec2(-hx + 0.012, hy - 0.020 - lh * 0.5)) / vec2(lw, lh);
       if (luv.x > 0.0 && luv.x < 1.0 && luv.y > 0.0 && luv.y < 1.0) {
-        label = texture2D(uLabel, luv).a;
+        label = smoothstep(0.12, 0.62, texture2D(uLabel, luv).a);
       }
     }
     float headRule = seg(pa, vec2(-hx, hy - 0.048), vec2(hx, hy - 0.048), 0.0008);

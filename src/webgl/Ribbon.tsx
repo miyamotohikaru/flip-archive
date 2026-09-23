@@ -178,6 +178,7 @@ export default function Ribbon({
           uLabel: { value: lb.texture },
           uLabelAspect: { value: lb.aspect },
           uHasLabel: { value: 1 },
+          uLabelScale: { value: 1 },
         },
       });
 
@@ -485,6 +486,8 @@ export default function Ribbon({
 
         const u = tile.mesh.material.uniforms;
         u.uTime.value = t;
+        // 縦長の画面では版が小さく出るので、名前だけ大きく刷る
+        u.uLabelScale.value = aspect < 1 ? 1.75 : 1;
         u.uProgress.value = tile.progress.v;
         u.uFade.value = wrapFade * tile.fade.v;
         const su = tile.shadow.material.uniforms;

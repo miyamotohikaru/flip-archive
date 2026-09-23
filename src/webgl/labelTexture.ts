@@ -32,7 +32,7 @@ export function labelTexture(text: string): Label {
   const hit = cache.get(text);
   if (hit) return { texture: hit, aspect: hit.image.width / hit.image.height };
 
-  const H = 96; // 版面の一行ぶんを、この画素数で持つ
+  const H = 200; // 版面の一行ぶんを、この画素数で持つ。縮んでも潰れないよう厚めに取る。
   const PAD = Math.round(H * 0.08);
   const size = Math.round(H * 0.58);
 
@@ -51,9 +51,11 @@ export function labelTexture(text: string): Label {
   g.fillText(text, PAD, H * 0.53);
 
   const tex = new THREE.CanvasTexture(c);
-  tex.minFilter = THREE.LinearFilter;
+  // 帯の奥では版が小さくなる。縮小をミップマップに任せないと文字が潰れる。
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
   tex.magFilter = THREE.LinearFilter;
-  tex.generateMipmaps = false;
+  tex.generateMipmaps = true;
+  tex.anisotropy = 8;
   tex.needsUpdate = true;
   cache.set(text, tex);
   return { texture: tex, aspect: c.width / c.height };

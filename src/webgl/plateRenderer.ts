@@ -79,6 +79,7 @@ function ensure(width: number, height: number): Shared | null {
           uLabel: { value: blankTexture() },
           uLabelAspect: { value: 1 },
           uHasLabel: { value: 0 },
+          uLabelScale: { value: 1 },
         },
       }),
     );
@@ -125,6 +126,9 @@ export function drawPlate(
     u.uLabel.value = l.texture;
     u.uLabelAspect.value = l.aspect;
     u.uHasLabel.value = 1;
+    // 版が小さく出るほど、文字は相対的に大きくしないと読めない
+    const shown = target.clientWidth;
+    u.uLabelScale.value = shown < 150 ? 1.5 : shown < 230 ? 1.28 : 1;
   } else {
     u.uHasLabel.value = 0;
   }
