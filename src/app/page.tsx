@@ -35,22 +35,14 @@ export default function Home() {
         </p>
       </div>
 
-      {/* 手前の版の書誌 */}
-      <div className="pointer-events-none absolute bottom-16 right-4 z-30 max-w-[calc(100%-2rem)] text-right sm:bottom-20 sm:right-6">
-        <div
-          key={shown.slug}
-          className="flex items-end justify-end gap-4 [animation:riseIn_0.7s_cubic-bezier(0.16,1,0.3,1)_forwards] sm:gap-6"
-        >
-          {/* 評価。帯が通らない右下の隅で、書誌と並べる。 */}
-          <Heptagon
-            c={shown}
-            size={168}
-            labels={false}
-            className="hidden shrink-0 sm:block"
-          />
-
-          <div>
-            <div className="mb-1.5 flex items-baseline justify-end gap-2.5">
+      {/* 手前の版の書誌と評価。帯が通らない右下の隅にまとめる。 */}
+      <div className="pointer-events-none absolute bottom-4 right-4 z-30 flex max-w-[calc(100%-2rem)] items-end gap-5 sm:bottom-5 sm:right-6 sm:gap-7">
+        <div className="text-right">
+          <div
+            key={shown.slug}
+            className="[animation:riseIn_0.7s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+          >
+            <div className="mb-1.5 flex flex-wrap items-baseline justify-end gap-x-2.5">
               <span className="label !text-ink tnum">CASE {shown.id}</span>
               <span className="label tnum">{shown.yearLabel}</span>
               <span className="label">{shown.author}</span>
@@ -72,16 +64,23 @@ export default function Home() {
               ))}
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* 操作の手引き */}
-      <div className="pointer-events-none absolute bottom-4 right-4 z-30 text-right sm:bottom-5 sm:right-6">
-        <p className="label">{isHover ? "CLICK TO OPEN" : "DRAG / SCROLL"}</p>
-        <p className="label mt-1.5 tnum">
-          {String((hover ?? focus) + 1).padStart(2, "0")} /{" "}
-          {String(cases.length).padStart(2, "0")}
-        </p>
+          {/* 操作の手引き */}
+          <p className="label mt-5">
+            {isHover ? "CLICK TO OPEN" : "DRAG / SCROLL"}
+          </p>
+          <p className="label mt-1.5 tnum">
+            {String((hover ?? focus) + 1).padStart(2, "0")} /{" "}
+            {String(cases.length).padStart(2, "0")}
+          </p>
+        </div>
+
+        <Heptagon
+          c={shown}
+          size={172}
+          labels={false}
+          className="-mb-7 hidden shrink-0 sm:block"
+        />
       </div>
 
       {/* WebGLを使えない環境とキーボード操作のための実体 */}
