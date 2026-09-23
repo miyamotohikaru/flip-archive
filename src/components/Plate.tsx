@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { type Case } from "@/data/types";
 import { plateParamsFor } from "@/lib/plateParams";
 import { drawPlate } from "@/webgl/plateRenderer";
+import { plateLabel } from "@/webgl/labelTexture";
 
 /**
  * 単票の図版。
@@ -29,6 +30,7 @@ export default function Plate({
   const kickRef = useRef<() => void>(() => {});
 
   const { seed, plate } = plateParamsFor(c);
+  const label = plateLabel(c);
 
   useEffect(() => {
     targetRef.current = active ? 1 : 0;
@@ -45,6 +47,7 @@ export default function Plate({
       drawPlate(el, {
         seed,
         plate,
+        label,
         progress: progress.current,
         aspect: el.clientWidth / Math.max(1, el.clientHeight),
       });
@@ -96,7 +99,7 @@ export default function Plate({
       if (raf.current) cancelAnimationFrame(raf.current);
       raf.current = 0;
     };
-  }, [seed, plate, autoplay]);
+  }, [seed, plate, label, autoplay]);
 
   return (
     <canvas

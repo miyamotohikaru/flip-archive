@@ -15,6 +15,7 @@ import {
   shadowVertexShader,
 } from "./shaders";
 import { plateParamsFor } from "@/lib/plateParams";
+import { labelTexture, plateLabel } from "./labelTexture";
 
 /* ------------------------------------------------------------------ *
  * 配置のパラメータ
@@ -74,6 +75,11 @@ export default function Ribbon({
     [router],
   );
 
+  // 押してから開くまでの間を詰めるため、収録分をあらかじめ取りにいく。
+  useEffect(() => {
+    cases.forEach((c) => router.prefetch(`/case/${c.slug}`));
+  }, [router]);
+
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
@@ -105,6 +111,12 @@ export default function Ribbon({
     host.appendChild(renderer.domElement);
     renderer.domElement.style.display = "block";
     renderer.domElement.style.touchAction = "pan-y";
+
+    // 遷移のとき、版の動きの終わりに差し込む紙
+    const veil = document.createElement("div");
+    veil.style.cssText =
+      "position:absolute;inset:0;background:var(--color-bg);opacity:0;pointer-events:none;z-index:40";
+    host.appendChild(veil);
 
     const scene = new THREE.Scene();
 
@@ -143,6 +155,7 @@ export default function Ribbon({
       const ci = i % cases.length;
       const c = cases[ci];
       const pp = plateParamsFor(c);
+      const lb = labelTexture(plateLabel(c));
 
       const material = new THREE.ShaderMaterial({
         vertexShader: plateVertexShader,
@@ -162,6 +175,9 @@ export default function Ribbon({
           uAccent: { value: ACCENT },
           uGrain: { value: 0.05 },
           uFocus: { value: 0 },
+          uLabel: { value: lb.texture },
+          uLabelAspect: { value: lb.aspect },
+          uHasLabel: { value: 1 },
         },
       });
 
@@ -234,6 +250,8 @@ export default function Ribbon({
       smoothed: 0,
       entry: { x: -18 },
       locked: false, // 遷移中
+      chosen: null as number | null, // 遷移中の版
+      zoom: { v: 0 }, // 選ばれた版が手前へ出る量
     };
 
     const speed = canHover ? 100 : 55;
@@ -252,6 +270,7 @@ export default function Ribbon({
 
     const onPointerDown = (e: PointerEvent) => {
       if (state.locked) return;
+      pointerFromEvent(e); // 触って操作する端末では、ここで初めて位置が分かる
       state.dragging = true;
       state.dragMoved = 0;
       state.onX = state.dragX - e.clientX;
@@ -279,8 +298,10 @@ export default function Ribbon({
       setCursor(hoveredIndex !== null ? "pointer" : "grab");
     };
 
-    const onPointerLeave = () => {
-      state.pointer.set(-10, -10);
+    const onPointerLeave = (e: PointerEvent) => {
+      // 触って操作する端末では、指を離した直後にこれが飛ぶ。
+      // ここで位置を捨てると、直後のクリックで版を引き当てられなくなる。
+      if (e.pointerType === "mouse") state.pointer.set(-10, -10);
     };
 
     renderer.domElement.addEventListener("wheel", onWheel, { passive: false });
@@ -304,35 +325,67 @@ export default function Ribbon({
       setCursor(idx !== null ? "pointer" : state.dragging ? "grabbing" : "grab");
     };
 
+    /** いま指している版を、その場で引き当てる。タップでも効くようにする。 */
+    const pick = () => {
+      if (state.pointer.x < -5) return null;
+      raycaster.setFromCamera(state.pointer, camera);
+      const hits = raycaster.intersectObjects(
+        tiles.map((tt) => tt.hit),
+        false,
+      );
+      const first = hits.find((h) => {
+        const tile = tiles[(h.object as THREE.Mesh).userData.index as number];
+        return tile.fade.v > 0.5;
+      });
+      return first ? ((first.object as THREE.Mesh).userData.index as number) : null;
+    };
+
     const onClick = () => {
       if (state.locked) return;
       if (state.dragMoved > 6) return; // ドラッグは選択にしない
-      if (hoveredIndex === null) return;
-      const tile = tiles[hoveredIndex];
+      const idx = hoveredIndex ?? pick();
+      if (idx === null) return;
+      const tile = tiles[idx];
       const c = cases[tile.caseIndex];
       state.locked = true;
-      // 選ばれた版だけを正面へ起こしてから遷移する
-      gsap.to(tile.root.rotation, {
-        y: 0,
-        ease: "expo.inOut",
-        duration: 1.1,
-      });
-      gsap.to(tile.progress, { v: 1, ease: "expo.out", duration: 0.9 });
-      tiles.forEach((t) => {
-        if (t.index === hoveredIndex) return;
-        gsap.to(t.fade, { v: 0, ease: "expo.inOut", duration: 0.8 });
-      });
-      gsap.to(state.entry, {
-        x: 0,
-        duration: 1.1,
-        ease: "expo.inOut",
-        onComplete: () => navigate(c.slug),
-      });
+      state.chosen = idx;
+
+      // 選ばれた版が正面へ起き、配置操作を実行しながら手前へ出る。
+      // 図版そのものを遷移の動きとして使い、紙で受けて次の頁へ渡す。
+      const D = reduced ? 0.01 : 0.42;
+
+      gsap.killTweensOf(tile.shifter.position);
+      gsap.killTweensOf(tile.progress);
+
+      gsap.to(tile.root.rotation, { y: 0, ease: "expo.out", duration: D });
       gsap.to(tile.shifter.position, {
         x: 0,
         y: 0,
-        ease: "expo.inOut",
-        duration: 1.1,
+        ease: "expo.out",
+        duration: D,
+      });
+      gsap.to(tile.progress, { v: 1, ease: "power2.out", duration: D * 0.9 });
+      gsap.to(state.zoom, { v: 1, ease: "power2.in", duration: D * 1.15 });
+
+      // ほかの版は、選ばれた版から遠い順に引く
+      const here = tile.root.position.x;
+      tiles.forEach((t) => {
+        if (t.index === idx) return;
+        const d = Math.abs(t.root.position.x - here);
+        gsap.to(t.fade, {
+          v: 0,
+          ease: "power2.in",
+          duration: reduced ? 0.01 : 0.26,
+          delay: reduced ? 0 : Math.min(0.12, d * 0.02),
+        });
+      });
+
+      gsap.to(veil, {
+        opacity: 1,
+        ease: "power2.in",
+        duration: reduced ? 0.01 : 0.18,
+        delay: reduced ? 0 : D * 0.55,
+        onComplete: () => navigate(c.slug),
       });
     };
     renderer.domElement.addEventListener("click", onClick);
@@ -371,8 +424,8 @@ export default function Ribbon({
       state.smoothed += (target - state.smoothed) * LERP;
       const j = state.wheel / 26 - state.smoothed / speed + state.entry.x;
 
-      // ヒットテスト
-      if (!state.locked && state.pointer.x > -5) {
+      // ヒットテスト。触って操作する端末は、指を離した位置に居残るので取らない。
+      if (canHover && !state.locked && state.pointer.x > -5) {
         raycaster.setFromCamera(state.pointer, camera);
         const hits = raycaster.intersectObjects(
           tiles.map((tt) => tt.hit),
@@ -396,15 +449,25 @@ export default function Ribbon({
         const z = -x * (aspect < 1 ? 5.4 : aspect * DEPTH_K);
 
         tile.root.position.set(x, 0, z);
-        tile.root.rotation.y = state.locked && tile.index === hoveredIndex
-          ? tile.root.rotation.y
-          : ROT_Y;
+        tile.root.rotation.y =
+          state.locked && tile.index === state.chosen
+            ? tile.root.rotation.y
+            : ROT_Y;
+
+        // 遷移のあいだ、選ばれた版だけを手前へ引き出す
+        if (state.locked && tile.index === state.chosen && state.zoom.v > 0) {
+          const k = state.zoom.v;
+          tile.root.position.set(x * (1 - k), 0, z * (1 - k) + k * 6.0);
+        }
 
         // 端で紙へ溶かし、巻き戻りを見せない
         const edge = 1 - Math.min(1, Math.abs(x) / HALF);
         const wrapFade = THREE.MathUtils.smoothstep(edge, 0.0, 0.16);
 
-        const isHover = hoveredIndex === tile.index;
+        // 触って操作する端末にはホバーがないので、
+        // いま手前に来ている版を「選ばれている版」として同じように扱う。
+        const activeIndex = hoveredIndex ?? (canHover ? null : focusIndex);
+        const isHover = !state.locked && activeIndex === tile.index;
         if (isHover !== tile.hovered) {
           tile.hovered = isHover;
           gsap.to(tile.shifter.position, {
@@ -506,9 +569,11 @@ export default function Ribbon({
       shadowGeometry.dispose();
       hitGeometry.dispose();
       renderer.dispose();
+      gsap.killTweensOf(veil);
       if (renderer.domElement.parentNode === host) {
         host.removeChild(renderer.domElement);
       }
+      if (veil.parentNode === host) host.removeChild(veil);
     };
   }, [navigate]);
 

@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { cases } from "@/data/cases";
 import { axes } from "@/data/axes";
 import { AXIS_ORDER } from "@/data/types";
+import Heptagon from "@/components/Heptagon";
 
 const Ribbon = dynamic(() => import("@/webgl/Ribbon"), { ssr: false });
 
@@ -21,7 +22,7 @@ export default function Home() {
       <Ribbon onFocusChange={setFocus} onHoverChange={setHover} />
 
       {/* 図鑑の定義。左上に小さく置き、図版の読み取りの手前に立たせない */}
-      <div className="pointer-events-none absolute left-4 top-14 z-30 sm:left-6 sm:top-16">
+      <div className="pointer-events-none absolute left-4 top-[4.9rem] z-30 sm:left-6 sm:top-16">
         <p className="max-w-[18rem] text-11 leading-[2] text-mute opacity-0 [animation:fadeIn_1.4s_1.8s_forwards]">
           現実の当たり前に具体的な仕掛けを置き、
           <br />
@@ -38,28 +39,38 @@ export default function Home() {
       <div className="pointer-events-none absolute bottom-16 right-4 z-30 max-w-[calc(100%-2rem)] text-right sm:bottom-20 sm:right-6">
         <div
           key={shown.slug}
-          className="[animation:riseIn_0.7s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+          className="flex items-end justify-end gap-4 [animation:riseIn_0.7s_cubic-bezier(0.16,1,0.3,1)_forwards] sm:gap-6"
         >
-          <div className="mb-1.5 flex items-baseline justify-end gap-2.5">
-            <span className="label !text-ink tnum">CASE {shown.id}</span>
-            <span className="label tnum">{shown.yearLabel}</span>
-            <span className="label">{shown.author}</span>
-          </div>
-          <h2 className="ml-auto max-w-[22rem] text-[1.35rem] font-medium leading-[1.25] tracking-[-0.02em] sm:text-[1.7rem]">
-            {shown.title}
-          </h2>
-          <p className="mt-1.5 ml-auto max-w-[24rem] text-12 leading-[1.8] text-mute">
-            {shown.headline}
-          </p>
-          <div className="mt-3 flex flex-wrap justify-end gap-x-3">
-            {AXIS_ORDER.map((id, i) => (
-              <span key={id} className="label tnum">
-                <span className="!text-ink">{axes[i].letter}</span>
-                <span className="ml-0.5 !text-accent">
-                  {shown.review[id].score ?? "—"}
+          {/* 評価。帯が通らない右下の隅で、書誌と並べる。 */}
+          <Heptagon
+            c={shown}
+            size={168}
+            labels={false}
+            className="hidden shrink-0 sm:block"
+          />
+
+          <div>
+            <div className="mb-1.5 flex items-baseline justify-end gap-2.5">
+              <span className="label !text-ink tnum">CASE {shown.id}</span>
+              <span className="label tnum">{shown.yearLabel}</span>
+              <span className="label">{shown.author}</span>
+            </div>
+            <h2 className="ml-auto max-w-[22rem] text-[1.35rem] font-medium leading-[1.25] tracking-[-0.02em] sm:text-[1.7rem]">
+              {shown.title}
+            </h2>
+            <p className="mt-1.5 ml-auto max-w-[24rem] text-12 leading-[1.8] text-mute">
+              {shown.headline}
+            </p>
+            <div className="mt-3 flex flex-wrap justify-end gap-x-3">
+              {AXIS_ORDER.map((id, i) => (
+                <span key={id} className="label tnum">
+                  <span className="!text-ink">{axes[i].letter}</span>
+                  <span className="ml-0.5 !text-accent">
+                    {shown.review[id].score ?? "—"}
+                  </span>
                 </span>
-              </span>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>

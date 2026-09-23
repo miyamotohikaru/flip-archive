@@ -44,43 +44,73 @@ export default async function CasePage({
       <div className="mx-auto max-w-[68rem]">
         <BackToIndex slug={c.slug} />
 
-        {/* 見出し */}
+        {/* 見出しと評価 */}
         <header className="mt-6 border-b border-line pb-8">
-          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-            <span className="label !text-accent tnum text-12">
-              CASE {c.id} / {c.code}
-            </span>
-            <span className="label tnum">{c.yearLabel}</span>
-            <span className="label">{c.place}</span>
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start lg:gap-12">
+            <div>
+              <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                <span className="label !text-accent tnum text-12">
+                  CASE {c.id} / {c.code}
+                </span>
+                <span className="label tnum">{c.yearLabel}</span>
+                <span className="label">{c.place}</span>
+              </div>
+              <div className="mt-3 flex flex-wrap items-baseline gap-x-5 gap-y-1">
+                <h1 className="text-[2rem] font-medium leading-[1.15] tracking-[-0.025em] sm:text-[3rem]">
+                  {c.title}
+                </h1>
+                <p className="label text-11">
+                  {c.author} <span className="mx-1 opacity-50">|</span>{" "}
+                  {c.yearLabel}
+                </p>
+              </div>
+              <p className="mt-6 max-w-[40rem] text-[1.25rem] font-medium leading-[1.8] tracking-[-0.01em] sm:text-[1.45rem]">
+                {c.headline}
+              </p>
+
+              <div className="mt-8">
+                <div className="mb-2.5 flex items-baseline gap-2.5">
+                  <h2 className="text-13 font-medium tracking-[0.02em]">短評</h2>
+                  <span className="label">WHAT IT DOES</span>
+                </div>
+                <p className="max-w-[40rem] text-[1rem] leading-[2] tracking-[0.005em]">
+                  {c.body}
+                </p>
+              </div>
+            </div>
+
+            {/* 評価。見出しと同じ高さに置く。 */}
+            <div className="lg:pt-1">
+              <div className="flex items-baseline justify-between gap-3 border-b border-ink pb-1.5">
+                <p className="label !text-ink">評価 PLACEBO</p>
+                <p className="label tnum opacity-70">1–5 / R04-5</p>
+              </div>
+              <Heptagon
+                c={c}
+                size={320}
+                className="-mx-3 mt-1 w-[calc(100%+1.5rem)] max-w-[23rem]"
+              />
+              <p className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
+                {AXIS_ORDER.map((id, idx) => (
+                  <span key={id} className="label tnum">
+                    <span className="!text-ink">{axes[idx].letter}</span>
+                    <span className="ml-0.5 !text-accent">
+                      {c.review[id].score ?? "—"}
+                    </span>
+                  </span>
+                ))}
+              </p>
+              <p className="label mt-2.5 leading-[1.9] opacity-70">
+                こす.くまの基準による企画の特徴の評価。作品の総合点ではありません。
+              </p>
+            </div>
           </div>
-          <div className="mt-3 flex flex-wrap items-baseline gap-x-5 gap-y-1">
-            <h1 className="text-[2rem] font-medium leading-[1.15] tracking-[-0.025em] sm:text-[3rem]">
-              {c.title}
-            </h1>
-            <p className="label text-11">
-              {c.author} <span className="mx-1 opacity-50">|</span> {c.yearLabel}
-            </p>
-          </div>
-          <p className="mt-6 max-w-[44rem] text-[1.25rem] font-medium leading-[1.8] tracking-[-0.01em] sm:text-[1.45rem]">
-            {c.headline}
-          </p>
         </header>
 
         <div className="grid gap-12 pt-10 lg:grid-cols-[23rem_minmax(0,1fr)] lg:gap-14">
           {/* 左：図版と七角形 */}
           <aside className="lg:sticky lg:top-20 lg:self-start">
             <CaseHero c={c} />
-
-            <div className="mt-9">
-              <div className="mb-1 flex items-baseline justify-between gap-3">
-                <p className="label">評価 PLACEBO</p>
-                <p className="label tnum opacity-70">1–5 / R04-5</p>
-              </div>
-              <Heptagon c={c} size={320} className="-ml-2 w-[calc(100%+1rem)]" />
-              <p className="label mt-1 leading-[1.9] opacity-70">
-                こす.くまの基準による企画の特徴の評価。作品の総合点ではありません。
-              </p>
-            </div>
 
             <div className="mt-8 border-t border-line">
               <div className="grid grid-cols-[5.5rem_1fr] gap-3 border-b border-line py-2.5">
@@ -98,18 +128,8 @@ export default async function CasePage({
             </div>
           </aside>
 
-          {/* 右：短評と審査 */}
+          {/* 右：審査と出典 */}
           <div className="space-y-14">
-            <section>
-              <div className="mb-2.5 flex items-baseline gap-2.5">
-                <h2 className="text-13 font-medium tracking-[0.02em]">短評</h2>
-                <span className="label">WHAT IT DOES</span>
-              </div>
-              <p className="max-w-[42rem] text-[1rem] leading-[2] tracking-[0.005em]">
-                {c.body}
-              </p>
-            </section>
-
             {/* 項目別の審査 */}
             <section>
               <div className="mb-1.5 flex flex-wrap items-baseline gap-x-2.5">

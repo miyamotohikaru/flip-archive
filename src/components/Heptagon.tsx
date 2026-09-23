@@ -118,7 +118,7 @@ export default function Heptagon({
           d={d}
           fill="none"
           stroke="var(--color-ink)"
-          strokeWidth={1.6}
+          strokeWidth={2.1}
           strokeLinecap="round"
         />
       ))}
@@ -128,7 +128,7 @@ export default function Heptagon({
             key={i}
             cx={point(i, s)[0]}
             cy={point(i, s)[1]}
-            r={2.4}
+            r={2.8}
             fill="var(--color-ink)"
           />
         ),

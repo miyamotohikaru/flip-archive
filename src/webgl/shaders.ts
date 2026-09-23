@@ -33,6 +33,9 @@ export const plateFragmentShader = /* glsl */ `
   uniform vec3  uAccent;
   uniform float uGrain;
   uniform float uFocus;     // 帯の中で手前に読まれている版
+  uniform sampler2D uLabel; // 版面に刷る事例名
+  uniform float uLabelAspect;
+  uniform float uHasLabel;
 
   varying vec2 vUv;
 
@@ -485,6 +488,18 @@ export const plateFragmentShader = /* glsl */ `
       head += box(pa, vec2(-hx + 0.068 + float(k) * 0.0125 + gap, hy - 0.020),
                   vec2(0.0042, 0.0072)) * on;
     }
+    head *= 1.0 - uHasLabel;   // 名前を刷る版では、刻みに代えて名前を置く
+
+    // 版面の名前。左上の柱に、通し番号と事例名を刷る。
+    float label = 0.0;
+    if (uHasLabel > 0.5) {
+      float lh = 0.034;
+      float lw = lh * uLabelAspect;
+      vec2 luv = (pa - vec2(-hx + 0.012, hy - 0.020 - lh * 0.5)) / vec2(lw, lh);
+      if (luv.x > 0.0 && luv.x < 1.0 && luv.y > 0.0 && luv.y < 1.0) {
+        label = texture2D(uLabel, luv).a;
+      }
+    }
     float headRule = seg(pa, vec2(-hx, hy - 0.048), vec2(hx, hy - 0.048), 0.0008);
 
     float scaleBar = seg(pa, vec2(hx - 0.116, -hy + 0.024), vec2(hx, -hy + 0.024), 0.0008);
@@ -507,6 +522,7 @@ export const plateFragmentShader = /* glsl */ `
     col = mix(col, uInk, clamp(INK, 0.0, 1.0) * 0.92);
     col = mix(col, uInk, clamp(LIN, 0.0, 1.0) * 0.62);
     col = mix(col, uInk, clamp(head, 0.0, 1.0) * 0.90);
+    col = mix(col, uInk, clamp(label, 0.0, 1.0) * 0.92);
     col = mix(col, uInk, clamp(ticks, 0.0, 1.0) * 0.34);
     col = mix(col, uAccent, clamp(ACC, 0.0, 1.0) * 0.94);
 
