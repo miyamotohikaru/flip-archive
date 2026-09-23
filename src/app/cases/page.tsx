@@ -21,6 +21,9 @@ export default function IndexPage() {
   const [played, setPlayed] = useState(r?.played ?? false);
   // 列の読み比べ用。並べ替えではないので、順序は動かさない。
   const [markedAxis, setMarkedAxis] = useState<AxisId | null>(null);
+  const [canHover, setCanHover] = useState(true);
+  const [manual, setManual] = useState(false);
+  const loop = useRef<number | null>(null);
   const floatRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -48,6 +51,30 @@ export default function IndexPage() {
     const id = requestAnimationFrame(jump);
     return () => cancelAnimationFrame(id);
   }, []);
+
+  useEffect(() => {
+    setCanHover(window.matchMedia("(hover: hover) and (pointer: fine)").matches);
+  }, []);
+
+  // ホバーのない端末では、図版が《変容前》と《実行後》を自分で往復する。
+  // 触れる手がかりがないので、二つの状態を見せてしまう。
+  useEffect(() => {
+    if (canHover || manual || mode !== "PLATES") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let alive = true;
+    const step = (next: boolean) => {
+      if (!alive) return;
+      setPlayed(next);
+      loop.current = window.setTimeout(() => step(!next), next ? 2600 : 2000);
+    };
+    loop.current = window.setTimeout(() => step(true), 1100);
+
+    return () => {
+      alive = false;
+      if (loop.current) window.clearTimeout(loop.current);
+    };
+  }, [canHover, manual, mode]);
 
   // ブラウザの復元と競合させない
   useEffect(() => {
@@ -87,40 +114,55 @@ export default function IndexPage() {
             <h1 className="text-[1.6rem] font-medium tracking-[-0.02em] sm:text-[2rem]">
               索引
             </h1>
-            <p className="label mt-1">INDEX OF CASES / 先行7事例</p>
+            <p className="label mt-1 tnum">
+              INDEX OF CASES / 先行7事例 / {String(cases.length).padStart(2, "0")} CASES
+            </p>
           </div>
-          <div className="flex items-baseline gap-5">
-            <div className="flex items-baseline gap-3">
+          {/* 押せるものは、枠のある丸で示す。件数は押せないので、左の見出しへ回した。 */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            <div className="flex items-center rounded-full border border-line p-0.5">
               {(["PLATES", "SCORES"] as const).map((m) => (
-                <button key={m} onClick={() => setMode(m)} className="group relative">
-                  <span
-                    className={`label transition-colors ${
-                      mode === m ? "!text-ink" : "group-hover:!text-ink"
-                    }`}
-                  >
-                    {m === "PLATES" ? "図版" : "評点"}
-                    <span className="ml-1.5 opacity-60">{m}</span>
+                <button
+                  key={m}
+                  onClick={() => setMode(m)}
+                  aria-pressed={mode === m}
+                  className={`rounded-full px-3 py-1 text-11 transition-colors duration-200 ${
+                    mode === m
+                      ? "bg-ink text-bg"
+                      : "text-mute hover:bg-paper hover:text-ink"
+                  }`}
+                >
+                  {m === "PLATES" ? "図版" : "評点"}
+                  <span className="ml-1.5 font-mono text-10 tracking-[0.11em] opacity-60">
+                    {m}
                   </span>
-                  <span
-                    className={`absolute -bottom-1.5 left-0 block h-px bg-ink transition-all duration-500 ease-out ${
-                      mode === m ? "w-full" : "w-0 group-hover:w-full"
-                    }`}
-                  />
                 </button>
               ))}
             </div>
+
             {mode === "PLATES" && (
               <button
-                onClick={() => setPlayed((v) => !v)}
-                className="label transition-colors hover:!text-ink"
+                onClick={() => {
+                  if (!canHover) {
+                    if (loop.current) window.clearTimeout(loop.current);
+                    setManual(true);
+                  }
+                  setPlayed((v) => !v);
+                }}
+                aria-pressed={played}
+                className="rounded-full border border-line px-3 py-1 text-11 text-mute transition-colors duration-200 hover:border-ink hover:text-ink"
                 title="図版を、変容前と配置操作の実行後で見比べる"
               >
-                <span className={played ? "" : "!text-ink"}>変容前</span>
+                <span className={played ? "" : "text-ink"}>変容前</span>
                 <span className="mx-1.5 opacity-50">／</span>
-                <span className={played ? "!text-ink" : ""}>実行後</span>
+                <span className={played ? "text-ink" : ""}>実行後</span>
+                {!canHover && !manual && (
+                  <span className="ml-2 font-mono text-10 tracking-[0.11em] opacity-60">
+                    AUTO
+                  </span>
+                )}
               </button>
             )}
-            <p className="label tnum">{String(cases.length).padStart(2, "0")} CASES</p>
           </div>
         </div>
 
