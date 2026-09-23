@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { axes } from "@/data/axes";
+import AxisMark from "@/components/AxisMark";
 
 export const metadata: Metadata = {
   title: "評価について — 世界のFLIP図鑑",
@@ -46,16 +47,23 @@ export default function CriteriaPage() {
             {axes.map((a) => (
               <li
                 key={a.id}
-                className="grid gap-1 border-b border-line py-4 sm:grid-cols-[12rem_1fr] sm:gap-6"
+                className="grid gap-2 border-b border-line py-4 sm:grid-cols-[15rem_1fr] sm:gap-6"
               >
-                <div className="flex items-baseline gap-2.5">
-                  <span className="label !text-accent tnum text-12">{a.letter}</span>
-                  <div>
-                    <p className="text-13 font-medium">{a.ja}</p>
-                    <p className="label mt-0.5">{a.en}</p>
+                <div className="flex items-center gap-3.5">
+                  <AxisMark axis={a.id} size={32} className="shrink-0 text-ink" />
+                  <div className="flex items-baseline gap-2.5">
+                    <span className="label !text-accent tnum text-12">
+                      {a.letter}
+                    </span>
+                    <div>
+                      <p className="text-13 font-medium">{a.ja}</p>
+                      <p className="label mt-0.5">{a.en}</p>
+                    </div>
                   </div>
                 </div>
-                <p className="text-13 leading-[1.95]">{a.publicText}</p>
+                <p className="text-13 leading-[1.95] sm:self-center">
+                  {a.publicText}
+                </p>
               </li>
             ))}
           </ol>
@@ -75,7 +83,8 @@ export default function CriteriaPage() {
                   <span className="label tnum">{a.letter}</span>
                   <span className="label tnum opacity-70">内部ID {a.id}</span>
                 </div>
-                <div className="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+                  <AxisMark axis={a.id} size={42} className="shrink-0 text-ink" />
                   <h3 className="text-[1.5rem] font-medium tracking-[-0.02em]">
                     {a.ja}
                   </h3>

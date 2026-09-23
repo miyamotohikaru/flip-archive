@@ -6,6 +6,7 @@ import { axes } from "@/data/axes";
 import { AXIS_ORDER } from "@/data/types";
 import CaseHero from "@/components/CaseHero";
 import Heptagon from "@/components/Heptagon";
+import AxisMark from "@/components/AxisMark";
 import BackToIndex from "@/components/BackToIndex";
 
 export function generateStaticParams() {
@@ -149,7 +150,12 @@ export default async function CasePage({
                   const rv = c.review[id];
                   return (
                     <li key={id} className="border-b border-line py-6">
-                      <div className="flex items-baseline gap-3">
+                      <div className="flex items-center gap-3">
+                        <AxisMark
+                          axis={id}
+                          size={26}
+                          className="shrink-0 text-sub"
+                        />
                         <span className="label !text-accent tnum text-12">
                           {a.letter}
                         </span>

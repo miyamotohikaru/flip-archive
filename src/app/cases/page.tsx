@@ -7,6 +7,7 @@ import { axes } from "@/data/axes";
 import { AXIS_ORDER, type AxisId, type Case } from "@/data/types";
 import Plate from "@/components/Plate";
 import Heptagon from "@/components/Heptagon";
+import AxisMark from "@/components/AxisMark";
 import { clearReturn, loadReturn, saveReturn } from "@/lib/returnNav";
 
 export default function IndexPage() {
@@ -230,6 +231,13 @@ export default function IndexPage() {
                             className="block w-full"
                             title={a.publicText}
                           >
+                            <AxisMark
+                              axis={id}
+                              size={20}
+                              className={`mx-auto mb-1.5 block ${
+                                on ? "text-accent" : "text-sub"
+                              }`}
+                            />
                             <span
                               className={`label block ${on ? "!text-accent" : "!text-ink"}`}
                             >
