@@ -22,7 +22,7 @@ import { plateParamsFor } from "@/lib/plateParams";
 const CARD_W = 0.98;
 const CARD_H = CARD_W * 1.38; // 図鑑シリーズ共通の判型比
 const SPACING = 0.36; // リボン方向の間隔
-const REPEATS = 2; // 収録数が少ないあいだは同じ列を繰り返して帯を長く保つ
+const REPEATS = 3; // 収録数が少ないあいだは同じ列を繰り返して帯を長く保つ
 const ROT_Y = -Math.PI / 6; // 版面の振り
 const DEPTH_K = 1.5; // 奥行きへの倒し込み
 const LERP = 0.1; // ポインタ／ドラッグ追従

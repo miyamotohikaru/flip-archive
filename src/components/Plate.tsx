@@ -104,7 +104,7 @@ export default function Plate({
       className={className}
       style={{ boxShadow: "0 6px 20px -10px rgba(18,17,16,0.28)" }}
       role="img"
-      aria-label={`${c.titleJa}の配置図（図鑑が生成した図版であり、実物の写真ではない）`}
+      aria-label={`${c.title}の配置図（図鑑が生成した図版であり、実物の写真ではない）`}
     />
   );
 }
