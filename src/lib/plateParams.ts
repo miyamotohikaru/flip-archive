@@ -6,16 +6,13 @@ import { seedFromString } from "./seed";
  * 図版は共通のパターン生成器ではなく、事例ごとに別の図として描く。
  */
 const PLATE_PROGRAM: Record<string, number> = {
-  "fountain-duchamp": 0, // 展示室の枠と、外から中へ移された量産品
-  "tenji-block": 1, // 均質な舗装の上に現れる、足裏で読める経路
-  woonerf: 2, // まっすぐな車路が、屈曲と植栽で全幅へ開く
-  "grameen-bank": 3, // 少数の大口が、五人一組の小さな単位へ分解される
-  "wrapped-reichstag": 4, // 細部が布で伏せられ、量塊と輪郭が残る
-  "bogota-mimes": 5, // 縁にいた見る側が前へ出て、判定の記号を掲げる
-  "piano-stairs": 6, // 段の断面。踏面が鍵盤に置き換わる
-  "g0v-taiwan": 7, // 系統樹の一文字が置き換わり、隣に別版が生える
-  "love-is-in-the-bin": 8, // 額の中の一枚が、下半分だけ短冊になる
-  "atm-leaderboard": 9, // 閉じた箱から数値が抜き出され、大きい順に並ぶ
+  "taian-nijiriguchi": 0, // 立って入る開口が、身をかがめる寸法まで下がる
+  "fountain-duchamp": 1, // 展示室に入らなかった量産品が、誌面の写真に置かれる
+  "before-i-die": 2, // 壁に並ぶ同じ書き出しと空欄が、別々の筆跡で埋まる
+  key4all: 3, // 一本だけだった鍵と車の線が、散らばる鍵すべてから引かれる
+  "r-place": 4, // 空の格子が一画素ずつ埋まり、上書きと境界が現れる
+  "love-is-in-the-bin": 5, // 額の中の一枚が、下半分だけ短冊になる
+  "pokemon-go": 6, // 同じ街路に捕獲点が重なり、経路が寄り道で折れる
 };
 
 export function plateParamsFor(c: Case) {

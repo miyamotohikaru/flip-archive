@@ -12,7 +12,8 @@ export type ReturnState = {
   slug: string;
   /** 索引の縦スクロール位置。 */
   y: number;
-  mode: "OVERVIEW" | "LIST";
+  /** 索引の表示（図版／評点）。 */
+  mode: "PLATES" | "SCORES";
   filters: Record<string, string | undefined>;
   opFilter: string | null;
   /** 絞り込みパネルを開いていたか。 */

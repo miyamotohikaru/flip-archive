@@ -27,7 +27,7 @@ const notoSansJp = Noto_Sans_JP({
 export const metadata: Metadata = {
   title: "世界のFLIP図鑑 — WORLD FLIP ARCHIVE",
   description:
-    "常識をひっくり返した企画・作品・介入・事件を、分野の境界を越えて記録するアーカイブ。何が当たり前で、何をどう配置し直したのかを比較する。",
+    "現実の当たり前に具体的な仕掛けを置き、人が関わる経験を通して、その当たり前の別の姿を立ち上げた企画を記録するアーカイブ。PLACEBO 7軸で読んだ先行7事例の試行審査結果。",
   robots: { index: false, follow: false },
 };
 

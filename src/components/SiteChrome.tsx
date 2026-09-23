@@ -7,6 +7,7 @@ import { useEffect } from "react";
 const NAV = [
   { href: "/", label: "OVERVIEW", ja: "図版" },
   { href: "/cases", label: "INDEX", ja: "索引" },
+  { href: "/criteria", label: "CRITERIA", ja: "評価" },
   { href: "/about", label: "ABOUT", ja: "方針" },
 ];
 
@@ -79,7 +80,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
           <span className="label">
             KOSU.KUMA<span className="hidden sm:inline"> / INTERNAL WORKING DRAFT</span>
           </span>
-          <span className="label hidden sm:inline">収録・編集方針 v0.2</span>
+          <span className="label hidden sm:inline">PLACEBO 評価基準 v1.3 ・ R04-5</span>
         </footer>
       )}
     </>
