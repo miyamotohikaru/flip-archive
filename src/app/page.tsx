@@ -7,6 +7,7 @@ import { cases } from "@/data/cases";
 import { axes } from "@/data/axes";
 import { AXIS_ORDER } from "@/data/types";
 import Heptagon from "@/components/Heptagon";
+import JaText from "@/components/JaText";
 
 const Ribbon = dynamic(() => import("@/webgl/Ribbon"), { ssr: false });
 
@@ -22,8 +23,15 @@ export default function Home() {
       <Ribbon onFocusChange={setFocus} onHoverChange={setHover} />
 
       {/* 図鑑の定義。左上に小さく置き、図版の読み取りの手前に立たせない */}
-      <div className="pointer-events-none absolute left-4 top-[4.9rem] z-30 sm:left-6 sm:top-16">
-        <p className="max-w-[18rem] text-11 leading-[2] text-mute opacity-0 [animation:fadeIn_1.4s_1.8s_forwards]">
+      <div className="pointer-events-none absolute left-4 top-[3.6rem] z-30 sm:left-6 sm:top-16">
+        {/* 携帯は右下に表を置く幅がないので、帯が通らない左上に出す */}
+        <Heptagon
+          c={shown}
+          size={158}
+          labels={false}
+          className="-ml-3 block opacity-0 [animation:fadeIn_1.4s_1.6s_forwards] sm:hidden"
+        />
+        <p className="hidden max-w-[18rem] text-11 leading-[2] text-mute opacity-0 [animation:fadeIn_1.4s_1.8s_forwards] sm:block">
           現実の当たり前に具体的な仕掛けを置き、
           <br />
           人が関わる経験を通して、
@@ -37,7 +45,8 @@ export default function Home() {
 
       {/* 手前の版の書誌と評価。帯が通らない右下の隅にまとめる。 */}
       <div className="pointer-events-none absolute bottom-4 right-4 z-30 flex max-w-[calc(100%-2rem)] items-end gap-5 sm:bottom-5 sm:right-6 sm:gap-7">
-        <div className="text-right">
+        {/* 携帯では、帯の版に文字が乗らない幅までしか広げない */}
+        <div className="max-w-[14rem] text-right sm:max-w-none">
           <div
             key={shown.slug}
             className="[animation:riseIn_0.7s_cubic-bezier(0.16,1,0.3,1)_forwards]"
@@ -47,11 +56,11 @@ export default function Home() {
               <span className="label tnum">{shown.yearLabel}</span>
               <span className="label">{shown.author}</span>
             </div>
-            <h2 className="ml-auto max-w-[22rem] text-[1.35rem] font-medium leading-[1.25] tracking-[-0.02em] sm:text-[1.7rem]">
+            <h2 className="ml-auto max-w-[22rem] text-balance text-[1.35rem] font-medium leading-[1.25] tracking-[-0.02em] sm:text-[1.7rem]">
               {shown.title}
             </h2>
             <p className="mt-1.5 ml-auto max-w-[24rem] text-12 leading-[1.8] text-mute">
-              {shown.headline}
+              <JaText>{shown.headline}</JaText>
             </p>
             <div className="mt-3 flex flex-wrap justify-end gap-x-3">
               {AXIS_ORDER.map((id, i) => (

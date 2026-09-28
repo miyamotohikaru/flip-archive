@@ -40,7 +40,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
 
   return (
     <>
-      <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex flex-wrap items-baseline gap-x-7 gap-y-2 px-4 py-3.5 sm:px-6 sm:py-4">
+      <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex flex-wrap items-baseline gap-x-4 gap-y-2 px-4 py-3.5 sm:gap-x-7 sm:px-6 sm:py-4">
         <div
           aria-hidden="true"
           className={`absolute inset-0 -z-10 border-b border-line bg-bg transition-opacity duration-300 ${
@@ -60,7 +60,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
           </span>
         </Link>
 
-        <nav className="pointer-events-auto flex items-baseline gap-4 sm:gap-6">
+        <nav className="pointer-events-auto flex items-baseline gap-3 sm:gap-6">
           {NAV.map((n) => {
             const active =
               n.href === "/"
