@@ -63,13 +63,13 @@ export default function AboutPage() {
           <h1 className="mt-3 text-[2rem] font-medium leading-[1.15] tracking-[-0.025em] sm:text-[2.6rem]">
             方針
           </h1>
-          <p className="mt-7 max-w-[44rem] text-[1.05rem] leading-[2]">
+          <p className="mt-7 max-w-[44rem] text-[1.05rem] leading-[2.1] tracking-[0.02em] sm:leading-[2] sm:tracking-[0.005em]">
             世界のFLIP図鑑は、現実の当たり前に具体的な仕掛けを置き、
             人が関わる経験を通して、その当たり前の別の姿を立ち上げた企画を記録する。
             いま公開しているのは、評価基準 v1.3 とその目盛りで読み直した
             <span className="tnum">{cases.length}</span>件の先行事例である。
           </p>
-          <p className="mt-4 max-w-[44rem] text-13 leading-[2] text-mute">
+          <p className="copy-sm mt-4 max-w-[44rem] text-mute">
             {cases.length}件49欄の点数は v1.2 で保存した試行値をそのまま再提出したもので、
             今回、新たな外部リサーチ・独立再採点を行った結果ではない。
           </p>
@@ -81,7 +81,7 @@ export default function AboutPage() {
             {PREMISES.map(([k, v]) => (
               <div key={k}>
                 <dt className="text-13 font-medium">{k}</dt>
-                <dd className="mt-2 text-13 leading-[2]">{v}</dd>
+                <dd className="copy mt-2">{v}</dd>
               </div>
             ))}
           </dl>
@@ -102,7 +102,7 @@ export default function AboutPage() {
                     <span className="label">{c.author}</span>
                     <span className="label tnum">{c.yearLabel}</span>
                   </p>
-                  <p className="mt-1 text-12 leading-[1.9] text-mute">{c.target}</p>
+                  <p className="copy-sm mt-1 text-mute">{c.target}</p>
                 </div>
               </li>
             ))}
@@ -118,11 +118,11 @@ export default function AboutPage() {
                 className="grid gap-1 border-b border-line py-3.5 sm:grid-cols-[7rem_1fr] sm:gap-5"
               >
                 <dt className="label pt-0.5">{k}</dt>
-                <dd className="text-13 leading-[1.95]">{v}</dd>
+                <dd className="copy-sm">{v}</dd>
               </div>
             ))}
           </dl>
-          <p className="mt-5 max-w-[44rem] text-13 leading-[2] text-mute">
+          <p className="copy-sm mt-5 max-w-[44rem] text-mute">
             前版までの変更を、今回の変更と混ぜない。v1.1→v1.2では、越境性を七角形から外して当事者性を新設し、
             Banksy と Pokémon GO の必然性を5から4へ変更している。
             これらは前版で保存済みの判断であり、今回改めて点数を下げたわけではない。
@@ -131,7 +131,7 @@ export default function AboutPage() {
 
         <section className="pt-14">
           <H2 ja="今回の確かさと限界" latin="REVIEW LIMITS" />
-          <div className="max-w-[44rem] space-y-5 text-13 leading-[2]">
+          <div className="copy max-w-[44rem] space-y-5">
             <p>
               軸の意味と値を固定した上で、表示名と並びを変更した。7件の点数と理由を資料へ揃えて載せられることは、
               測定の客観性や、別の審査者が同じ点を付けることの証明ではない。
@@ -155,7 +155,7 @@ export default function AboutPage() {
 
         <section className="pt-14">
           <H2 ja="図版について" latin="ON THE PLATES" />
-          <div className="max-w-[44rem] space-y-4 text-13 leading-[2]">
+          <div className="copy max-w-[44rem] space-y-4">
             <p>
               実物の写真は権利処理が必要なため一切掲載していない。
               かわりに、CASEごとに固有の作図プログラムで配置図を描いている。

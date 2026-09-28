@@ -29,12 +29,12 @@ export default function CriteriaPage() {
           <p className="label mt-3 tnum">
             7軸 × 5段階 ／ 目盛り R04-5 ／ 2026年9月21日
           </p>
-          <p className="mt-7 max-w-[44rem] text-[1.05rem] leading-[2]">
+          <p className="mt-7 max-w-[44rem] text-[1.05rem] leading-[2.1] tracking-[0.02em] sm:leading-[2] sm:tracking-[0.005em]">
             現実の当たり前に具体的な仕掛けを置き、人が関わる経験を通して、
             その当たり前の別の姿を立ち上げる企画を読む。
             媒体や作者の権威ではなく、何の条件を変えると、何が起きるかを記述する。
           </p>
-          <p className="mt-4 max-w-[44rem] text-13 leading-[2] text-mute">
+          <p className="copy-sm mt-4 max-w-[44rem] text-mute">
             評点は企画の特徴を読むための編集判断であり、作者の偉大さ、作品全体の価値、
             参加者の心理変化の測定値ではない。すべての軸が高い企画だけを理想にしない。
           </p>
@@ -61,7 +61,7 @@ export default function CriteriaPage() {
                     </div>
                   </div>
                 </div>
-                <p className="text-13 leading-[1.95] sm:self-center">
+                <p className="copy-sm sm:self-center">
                   {a.publicText}
                 </p>
               </li>
@@ -95,7 +95,7 @@ export default function CriteriaPage() {
                 <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-12">
                   <div>
                     <p className="label mb-2">定義 DEFINITION</p>
-                    <p className="max-w-[40rem] text-[0.9375rem] leading-[1.95]">
+                    <p className="copy max-w-[40rem]">
                       {a.definition}
                     </p>
 
@@ -106,7 +106,7 @@ export default function CriteriaPage() {
                           className="grid grid-cols-[2rem_1fr] gap-3 border-b border-line py-3"
                         >
                           <span className="text-13 font-medium tnum">{i + 1}</span>
-                          <span className="text-13 leading-[1.9]">{lv}</span>
+                          <span className="copy-sm">{lv}</span>
                         </li>
                       ))}
                     </ol>
@@ -116,19 +116,19 @@ export default function CriteriaPage() {
                     <div>
                       <p className="label mb-2">読み違えないための境界</p>
                       {a.boundary.map((b, i) => (
-                        <p key={i} className="mt-2 text-12 leading-[1.95] text-mute">
+                        <p key={i} className="copy-sm mt-2 text-mute">
                           {b}
                         </p>
                       ))}
                     </div>
                     <div>
                       <p className="label mb-2">採点理由に残すこと</p>
-                      <p className="text-12 leading-[1.95] text-sub">{a.keep}</p>
+                      <p className="copy-sm text-sub">{a.keep}</p>
                     </div>
                     <div>
                       <p className="label mb-2">ほかの軸との違い</p>
                       {a.distinct.map((d, i) => (
-                        <p key={i} className="mt-2 text-12 leading-[1.95] text-mute">
+                        <p key={i} className="copy-sm mt-2 text-mute">
                           {d}
                         </p>
                       ))}
@@ -163,7 +163,7 @@ export default function CriteriaPage() {
                 className="grid gap-1 border-b border-line py-3.5 sm:grid-cols-[8rem_1fr] sm:gap-5"
               >
                 <dt className="label pt-0.5">{k}</dt>
-                <dd className="text-13 leading-[1.95]">{v}</dd>
+                <dd className="copy-sm">{v}</dd>
               </div>
             ))}
           </dl>
@@ -172,7 +172,7 @@ export default function CriteriaPage() {
         {/* 七角形の共通仕様 */}
         <section className="pt-16">
           <Head ja="七角形の共通仕様" latin="THE HEPTAGON" />
-          <div className="max-w-[44rem] space-y-4 text-13 leading-[2]">
+          <div className="copy max-w-[44rem] space-y-4">
             <p>
               上端をPとし、時計回りにP・L・A・C・E・B・Oを置く。最大値は全軸5、目盛りは5段階。
               既存の値を項目名／内部IDで対応させ、配列の位置だけで移さない。
@@ -195,24 +195,24 @@ export default function CriteriaPage() {
           <div className="max-w-[44rem] space-y-8">
             <div>
               <p className="text-13 font-medium">まず、誰の・どの経験を読むか</p>
-              <p className="mt-2 text-13 leading-[2]">
+              <p className="copy mt-2">
                 作品名だけでは採点しない。実施版・時期・場所・主な受け手・接触方法・必要情報・含める範囲・除外する範囲を先に記録する。
                 購入者、実参加者、記録の視聴者を足し合わせない。人物の全活動、ゲームの後年機能、後世の名声を当初の仕掛けへ合算しない。
               </p>
             </div>
             <div>
               <p className="text-13 font-medium">点数の前に、作意記述を書く</p>
-              <p className="mt-2 text-12 leading-[2] text-accent">
+              <p className="copy-sm mt-2 text-accent">
                 当たり前 → 変えた条件 → 関わる理由と負担 → 起きる経験 → 次に生まれること → 見え直すもの
               </p>
-              <p className="mt-2 text-13 leading-[2]">
+              <p className="copy mt-2">
                 最初に何をした企画かを書く。事実、作者が述べる意図、記録された反応、図鑑の解釈、未確認を分ける。
                 一つの事実が複数軸の根拠になってもよいが、それぞれ別の働きを説明する。
               </p>
             </div>
             <div>
               <p className="text-13 font-medium">各項目を、根拠と一緒に判定する</p>
-              <p className="mt-2 text-13 leading-[2]">
+              <p className="copy mt-2">
                 評点／当てはまる目盛り／具体的な理由／出典ID／留保を一組にする。
                 隣の点と迷う場合は、何が確認できれば判定が変わるかを残す。
                 出典はページ名・発信者・URL・確認日・支持範囲を記録する。
@@ -220,7 +220,7 @@ export default function CriteriaPage() {
             </div>
             <div>
               <p className="text-13 font-medium">隣の軸を、同じ理由で上げない</p>
-              <p className="mt-2 text-13 leading-[2]">
+              <p className="copy mt-2">
                 誘発性は関わる動機、遊戯性は過程の戯れ。再知覚性は別の輪郭、必然性はそこへ至る接続。
                 当事者性は受け手に与える作用の位置、創発性は入力の後に生まれる内容と次への返り方。
                 独創性だけは先行例との比較が必要になる。
@@ -228,7 +228,7 @@ export default function CriteriaPage() {
             </div>
             <div>
               <p className="text-13 font-medium">内部の記録は捨てない</p>
-              <p className="mt-2 text-13 leading-[2]">
+              <p className="copy mt-2">
                 自由・負担・越境・波及などを公開の固定欄や追加タグへ増やさない。
                 ただし重要な注意や制約は内部に保存し、必要なものを短評へ織り込む。
                 公開の簡潔さを理由に、根拠や不都合な事実を捨てない。

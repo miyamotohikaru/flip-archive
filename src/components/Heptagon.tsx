@@ -61,7 +61,7 @@ export default function Heptagon({
 
   return (
     <svg
-      viewBox="0 0 300 300"
+      viewBox={labels ? "-32 -24 364 364" : "0 0 300 300"}
       width={size}
       height={size}
       className={className}
@@ -140,15 +140,17 @@ export default function Heptagon({
           const a = axes[i];
           const s = c.review[id].score;
           const [x, y] = point(i, 5);
-          const dx = (x - CX) * 0.22;
-          const dy = (y - CY) * 0.22;
+          // 図の外へ逃がす。名と点が罫や多角形に重ならないようにする。
+          const dx = (x - CX) * 0.30;
+          const dy = (y - CY) * 0.30;
           const anchor =
             Math.abs(x - CX) < 6 ? "middle" : x > CX ? "start" : "end";
+          const up = y < CY - 6;
           return (
             <g key={id}>
               <text
                 x={x + dx}
-                y={y + dy - (y < CY ? 4 : -2)}
+                y={y + dy + (up ? -9 : 2)}
                 textAnchor={anchor}
                 fill="var(--color-mute)"
                 fontSize="9.5"
@@ -157,10 +159,10 @@ export default function Heptagon({
               </text>
               <text
                 x={x + dx}
-                y={y + dy + (y < CY ? 6 : 10)}
+                y={y + dy + (up ? 3 : 14)}
                 textAnchor={anchor}
                 fill="var(--color-ink)"
-                fontSize="10"
+                fontSize="10.5"
                 fontFamily="var(--font-mono)"
               >
                 {s ?? "—"}

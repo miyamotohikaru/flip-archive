@@ -74,7 +74,7 @@ export default async function CasePage({
                   <h2 className="text-13 font-medium tracking-[0.02em]">短評</h2>
                   <span className="label">WHAT IT DOES</span>
                 </div>
-                <p className="max-w-[40rem] text-[1rem] leading-[2] tracking-[0.005em]">
+                <p className="max-w-[40rem] text-[1.02rem] leading-[2.1] tracking-[0.02em] sm:text-[1rem] sm:leading-[2] sm:tracking-[0.005em]">
                   {c.body}
                 </p>
               </div>
@@ -116,15 +116,15 @@ export default async function CasePage({
             <div className="mt-8 border-t border-line">
               <div className="grid grid-cols-[5.5rem_1fr] gap-3 border-b border-line py-2.5">
                 <dt className="label pt-0.5">評価対象</dt>
-                <dd className="text-13 leading-[1.8]">{c.target}</dd>
+                <dd className="copy-sm">{c.target}</dd>
               </div>
               <div className="grid grid-cols-[5.5rem_1fr] gap-3 border-b border-line py-2.5">
                 <dt className="label pt-0.5">場所</dt>
-                <dd className="text-13 leading-[1.8]">{c.place}</dd>
+                <dd className="copy-sm">{c.place}</dd>
               </div>
               <div className="grid grid-cols-[5.5rem_1fr] gap-3 border-b border-line py-2.5">
                 <dt className="label pt-0.5">制作者</dt>
-                <dd className="text-13 leading-[1.8]">{c.author}</dd>
+                <dd className="copy-sm">{c.author}</dd>
               </div>
             </div>
           </aside>
@@ -149,7 +149,7 @@ export default async function CasePage({
                   const a = axes[idx];
                   const rv = c.review[id];
                   return (
-                    <li key={id} className="border-b border-line py-6">
+                    <li key={id} className="border-b border-line py-7 sm:py-6">
                       <div className="flex items-center gap-3">
                         <AxisMark
                           axis={id}
@@ -168,15 +168,15 @@ export default async function CasePage({
                       </div>
 
                       {rv.score != null && (
-                        <p className="mt-3 border-l border-line pl-4 text-12 leading-[1.95] text-mute">
+                        <p className="copy-sm mt-3 border-l border-line pl-4 text-mute">
                           {a.levels[rv.score - 1]}
                         </p>
                       )}
 
-                      <p className="mt-4 text-[0.9375rem] leading-[1.95]">
+                      <p className="copy mt-4">
                         {rv.reason}
                       </p>
-                      <p className="mt-2.5 text-13 leading-[1.95] text-mute">
+                      <p className="copy-sm mt-2.5 text-mute">
                         <span className="label mr-2">留保</span>
                         {rv.caveat}
                       </p>
@@ -223,16 +223,16 @@ export default async function CasePage({
                           href={s.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-13 font-medium leading-[1.8] underline decoration-line underline-offset-[3px] transition-colors hover:decoration-ink"
+                          className="copy-sm font-medium underline decoration-line underline-offset-[3px] transition-colors hover:decoration-ink"
                         >
                           {s.title}
                         </a>
                         <p className="label mt-1 leading-[1.8]">{s.by}</p>
-                        <p className="mt-2 text-12 leading-[1.95] text-sub">
+                        <p className="copy-sm mt-2 text-sub">
                           <span className="label mr-2">支持</span>
                           {s.support}
                         </p>
-                        <p className="mt-1 text-12 leading-[1.95] text-mute">
+                        <p className="copy-sm mt-1 text-mute">
                           <span className="label mr-2">留保</span>
                           {s.caveat}
                         </p>

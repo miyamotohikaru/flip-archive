@@ -53,14 +53,49 @@ body.locked {
   color: var(--color-bg);
 }
 
+/* --- 本文の組み -------------------------------------------------------
+   携帯は一回り大きく、行間と字間を広く取る。画面が広いほど詰める。 */
+.copy {
+  font-size: 0.9375rem;
+  line-height: 2.05;
+  letter-spacing: 0.02em;
+}
+
+.copy-sm {
+  font-size: 0.875rem;
+  line-height: 2;
+  letter-spacing: 0.02em;
+}
+
+@media (min-width: 640px) {
+  .copy {
+    font-size: 0.9375rem;
+    line-height: 1.95;
+    letter-spacing: 0.005em;
+  }
+  .copy-sm {
+    font-size: 0.8125rem;
+    line-height: 1.9;
+    letter-spacing: 0.005em;
+  }
+}
+
 /* --- モノスペースの小ラベル。図鑑全体の共通言語 --- */
 .label {
   font-family: var(--font-mono);
-  font-size: var(--text-10);
-  letter-spacing: 0.11em;
+  font-size: 0.6875rem;
+  line-height: 1.7;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--color-mute);
   font-weight: 400;
+}
+
+@media (min-width: 640px) {
+  .label {
+    font-size: var(--text-10);
+    letter-spacing: 0.11em;
+  }
 }
 
 .rule {

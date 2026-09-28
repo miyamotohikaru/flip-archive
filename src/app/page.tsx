@@ -16,7 +16,6 @@ export default function Home() {
   const [hover, setHover] = useState<number | null>(null);
 
   const shown = cases[hover ?? focus] ?? cases[0];
-  const isHover = hover !== null;
 
   return (
     <main className="fixed inset-0 overflow-hidden">
@@ -73,15 +72,6 @@ export default function Home() {
               ))}
             </div>
           </div>
-
-          {/* 操作の手引き */}
-          <p className="label mt-5">
-            {isHover ? "CLICK TO OPEN" : "DRAG / SCROLL"}
-          </p>
-          <p className="label mt-1.5 tnum">
-            {String((hover ?? focus) + 1).padStart(2, "0")} /{" "}
-            {String(cases.length).padStart(2, "0")}
-          </p>
         </div>
 
         <Heptagon
