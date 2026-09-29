@@ -566,15 +566,22 @@ export const plateFragmentShader = /* glsl */ `
       // 絵を敷くときに MC を下に残すと、絵の透けた部分から模型が覗く。
       if (uHasArt < 0.5) col = MC;
       if (uHasArt > 0.5) {
-        // 傾けた面そのものが絵に入っているので、版の側では影を敷かない。
-        float ah = 0.372;                    // 高さの半分
-        float aw = ah * uArtAspect;
-        vec2 ac = vec2(0.0, -0.014);
-        vec2 auv = (pa - ac) / (vec2(aw, ah) * 2.0) + 0.5;
+        // 絵の地は白で、版の紙とほぼ同じ。版面いっぱいに敷いて、
+        // 絵の白がそのまま紙として続くようにする。
+        vec2 rc = vec2(0.0, -0.012);
+        vec2 rh = vec2(hx, 0.398);
+        vec2 auv = (pa - rc) / (rh * 2.0) + 0.5;
+
+        // まるごと収める。余った側は絵の白＝紙と同じなので、境目は見えない。
+        float ra = rh.x / rh.y;
+        if (uArtAspect > ra) auv.y = 0.5 + (auv.y - 0.5) * (uArtAspect / ra);
+        else                 auv.x = 0.5 + (auv.x - 0.5) * (ra / uArtAspect);
 
         if (auv.x > 0.0 && auv.x < 1.0 && auv.y > 0.0 && auv.y < 1.0) {
-          vec4 art = mix(texture2D(uArtA, auv), texture2D(uArtB, auv), te);
-          col = mix(col, art.rgb, clamp(art.a, 0.0, 1.0));
+          vec3 a = mix(texture2D(uArtA, auv), texture2D(uArtB, auv), te).rgb;
+          // 絵の白い地は紙に溶かす。四角い継ぎ目が出ないように。
+          float toPaper = smoothstep(0.972, 0.998, min(a.r, min(a.g, a.b)));
+          col = mix(a, col, toPaper);
         }
       }
     }

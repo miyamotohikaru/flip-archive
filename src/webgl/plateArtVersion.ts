@@ -1,5 +1,5 @@
 // tools/shrink-plate.py が書き出す。直接いじらない。
 // 絵の中身から作った版番号。URLに付けて、古い絵が居座るのを防ぐ。
 export const PLATE_ART_VERSION: Record<string, string> = {
-  "01": "69c01a8252"
+  "01": "ada8f5a91b"
 } as const;
