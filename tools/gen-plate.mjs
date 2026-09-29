@@ -27,7 +27,9 @@ THE PAGE IS THE FLOOR. Pure flat WHITE (#ffffff) everywhere, and that white IS t
 
 PALETTE: bold graphic colours — vermilion red, sunny yellow, grass green, sky blue, warm sand, dark charcoal grey, light grey, and a few pure white cubes. Bright and varied, many colours at once.
 
-CAMERA: a STEEP high-angle three-quarter view, looking DOWN at about 55–60 degrees — much more top-down than a 30-degree isometric, but not a flat plan view. The floor plane faces the viewer almost square-on, and the building RISES OUT of it toward the camera. The roof's top surface is broad and clearly visible; the walls are strongly foreshortened and read as short. Ground-level things — stones, tree bases, the person's feet — spread out across the floor rather than stacking up the frame.
+CAMERA: a STEEP high-angle three-quarter view looking DOWN at about 65–70 degrees, with real PERSPECTIVE — a moderately wide lens (around 35mm), NOT an orthographic isometric. Near edges are clearly larger than far edges, vertical lines converge, and the depth is obvious and a little dramatic. The floor plane faces the viewer almost square-on and the building RISES OUT of it toward the camera; the roof's top surface is broad, the walls are strongly foreshortened. Ground-level things — stones, tree bases, the person's feet — spread out across the floor.
+
+VOLUME: everything must read as SOLID and chunky, with real thickness. Thick walls two or three cubes deep, a deep roof slab whose edge thickness is clearly visible, posts with square section, trees as fat blocky masses. Each cube shows its top face and two side faces so the mass is unmistakable. Make it feel like a heavy physical build, not a thin cut-out.
 
 COMPOSITION: looking down onto that floor. The main build sits in the middle; a few small single cubes sit ON the floor around it and a few more hover just above it — loose and playful, but only blocks, nothing else. Upright portrait framing, the whole scene centred with an even margin, nothing touching the edge of the frame.
 
@@ -52,7 +54,7 @@ Change ONLY these things:
 4. Keep the loose cubes around the house, and keep the white page as the floor — still no base plate, no grass tile, no island, no shadow.
 5. The roof comes DOWN lower over the smaller room.
 
-Everything else stays identical: same palette, same flat voxel shading, the SAME STEEP HIGH-ANGLE CAMERA looking down at about 55–60 degrees, and the SAME PURE WHITE EMPTY BACKGROUND with no shadow and no ground plane.
+Everything else stays identical: same palette, same flat voxel shading, the SAME STEEP PERSPECTIVE CAMERA looking down at about 65–70 degrees, the same chunky solid volumes, and the SAME PURE WHITE EMPTY BACKGROUND with no shadow and no ground plane.
 Keep the hanging scroll and every other surface BLANK — do not add any text, letters or Japanese characters anywhere.`,
   },
 };
