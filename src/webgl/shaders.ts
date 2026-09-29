@@ -560,7 +560,9 @@ export const plateFragmentShader = /* glsl */ `
     // 絵を版にする CASE は、作図のかわりに二枚を溶かし合わせて敷く。
     // 絵がまだ来ていないあいだは、作図プログラムの模型をそのまま見せる。
     if (id < 0.5) {
-      col = MC;
+      // 絵が来ていないあいだだけ、作図プログラムの模型を見せる。
+      // 絵を敷くときに MC を下に残すと、絵の透けた部分から模型が覗く。
+      if (uHasArt < 0.5) col = MC;
       if (uHasArt > 0.5) {
         vec2 rc = vec2(0.0, -0.012);
         vec2 rh = vec2(hx - 0.010, 0.382);
@@ -571,16 +573,7 @@ export const plateFragmentShader = /* glsl */ `
         if (uArtAspect > ra) uv.y = 0.5 + (uv.y - 0.5) * (uArtAspect / ra);
         else                 uv.x = 0.5 + (uv.x - 0.5) * (ra / uArtAspect);
 
-        // 落ち影。ボクセルの絵は影を持たないので、紙から浮く程度にごく薄く。
-        vec2 so = vec2(-0.020, 0.024);
-        float sh = 0.0;
-        sh += artA(uv + so);
-        sh += artA(uv + so + vec2(0.012, 0.0));
-        sh += artA(uv + so - vec2(0.012, 0.0));
-        sh += artA(uv + so + vec2(0.0, 0.012));
-        sh += artA(uv + so - vec2(0.0, 0.012));
-        col = mix(col, mix(uPaper, uInk, 0.58), clamp(sh / 5.0, 0.0, 1.0) * 0.09);
-
+        // 影は落とさない。紙の面をそのまま床として使い、その上に立てる。
         if (uv.x > 0.0 && uv.x < 1.0 && uv.y > 0.0 && uv.y < 1.0) {
           vec4 art = mix(texture2D(uArtA, uv), texture2D(uArtB, uv), te);
           col = mix(col, art.rgb, clamp(art.a, 0.0, 1.0));

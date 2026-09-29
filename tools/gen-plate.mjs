@@ -23,11 +23,11 @@ NOT a photograph. NOT plastic toy bricks: no studs, no glossy plastic, no bevell
 
 SHADING: flat and graphic. Every cube face is one single flat tone — the top face brightest, the two visible side faces two clearly darker steps of the same hue. Hard clean edges between faces. No soft gradients, no blur, no ambient occlusion, no cast shadow on the ground.
 
-BACKGROUND: pure flat WHITE (#ffffff), completely empty. No floor, no ground plane, no shadow, no gradient, no vignette. The scene floats, cut out on white.
+THE PAGE IS THE FLOOR. Pure flat WHITE (#ffffff) everywhere, and that white IS the ground the objects stand on. So: NO base plate, NO ground slab, NO platform, NO island, NO grass tile, NO visible edge of ground anywhere. Do not build the scene on top of a block of earth. Every object — the building, the trees, the stones, the person — rests DIRECTLY on that invisible flat floor, feet and trunks and bases meeting it cleanly, all standing on one shared ground plane so the eye reads a floor. No shadow, no gradient, no vignette, nothing else in the frame.
 
 PALETTE: bold graphic colours — vermilion red, sunny yellow, grass green, sky blue, warm sand, dark charcoal grey, light grey, and a few pure white cubes. Bright and varied, many colours at once.
 
-COMPOSITION: true isometric view from above (30 degrees). The main build sits in the middle, and a scattering of small single cubes and tiny details floats loosely around it and drifts off into the empty white — slightly busy and playful, like a fragment of a tiny voxel world. Upright portrait framing, the whole scene centred with an even margin, nothing touching the edge of the frame.
+COMPOSITION: true isometric view from above (30 degrees), looking down onto that floor. The main build sits in the middle; a few small single cubes sit ON the floor around it and a few more hover just above it — loose and playful, but only blocks, nothing else. Upright portrait framing, the whole scene centred with an even margin, nothing touching the edge of the frame.
 
 No text, no letters, no Japanese characters, no logos, no watermark.`;
 
@@ -38,16 +38,16 @@ const PLATES = {
 Subject: a tiny Japanese tea house (chashitsu) built from voxel cubes, cut away on one side so the inside is visible.
 Right now it has a WIDE, TALL opening in the front wall — a full-height doorway a person could walk straight through standing upright.
 A small voxel person stands UPRIGHT on the path in front of that opening, facing it.
-Inside, a floor of pale sand-coloured tatami cubes. A short line of round grey stepping-stone cubes leads to the doorway. Charcoal roof cubes, red-brown post cubes, green moss cubes and a few small trees around the base.
-Loose single cubes — red, yellow, blue, green — float and scatter in the white space around the little house.
-Remember: pure flat white all around, no ground plane, no shadow.`,
+Inside, a floor of pale sand-coloured tatami cubes raised one cube above the ground. A short line of round grey stepping-stone cubes lies flat on the floor, leading to the doorway. Charcoal roof cubes, red-brown post cubes that reach down and meet the floor, a few small green trees whose trunks stand on the floor.
+Loose single cubes — red, yellow, blue, green — a few resting on the floor around the house, a few hovering just above it.
+Remember: the white page IS the floor. No base plate, no grass tile, no island, no shadow.`,
     after: `Keep EXACTLY the same toy block model: same camera angle, same lighting, same shadow, same colours, same backdrop, same style and the same base plinth.
 
 Change ONLY these things:
 1. The tall doorway shrinks into a TINY LOW SQUARE CRAWL HOLE near the ground, only two or three cubes high — small enough that a person must get down on hands and knees to pass through. The wall above the hole is now filled in solid with wall cubes.
 2. The small voxel person is now on ALL FOURS in a tidy crawling pose — knees on the stepping stone, both hands on the ground ahead, back level and horizontal, head lowered toward the tiny hole, clearly about to crawl through. Deliberate and balanced, NOT fallen over, NOT lying on its side.
 3. Inside, the floor is now exactly TWO tatami mats and the room is TIGHTER and NARROWER.
-4. Keep the loose floating cubes scattered around in the white space.
+4. Keep the loose cubes around the house, and keep the white page as the floor — still no base plate, no grass tile, no island, no shadow.
 5. The roof comes DOWN lower over the smaller room.
 
 Everything else stays identical: same palette, same flat voxel shading, same isometric camera, and the SAME PURE WHITE EMPTY BACKGROUND with no shadow and no ground plane.
