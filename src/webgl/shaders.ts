@@ -90,6 +90,12 @@ export const plateFragmentShader = /* glsl */ `
   const vec2 AREA_H = vec2(0.290, 0.370);
   const vec2 AREA_C = vec2(0.0, -0.010);
 
+  // 絵の外は透明として扱う。端の画素が引き伸ばされるのを防ぐ。
+  float artA(vec2 uv) {
+    if (uv.x <= 0.0 || uv.x >= 1.0 || uv.y <= 0.0 || uv.y >= 1.0) return 0.0;
+    return texture2D(uArtA, uv).a;
+  }
+
   // ---- ミニチュアの塗り -------------------------------------------------
   // 線画ではなく、面を持った小さな模型として描くための道具。
   // 版面の色に直接塗り重ねるので、INK / ACC / LIN は使わない。
@@ -556,15 +562,28 @@ export const plateFragmentShader = /* glsl */ `
     if (id < 0.5) {
       col = MC;
       if (uHasArt > 0.5) {
-        vec2 rc = vec2(0.0, -0.008);
-        vec2 rh = vec2(hx, 0.398);
-        vec2 q = (pa - rc) / rh;
-        if (abs(q.x) < 1.0 && abs(q.y) < 1.0) {
-          vec2 uv = q * 0.5 + 0.5;
-          float ra = rh.x / rh.y;
-          if (uArtAspect > ra) uv.x = 0.5 + (uv.x - 0.5) * (ra / uArtAspect);
-          else                 uv.y = 0.5 + (uv.y - 0.5) * (uArtAspect / ra);
-          col = mix(texture2D(uArtA, uv).rgb, texture2D(uArtB, uv).rgb, te);
+        vec2 rc = vec2(0.0, -0.012);
+        vec2 rh = vec2(hx - 0.010, 0.382);
+        vec2 uv = (pa - rc) / (rh * 2.0) + 0.5;
+
+        // まるごと収める。余った側は絵の外＝透過なので、地の紙が出る。
+        float ra = rh.x / rh.y;
+        if (uArtAspect > ra) uv.y = 0.5 + (uv.y - 0.5) * (uArtAspect / ra);
+        else                 uv.x = 0.5 + (uv.x - 0.5) * (ra / uArtAspect);
+
+        // 落ち影。抜いた形を右下へずらして、数点ぼかして紙に落とす。
+        vec2 so = vec2(-0.028, 0.030);
+        float sh = 0.0;
+        sh += artA(uv + so);
+        sh += artA(uv + so + vec2(0.012, 0.0));
+        sh += artA(uv + so - vec2(0.012, 0.0));
+        sh += artA(uv + so + vec2(0.0, 0.012));
+        sh += artA(uv + so - vec2(0.0, 0.012));
+        col = mix(col, mix(uPaper, uInk, 0.58), clamp(sh / 5.0, 0.0, 1.0) * 0.20);
+
+        if (uv.x > 0.0 && uv.x < 1.0 && uv.y > 0.0 && uv.y < 1.0) {
+          vec4 art = mix(texture2D(uArtA, uv), texture2D(uArtB, uv), te);
+          col = mix(col, art.rgb, clamp(art.a, 0.0, 1.0));
         }
       }
     }
