@@ -566,8 +566,7 @@ export const plateFragmentShader = /* glsl */ `
       // 絵を敷くときに MC を下に残すと、絵の透けた部分から模型が覗く。
       if (uHasArt < 0.5) col = MC;
       if (uHasArt > 0.5) {
-        // 絵の地は白で、版の紙とほぼ同じ。版面いっぱいに敷いて、
-        // 絵の白がそのまま紙として続くようにする。
+        // 板の地は抜いてある。版面いっぱいに、まるごと収めて敷く。
         vec2 rc = vec2(0.0, -0.012);
         vec2 rh = vec2(hx, 0.398);
         vec2 auv = (pa - rc) / (rh * 2.0) + 0.5;
@@ -578,10 +577,9 @@ export const plateFragmentShader = /* glsl */ `
         else                 auv.x = 0.5 + (auv.x - 0.5) * (ra / uArtAspect);
 
         if (auv.x > 0.0 && auv.x < 1.0 && auv.y > 0.0 && auv.y < 1.0) {
-          vec3 a = mix(texture2D(uArtA, auv), texture2D(uArtB, auv), te).rgb;
-          // 絵の白い地は紙に溶かす。四角い継ぎ目が出ないように。
-          float toPaper = smoothstep(0.972, 0.998, min(a.r, min(a.g, a.b)));
-          col = mix(a, col, toPaper);
+          // 板の地は抜いてあるので、紙がそのまま地になる
+          vec4 a = mix(texture2D(uArtA, auv), texture2D(uArtB, auv), te);
+          col = mix(col, a.rgb, clamp(a.a, 0.0, 1.0));
         }
       }
     }

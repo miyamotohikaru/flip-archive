@@ -30,6 +30,8 @@ const DEPTH_K = 1.5; // 奥行きへの倒し込み
 const LERP = 0.1; // ポインタ／ドラッグ追従
 const HOVER_SHIFT = 0.26;
 const SHADOW_PAD = 1.34;
+// 版の厚み。判面の幅を100mmとみて、2mmぶん。斜めから見たとき小口が見える。
+const CARD_T = (CARD_W / 100) * 2;
 
 const PAPER = new THREE.Color("#fffefb");
 const INK = new THREE.Color("#121110");
@@ -42,6 +44,8 @@ type Tile = {
   shifter: THREE.Group; // ホバー時のずれ
   mesh: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>;
   shadow: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>;
+  /** 版の厚み。斜めから見たとき小口として見える。 */
+  edge: THREE.Mesh<THREE.BoxGeometry, THREE.MeshBasicMaterial>;
   hit: THREE.Mesh;
   progress: { v: number };
   fade: { v: number };
@@ -148,6 +152,8 @@ export default function Ribbon({
       1,
     );
     const hitGeometry = new THREE.PlaneGeometry(CARD_W * 1.02, CARD_H * 1.02, 1, 1);
+    // 版の厚み。判面のすぐ後ろに、同じ大きさの板を重ねる。
+    const edgeGeometry = new THREE.BoxGeometry(CARD_W, CARD_H, CARD_T);
     const tiles: Tile[] = [];
     const tilesArt: { art: ReturnType<typeof artFor>; material: THREE.ShaderMaterial }[] = [];
     const ribbon = Array.from({ length: cases.length * REPEATS }, (_, i) => i);
@@ -212,8 +218,23 @@ export default function Ribbon({
       shadow.position.z = -0.004;
       shadow.renderOrder = -1;
 
+      // 版の厚み。判面より奥へ沈めるので、正面からはほぼ見えず、
+      // 斜めから見たときだけ小口として出る。
+      const edge = new THREE.Mesh(
+        edgeGeometry,
+        new THREE.MeshBasicMaterial({
+          color: new THREE.Color("#e4e0d8"),
+          transparent: true,
+          opacity: 1,
+          depthWrite: false,
+        }),
+      );
+      edge.position.z = -CARD_T * 0.5 - 0.0008;
+      edge.renderOrder = -0.5;
+
       const shifter = new THREE.Group();
       shifter.add(shadow);
+      shifter.add(edge);
       shifter.add(mesh);
 
       const hit = new THREE.Mesh(
@@ -238,6 +259,7 @@ export default function Ribbon({
         shifter,
         mesh,
         shadow,
+        edge,
         hit,
         progress: { v: 0 },
         fade: { v: 1 },
@@ -523,6 +545,7 @@ export default function Ribbon({
         u.uFade.value = wrapFade * tile.fade.v;
         const su = tile.shadow.material.uniforms;
         su.uFade.value = wrapFade * tile.fade.v;
+        tile.edge.material.opacity = wrapFade * tile.fade.v * u.uAppear.value;
         su.uAppear.value = u.uAppear.value;
         tile.hit.visible = wrapFade > 0.6 && tile.fade.v > 0.5;
 
@@ -598,11 +621,13 @@ export default function Ribbon({
         gsap.killTweensOf(tile.fade);
         tile.mesh.material.dispose();
         tile.shadow.material.dispose();
+        tile.edge.material.dispose();
         (tile.hit.material as THREE.Material).dispose();
       });
       geometry.dispose();
       shadowGeometry.dispose();
       hitGeometry.dispose();
+      edgeGeometry.dispose();
       renderer.dispose();
       gsap.killTweensOf(veil);
       if (renderer.domElement.parentNode === host) {
