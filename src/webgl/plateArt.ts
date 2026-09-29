@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { PLATE_ART_VERSION } from "./plateArtVersion";
 
 /**
  * 版に載せる絵。
@@ -17,12 +18,19 @@ export type Art = {
   waiting: (() => void)[];
 };
 
-const SOURCES: Record<string, { before: string; after: string }> = {
-  "taian-nijiriguchi": {
-    before: "/plates/01-before.webp",
-    after: "/plates/01-after.webp",
-  },
+const SOURCES: Record<string, { id: string }> = {
+  "taian-nijiriguchi": { id: "01" },
 };
+
+/**
+ * 絵のURL。**中身から作った版番号を必ず付ける。**
+ * ファイル名を据え置いて中身だけ差し替えると、
+ * ブラウザが4時間ぶん古い絵を返し続ける（実際に踏んだ）。
+ */
+function url(id: string, side: "before" | "after") {
+  const v = PLATE_ART_VERSION[id];
+  return `/plates/${id}-${side}.webp${v ? `?v=${v}` : ""}`;
+}
 
 export function hasArt(slug: string) {
   return slug in SOURCES;
@@ -73,8 +81,8 @@ export function artFor(slug: string, onReady?: () => void): Art | null {
   };
 
   const art: Art = {
-    before: tune(loader.load(src.before, done)),
-    after: tune(loader.load(src.after, done)),
+    before: tune(loader.load(url(src.id, "before"), done)),
+    after: tune(loader.load(url(src.id, "after"), done)),
     aspect: 1,
     ready: false,
     waiting: onReady ? [onReady] : [],
