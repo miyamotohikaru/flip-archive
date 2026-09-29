@@ -37,6 +37,10 @@ export const plateFragmentShader = /* glsl */ `
   uniform float uLabelAspect;
   uniform float uHasLabel;
   uniform float uLabelScale;  // 版が小さく出る画面では、文字だけ大きくする
+  uniform sampler2D uArtA;    // 版に載せる絵（変容前）
+  uniform sampler2D uArtB;    // 同（実行後）
+  uniform float uArtAspect;
+  uniform float uHasArt;
 
   varying vec2 vUv;
 
@@ -543,11 +547,27 @@ export const plateFragmentShader = /* glsl */ `
     else if (id < 5.5) plateShred(pa, te);
     else               plateStreets(pa, te);
 
-    if (id < 0.5) col = MC;
-
     // ---- 版面の柱 ----
     float hx = 0.5 * ar - 0.040;
     float hy = 0.462;
+
+    // 絵を版にする CASE は、作図のかわりに二枚を溶かし合わせて敷く。
+    // 絵がまだ来ていないあいだは、作図プログラムの模型をそのまま見せる。
+    if (id < 0.5) {
+      col = MC;
+      if (uHasArt > 0.5) {
+        vec2 rc = vec2(0.0, -0.008);
+        vec2 rh = vec2(hx, 0.398);
+        vec2 q = (pa - rc) / rh;
+        if (abs(q.x) < 1.0 && abs(q.y) < 1.0) {
+          vec2 uv = q * 0.5 + 0.5;
+          float ra = rh.x / rh.y;
+          if (uArtAspect > ra) uv.x = 0.5 + (uv.x - 0.5) * (ra / uArtAspect);
+          else                 uv.y = 0.5 + (uv.y - 0.5) * (uArtAspect / ra);
+          col = mix(texture2D(uArtA, uv).rgb, texture2D(uArtB, uv).rgb, te);
+        }
+      }
+    }
 
     float head = box(pa, vec2(-hx + 0.026, hy - 0.020), vec2(0.026, 0.0072));
     // 版番号を刻む。図版ごとに本数が変わる。

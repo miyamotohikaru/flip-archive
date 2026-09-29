@@ -4,6 +4,7 @@ import * as THREE from "three";
 THREE.ColorManagement.enabled = false;
 import { plateFragmentShader, plateVertexShader } from "./shaders";
 import { blankTexture, labelTexture } from "./labelTexture";
+import { artFor, blankArt } from "./plateArt";
 
 /**
  * 索引・詳細ページ用の単票レンダラ。
@@ -31,6 +32,10 @@ export type PlateParams = {
   aspect: number; // w / h
   /** 版面に刷る事例名。省略すると刷らない。 */
   label?: string;
+  /** 絵を版にするCASEのslug。読み込みが終わるまでは作図で描く。 */
+  artSlug?: string;
+  /** 絵が届いたときに呼ばれる。単票はここで描き直す。 */
+  onArtReady?: () => void;
 };
 
 const PAPER = new THREE.Color("#fffefb");
@@ -80,6 +85,10 @@ function ensure(width: number, height: number): Shared | null {
           uLabelAspect: { value: 1 },
           uHasLabel: { value: 0 },
           uLabelScale: { value: 1 },
+          uArtA: { value: blankArt() },
+          uArtB: { value: blankArt() },
+          uArtAspect: { value: 1 },
+          uHasArt: { value: 0 },
         },
       }),
     );
@@ -131,6 +140,16 @@ export function drawPlate(
     u.uLabelScale.value = shown < 150 ? 1.5 : shown < 230 ? 1.28 : 1;
   } else {
     u.uHasLabel.value = 0;
+  }
+
+  const art = params.artSlug ? artFor(params.artSlug, params.onArtReady) : null;
+  if (art && art.ready) {
+    u.uArtA.value = art.before;
+    u.uArtB.value = art.after;
+    u.uArtAspect.value = art.aspect;
+    u.uHasArt.value = 1;
+  } else {
+    u.uHasArt.value = 0;
   }
 
   s.renderer.render(s.scene, s.camera);

@@ -180,11 +180,14 @@ export default function IndexPage() {
                   onMouseEnter={() => setHovered(c)}
                   onMouseLeave={() => setHovered((h) => (h === c ? null : h))}
                 >
-                  <Plate
-                    c={c}
-                    active={played || hovered === c}
-                    className="block aspect-[1/1.38] w-full"
-                  />
+                  {/* ゲームの札のように、持ち上がって少し傾き、押すと沈む */}
+                  <div className="[transition:transform_340ms_cubic-bezier(0.34,1.56,0.64,1)] will-change-transform group-hover:-translate-y-2 group-hover:rotate-[-1.3deg] group-hover:scale-[1.035] group-active:translate-y-0 group-active:rotate-0 group-active:scale-[0.985]">
+                    <Plate
+                      c={c}
+                      active={played || hovered === c}
+                      className="block aspect-[1/1.38] w-full"
+                    />
+                  </div>
                   <div className="mt-2.5 flex items-baseline gap-2">
                     <span className="label tnum transition-colors duration-300 group-hover:!text-accent">
                       CASE {c.id}
