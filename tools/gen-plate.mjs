@@ -17,21 +17,21 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const MODEL = "gemini-3.1-flash-image-preview";
 
 /** 図鑑じゅうで共通の見え方。ここを揃えないと版が並ばない。 */
-const STYLE = `A flat 2D picture plane that has been tilted into 3D, with everything drawn on it pushed out into solid blocks — the look of an old side-scrolling game screen turned into a diorama.
+const STYLE = `A relief built from voxel blocks on a flat board, seen STRAIGHT ON.
 
-THE PLANE — this is the key. One single flat rectangular plane, seen at an angle so it reads as a parallelogram receding toward the upper left. Clean straight edges, and a thin visible thickness along its edge so it reads as a solid sheet. Its surface is a quiet flat warm off-white (#eae7e0). This plane is the screen; it fills most of the frame and is unmistakably a tilted flat sheet.
+THE VIEW: the camera looks square at the board, dead centre, orthographic. No tilt, no isometric, no perspective skew — horizontals stay horizontal, verticals stay vertical. At a glance it reads as a flat graphic panel.
 
-THE EXTRUSION — everything that was drawn on that screen is pushed OUT of it toward the viewer at exactly 90 degrees to the plane, becoming chunky solid voxel blocks with real depth. You can see the side faces of the blocks where they leave the plane. Nothing floats free: every block is rooted in the sheet and grows straight out of it. Deeper things stick out further.
+THE DEPTH: but every element is a solid block standing out from the board toward the camera, each at a different height. You catch only thin slivers of their top and side faces around their edges. Soft shadows fall down and slightly to the right — onto the board and onto the lower blocks — and that is what makes the depth read. Turn it sideways and it would obviously be three-dimensional.
 
-SUBJECT LAYOUT — what is drawn on the screen is a flat SIDE-ON elevation, like a platform-game stage: a ground line running across the lower part of the sheet, and the scene standing on it, all facing the viewer square-on before the extrusion.
+DENSE: pack the board with many blocks of different sizes and heights, tightly fitted like a well-built LEGO panel. Small details everywhere, little gaps, a rich busy surface.
 
-SHADING: flat and graphic. Each block face is one single flat tone — the face toward the viewer brightest, the side faces two clearly darker steps. Hard clean edges, no gradients, no blur, no cast shadow.
+BACKGROUND: the board is plain flat WHITE (#ffffff) and fills the whole frame edge to edge. Nothing outside it, no vignette, no gradient.
 
-BACKGROUND: everything outside the tilted sheet is pure flat WHITE (#ffffff), completely empty. No floor, no shadow, no gradient. Only the sheet and the blocks growing out of it.
+SHADING: flat graphic tones. Each block face is one flat colour, its thin side slivers a step darker. Hard clean edges.
 
-PALETTE: bold graphic colours — vermilion red, sunny yellow, grass green, sky blue, warm sand, dark charcoal grey, light grey. Bright and varied.
+PALETTE: bold graphic colours — vermilion red, sunny yellow, grass green, sky blue, warm sand, dark charcoal grey, light grey.
 
-COMPOSITION: upright portrait framing, the tilted sheet centred with an even margin, nothing touching the edge of the frame.
+COMPOSITION: upright portrait, the build filling the board with a small even margin.
 
 No text, no letters, no Japanese characters, no logos, no watermark.`;
 
@@ -39,19 +39,19 @@ const PLATES = {
   "01": {
     before: `${STYLE}
 
-What is drawn on the tilted sheet, as a flat side-on stage: a tiny Japanese tea house seen from the side. Its front wall has a WIDE, TALL opening — a full-height doorway a person could walk straight through standing upright. A small blocky person stands UPRIGHT on the ground line in front of that opening, facing it. Charcoal roof blocks along the top, red-brown post blocks, a line of round grey stepping-stone blocks along the ground leading to the doorway, a few small green trees standing on the ground line, pale sand-coloured tatami blocks visible through the opening.
+Subject, laid out as a flat elevation of a tiny Japanese tea house: a band of charcoal roof blocks across the top, standing out the furthest. Below it, red-brown post blocks and yellow wall panels at a middle height. In the centre of the wall a WIDE, TALL opening — a full-height doorway where the blocks are removed and the white board shows through, with pale sand tatami blocks set low inside it. A small blocky person stands UPRIGHT in front of that opening. Along the bottom, a row of round grey stepping-stone blocks and a few green tree blocks, all at low heights.
 
-All of it pushed out of the sheet toward the viewer at 90 degrees as solid blocks: the roof sticks out furthest, the posts and walls next, the stones and trees less. The sheet itself stays visible as the flat warm off-white background behind and between them.`,
+Every piece is a block of its own height, casting a soft shadow down-right onto what is behind it.`,
     after: `Keep EXACTLY the same toy block model: same camera angle, same lighting, same shadow, same colours, same backdrop, same style and the same base plinth.
 
 Change ONLY these things:
-1. The tall doorway shrinks into a TINY LOW SQUARE CRAWL HOLE near the ground, only two or three cubes high — small enough that a person must get down on hands and knees to pass through. The wall above the hole is now filled in solid with wall cubes.
-2. The small voxel person is now on ALL FOURS in a tidy crawling pose — knees on the stepping stone, both hands on the ground ahead, back level and horizontal, head lowered toward the tiny hole, clearly about to crawl through. Deliberate and balanced, NOT fallen over, NOT lying on its side.
-3. Inside, the floor is now exactly TWO tatami mats and the room is TIGHTER and NARROWER.
-4. Keep the tilted sheet exactly as it is — same angle, same size, same colour — and keep everything rooted in it.
-5. The roof comes DOWN lower over the smaller room.
+1. The tall doorway is filled in with wall blocks, flush with the rest of the wall, leaving only a TINY LOW SQUARE HOLE at the very bottom — two or three blocks high, where the white board still shows through. Small enough that a person must get down on hands and knees to pass through.
+2. The small blocky person is now CROUCHED LOW in front of that hole, folded down on hands and knees, back level, head lowered toward the hole, clearly about to crawl through. Deliberate and balanced, NOT fallen over.
+3. Behind the hole, exactly TWO tatami blocks remain visible instead of a wide floor.
+4. Keep every other block exactly where it is, at the same height, with the same shadows.
+5. The roof band stays exactly as it is.
 
-Everything else stays identical: the SAME tilted flat sheet at the SAME angle, the same 90-degree extrusion out of it, same palette, same flat shading, same block depths, and the same pure white empty background outside the sheet.
+Everything else stays identical: the SAME straight-on orthographic view, the same white board, the same palette, the same flat shading, the same block heights and the same soft down-right shadows.
 Keep the hanging scroll and every other surface BLANK — do not add any text, letters or Japanese characters anywhere.`,
   },
 };
