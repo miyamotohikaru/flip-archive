@@ -17,21 +17,21 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const MODEL = "gemini-3.1-flash-image-preview";
 
 /** 図鑑じゅうで共通の見え方。ここを揃えないと版が並ばない。 */
-const STYLE = `A crisp isometric VOXEL illustration — a little world built entirely from perfectly square 3D pixel cubes, in the style of voxel art (MagicaVoxel / 3D pixel art).
+const STYLE = `A flat 2D picture plane that has been tilted into 3D, with everything drawn on it pushed out into solid blocks — the look of an old side-scrolling game screen turned into a diorama.
 
-NOT a photograph. NOT plastic toy bricks: no studs, no glossy plastic, no bevelled edges, no depth of field, no reflections.
+THE PLANE — this is the key. One single flat rectangular plane, seen at an angle so it reads as a parallelogram receding toward the upper left. Clean straight edges, and a thin visible thickness along its edge so it reads as a solid sheet. Its surface is a quiet flat warm off-white (#eae7e0). This plane is the screen; it fills most of the frame and is unmistakably a tilted flat sheet.
 
-SHADING: flat and graphic. Every cube face is one single flat tone — the top face brightest, the two visible side faces two clearly darker steps of the same hue. Hard clean edges between faces. No soft gradients, no blur, no ambient occlusion, no cast shadow on the ground.
+THE EXTRUSION — everything that was drawn on that screen is pushed OUT of it toward the viewer at exactly 90 degrees to the plane, becoming chunky solid voxel blocks with real depth. You can see the side faces of the blocks where they leave the plane. Nothing floats free: every block is rooted in the sheet and grows straight out of it. Deeper things stick out further.
 
-THE PAGE IS THE FLOOR. Pure flat WHITE (#ffffff) everywhere, and that white IS the ground the objects stand on. So: NO base plate, NO ground slab, NO platform, NO island, NO grass tile, NO visible edge of ground anywhere. Do not build the scene on top of a block of earth. Every object — the building, the trees, the stones, the person — rests DIRECTLY on that invisible flat floor, feet and trunks and bases meeting it cleanly, all standing on one shared ground plane so the eye reads a floor. No shadow, no gradient, no vignette, nothing else in the frame.
+SUBJECT LAYOUT — what is drawn on the screen is a flat SIDE-ON elevation, like a platform-game stage: a ground line running across the lower part of the sheet, and the scene standing on it, all facing the viewer square-on before the extrusion.
 
-PALETTE: bold graphic colours — vermilion red, sunny yellow, grass green, sky blue, warm sand, dark charcoal grey, light grey, and a few pure white cubes. Bright and varied, many colours at once.
+SHADING: flat and graphic. Each block face is one single flat tone — the face toward the viewer brightest, the side faces two clearly darker steps. Hard clean edges, no gradients, no blur, no cast shadow.
 
-CAMERA: a STEEP high-angle three-quarter view looking DOWN at about 65–70 degrees, with real PERSPECTIVE — a moderately wide lens (around 35mm), NOT an orthographic isometric. Near edges are clearly larger than far edges, vertical lines converge, and the depth is obvious and a little dramatic. The floor plane faces the viewer almost square-on and the building RISES OUT of it toward the camera; the roof's top surface is broad, the walls are strongly foreshortened. Ground-level things — stones, tree bases, the person's feet — spread out across the floor.
+BACKGROUND: everything outside the tilted sheet is pure flat WHITE (#ffffff), completely empty. No floor, no shadow, no gradient. Only the sheet and the blocks growing out of it.
 
-VOLUME: everything must read as SOLID and chunky, with real thickness. Thick walls two or three cubes deep, a deep roof slab whose edge thickness is clearly visible, posts with square section, trees as fat blocky masses. Each cube shows its top face and two side faces so the mass is unmistakable. Make it feel like a heavy physical build, not a thin cut-out.
+PALETTE: bold graphic colours — vermilion red, sunny yellow, grass green, sky blue, warm sand, dark charcoal grey, light grey. Bright and varied.
 
-COMPOSITION: looking down onto that floor. The main build sits in the middle; a few small single cubes sit ON the floor around it and a few more hover just above it — loose and playful, but only blocks, nothing else. Upright portrait framing, the whole scene centred with an even margin, nothing touching the edge of the frame.
+COMPOSITION: upright portrait framing, the tilted sheet centred with an even margin, nothing touching the edge of the frame.
 
 No text, no letters, no Japanese characters, no logos, no watermark.`;
 
@@ -39,22 +39,19 @@ const PLATES = {
   "01": {
     before: `${STYLE}
 
-Subject: a tiny Japanese tea house (chashitsu) built from voxel cubes, cut away on one side so the inside is visible.
-Right now it has a WIDE, TALL opening in the front wall — a full-height doorway a person could walk straight through standing upright.
-A small voxel person stands UPRIGHT on the path in front of that opening, facing it.
-Inside, a floor of pale sand-coloured tatami cubes raised one cube above the ground. A short line of round grey stepping-stone cubes lies flat on the floor, leading to the doorway. Charcoal roof cubes, red-brown post cubes that reach down and meet the floor, a few small green trees whose trunks stand on the floor.
-Loose single cubes — red, yellow, blue, green — a few resting on the floor around the house, a few hovering just above it.
-Remember: the white page IS the floor. No base plate, no grass tile, no island, no shadow.`,
+What is drawn on the tilted sheet, as a flat side-on stage: a tiny Japanese tea house seen from the side. Its front wall has a WIDE, TALL opening — a full-height doorway a person could walk straight through standing upright. A small blocky person stands UPRIGHT on the ground line in front of that opening, facing it. Charcoal roof blocks along the top, red-brown post blocks, a line of round grey stepping-stone blocks along the ground leading to the doorway, a few small green trees standing on the ground line, pale sand-coloured tatami blocks visible through the opening.
+
+All of it pushed out of the sheet toward the viewer at 90 degrees as solid blocks: the roof sticks out furthest, the posts and walls next, the stones and trees less. The sheet itself stays visible as the flat warm off-white background behind and between them.`,
     after: `Keep EXACTLY the same toy block model: same camera angle, same lighting, same shadow, same colours, same backdrop, same style and the same base plinth.
 
 Change ONLY these things:
 1. The tall doorway shrinks into a TINY LOW SQUARE CRAWL HOLE near the ground, only two or three cubes high — small enough that a person must get down on hands and knees to pass through. The wall above the hole is now filled in solid with wall cubes.
 2. The small voxel person is now on ALL FOURS in a tidy crawling pose — knees on the stepping stone, both hands on the ground ahead, back level and horizontal, head lowered toward the tiny hole, clearly about to crawl through. Deliberate and balanced, NOT fallen over, NOT lying on its side.
 3. Inside, the floor is now exactly TWO tatami mats and the room is TIGHTER and NARROWER.
-4. Keep the loose cubes around the house, and keep the white page as the floor — still no base plate, no grass tile, no island, no shadow.
+4. Keep the tilted sheet exactly as it is — same angle, same size, same colour — and keep everything rooted in it.
 5. The roof comes DOWN lower over the smaller room.
 
-Everything else stays identical: same palette, same flat voxel shading, the SAME STEEP PERSPECTIVE CAMERA looking down at about 65–70 degrees, the same chunky solid volumes, and the SAME PURE WHITE EMPTY BACKGROUND with no shadow and no ground plane.
+Everything else stays identical: the SAME tilted flat sheet at the SAME angle, the same 90-degree extrusion out of it, same palette, same flat shading, same block depths, and the same pure white empty background outside the sheet.
 Keep the hanging scroll and every other surface BLANK — do not add any text, letters or Japanese characters anywhere.`,
   },
 };
