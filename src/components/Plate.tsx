@@ -5,7 +5,6 @@ import { type Case } from "@/data/types";
 import { plateParamsFor } from "@/lib/plateParams";
 import { drawPlate } from "@/webgl/plateRenderer";
 import { plateLabel } from "@/webgl/labelTexture";
-import { hasArt } from "@/webgl/plateArt";
 
 /**
  * 単票の図版。
@@ -108,12 +107,7 @@ export default function Plate({
     <canvas
       ref={ref}
       className={className}
-      // 床として描く版は四角い紙ではないので、紙の影を付けない
-      style={
-        hasArt(c.slug)
-          ? undefined
-          : { boxShadow: "0 6px 20px -10px rgba(18,17,16,0.28)" }
-      }
+      style={{ boxShadow: "0 6px 20px -10px rgba(18,17,16,0.28)" }}
       role="img"
       aria-label={`${c.title}の配置図（図鑑が生成した図版であり、実物の写真ではない）`}
     />
