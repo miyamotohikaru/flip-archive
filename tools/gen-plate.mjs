@@ -19,23 +19,26 @@ const MODEL = "gemini-3.1-flash-image-preview";
 /** 図鑑じゅうで共通の見え方。ここを揃えないと版が並ばない。 */
 const STYLE = `A relief built from voxel blocks on a flat board, seen STRAIGHT ON.
 
-THE VIEW: a real camera with a normal lens, aimed square at the CENTRE of the board. Horizontals stay horizontal, verticals stay vertical — at a glance it reads as a flat graphic panel. But it is a real photograph, not an orthographic drawing: pieces near the centre are seen face-on, while pieces toward the edges clearly reveal their THICK SIDE FACES. That mild perspective is what shows how far each piece stands out.
+THE VIEW: a real camera with a normal lens, aimed square at the CENTRE of the build. Horizontals stay horizontal, verticals stay vertical — at a glance it reads as a flat graphic panel. But it is a real photograph, not an orthographic drawing: pieces near the centre are seen face-on, while pieces toward the edges clearly reveal their THICK SIDE FACES. That mild perspective is what shows how far each piece stands out.
 
-THE DEPTH — make this strong. Every element is a CHUNKY SOLID standing far out from the board toward the camera, each at a clearly different height, like a deep bas-relief you could grip.
+THE DEPTH — it must read as built UP, not carved in. Think of a papercraft relief or a LEGO panel photographed from straight above: every element is a SEPARATE PIECE sitting ON TOP of the one below it, three to five layers deep in places.
 
-Rough depths: the roof band stands out the furthest, roughly a third of its own height; the posts and beams stand out about half that; the wall panels are set back behind them; the doorway is a deep recess; the person is a fully rounded figure standing well proud of the wall, with obvious thickness front to back; the trees and stones are fat lumps.
+- Each piece is clearly its own piece, with a small gap or a visible cut edge between it and its neighbours. You can count the layers.
+- Each layer casts its own SOFT, LONG shadow down and to the right onto the layer beneath and onto the white surface. The shadows are the main thing that says "this is stacked up toward you".
+- The whole build sits proud of the surface and casts one larger soft shadow around itself, so it floats above the page.
+- The light is soft and comes from the upper left, like a single big window.
 
-You must SEE the side faces — thick slabs of colour along every edge, not thin slivers. Long soft shadows fall down and to the right onto the board and onto the pieces behind, long enough to read how far each piece projects. Turn it sideways and it would obviously be a deep three-dimensional build.
+Nothing is flush. Nothing reads as a single solid slab. And again: no panel or board behind it — just white.
 
-DENSE: pack the board with many blocks of different sizes and heights, tightly fitted like a well-built LEGO panel. Small details everywhere, little gaps, a rich busy surface.
+DENSE: many pieces of different sizes, stacked at many different heights, with small gaps between them. Small details everywhere, a rich busy surface.
 
-BACKGROUND: the board is plain flat WHITE (#ffffff) and fills the whole frame edge to edge. Nothing outside it, no vignette, no gradient.
+BACKGROUND: plain flat WHITE (#ffffff), edge to edge. **Do NOT draw a board, panel, plaque, card, tray, frame or backing of any kind** — no rectangle behind the build, no edge, no shadow around a panel. The empty white IS the surface the pieces are built on. The only shadows in the picture are the ones the pieces themselves cast.
 
 SHADING: flat graphic tones. Each block face is one flat colour, its thin side slivers a step darker. Hard clean edges.
 
 PALETTE: bold graphic colours — vermilion red, sunny yellow, grass green, sky blue, warm sand, dark charcoal grey, light grey.
 
-COMPOSITION: upright portrait, the build filling the board with a small even margin.
+COMPOSITION: upright portrait, the build centred with a small even margin of empty white around it.
 
 No text, no letters, no Japanese characters, no logos, no watermark.`;
 
@@ -45,7 +48,7 @@ const PLATES = {
 
 Subject, laid out as a flat elevation of a tiny Japanese tea house: a band of charcoal roof blocks across the top, standing out the furthest. Below it, red-brown post blocks and yellow wall panels at a middle height. In the centre of the wall a WIDE, TALL opening — a full-height doorway where the blocks are removed and the white board shows through, with pale sand tatami blocks set low inside it. A small blocky person stands UPRIGHT in front of that opening. Along the bottom, a row of round grey stepping-stone blocks and a few green tree blocks, all at low heights.
 
-Every piece is a chunky solid of its own depth, standing well out from the board, showing its thick side faces and casting a long soft shadow down-right onto what is behind it. The person in particular must read as a rounded solid figure, not a flat cut-out.`,
+Build it in clear layers: the wall panels lowest, the posts and beams stacked on top of them, the roof stacked on top of that and standing highest of all. The person is a separate figure standing on the boards, well above them. Every piece casts its own soft shadow onto the piece beneath. The stack must be obvious.`,
     after: `Keep EXACTLY the same toy block model: same camera angle, same lighting, same shadow, same colours, same backdrop, same style and the same base plinth.
 
 Change ONLY these things:
