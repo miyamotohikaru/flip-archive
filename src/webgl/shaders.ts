@@ -90,6 +90,21 @@ export const plateFragmentShader = /* glsl */ `
   const vec2 AREA_H = vec2(0.290, 0.370);
   const vec2 AREA_C = vec2(0.0, -0.010);
 
+  // 版そのものを、奥へ倒した床の面として描くための覆い。
+  // 手前が広く、奥が狭い。fuv.y は 0=手前 1=奥。
+  float FLOOR_YF = -0.428, FLOOR_YB = -0.120;
+  float FLOOR_HF = 0.352, FLOOR_HB = 0.192;
+
+  float floorCover(vec2 p, out vec2 fuv) {
+    float k = (p.y - FLOOR_YF) / (FLOOR_YB - FLOOR_YF);
+    float halfW = mix(FLOOR_HF, FLOOR_HB, clamp(k, 0.0, 1.0));  // half は予約語
+    fuv = vec2(p.x / max(halfW, 1e-4), clamp(k, 0.0, 1.0));
+    float inY = smoothstep(-AA, AA, p.y - FLOOR_YF)
+              * smoothstep(-AA, AA, FLOOR_YB - p.y);
+    float inX = 1.0 - smoothstep(halfW - AA * 1.5, halfW + AA * 1.5, abs(p.x));
+    return inY * inX;
+  }
+
   // 絵の外は透明として扱う。端の画素が引き伸ばされるのを防ぐ。
   float artA(vec2 uv) {
     if (uv.x <= 0.0 || uv.x >= 1.0 || uv.y <= 0.0 || uv.y >= 1.0) return 0.0;
@@ -559,25 +574,43 @@ export const plateFragmentShader = /* glsl */ `
 
     // 絵を版にする CASE は、作図のかわりに二枚を溶かし合わせて敷く。
     // 絵がまだ来ていないあいだは、作図プログラムの模型をそのまま見せる。
+    // 絵を版にするCASEでは、版の紙を「奥へ倒した床」として敷き、
+    // その上に立体を立てる。版の四角い面としては描かない。
+    float sheet = 1.0;
+    float plateA = 1.0;
     if (id < 0.5) {
       // 絵が来ていないあいだだけ、作図プログラムの模型を見せる。
       // 絵を敷くときに MC を下に残すと、絵の透けた部分から模型が覗く。
       if (uHasArt < 0.5) col = MC;
       if (uHasArt > 0.5) {
-        vec2 rc = vec2(0.0, -0.012);
-        vec2 rh = vec2(hx - 0.010, 0.382);
-        vec2 uv = (pa - rc) / (rh * 2.0) + 0.5;
+        sheet = 0.0;
 
-        // まるごと収める。余った側は絵の外＝透過なので、地の紙が出る。
-        float ra = rh.x / rh.y;
-        if (uArtAspect > ra) uv.y = 0.5 + (uv.y - 0.5) * (uArtAspect / ra);
-        else                 uv.x = 0.5 + (uv.x - 0.5) * (ra / uArtAspect);
+        vec2 fuv;
+        float fl = floorCover(pa, fuv);
+        // 奥ほどわずかに沈ませ、面が倒れていることを示す
+        vec3 floorCol = mix(uPaper, uInk, 0.015 + 0.085 * fuv.y);
+        col = floorCol;
 
-        // 影は落とさない。紙の面をそのまま床として使い、その上に立てる。
-        if (uv.x > 0.0 && uv.x < 1.0 && uv.y > 0.0 && uv.y < 1.0) {
-          vec4 art = mix(texture2D(uArtA, uv), texture2D(uArtB, uv), te);
-          col = mix(col, art.rgb, clamp(art.a, 0.0, 1.0));
+        // 立体は床の上に立てる。絵の下端が床の面に載る。
+        float ah = 0.288;                    // 高さの半分
+        float aw = ah * uArtAspect;
+        float base = -0.300;                 // 床に着く高さ
+        vec2 ac = vec2(0.0, base + ah);
+        vec2 auv = (pa - ac) / (vec2(aw, ah) * 2.0) + 0.5;
+
+        // 接地。床の上にうっすら影を敷いて、浮かないようにする。
+        vec2 sp = (pa - vec2(0.012, base - 0.004)) / vec2(0.215, 0.040);
+        float contact = (1.0 - smoothstep(0.55, 1.0, length(sp))) * fl;
+        col = mix(col, mix(uPaper, uInk, 0.40), contact * 0.28);
+
+        float artA2 = 0.0;
+        if (auv.x > 0.0 && auv.x < 1.0 && auv.y > 0.0 && auv.y < 1.0) {
+          vec4 art = mix(texture2D(uArtA, auv), texture2D(uArtB, auv), te);
+          artA2 = clamp(art.a, 0.0, 1.0);
+          col = mix(col, art.rgb, artA2);
         }
+
+        plateA = clamp(max(fl, artA2), 0.0, 1.0);
       }
     }
 
@@ -589,14 +622,18 @@ export const plateFragmentShader = /* glsl */ `
       head += box(pa, vec2(-hx + 0.068 + float(k) * 0.0125 + gap, hy - 0.020),
                   vec2(0.0042, 0.0072)) * on;
     }
-    head *= 1.0 - uHasLabel;   // 名前を刷る版では、刻みに代えて名前を置く
+    head *= (1.0 - uHasLabel) * sheet;   // 名前を刷る版では、刻みに代えて名前を置く
 
     // 版面の名前。左上の柱に、通し番号と事例名を刷る。
     float label = 0.0;
     if (uHasLabel > 0.5) {
       float lh = 0.034 * uLabelScale;
       float lw = lh * uLabelAspect;
-      vec2 luv = (pa - vec2(-hx + 0.012, hy - 0.020 - lh * 0.5)) / vec2(lw, lh);
+      // 版が床になっているときは、名前も床の手前へ置く
+      vec2 lo = (sheet < 0.5)
+        ? vec2(-FLOOR_HF + 0.022, FLOOR_YF + 0.014)
+        : vec2(-hx + 0.012, hy - 0.020 - lh * 0.5);
+      vec2 luv = (pa - lo) / vec2(lw, lh);
       if (luv.x > 0.0 && luv.x < 1.0 && luv.y > 0.0 && luv.y < 1.0) {
         label = smoothstep(0.12, 0.62, texture2D(uLabel, luv).a);
       }
@@ -617,26 +654,28 @@ export const plateFragmentShader = /* glsl */ `
     float ticks = strokeOf(aq.y - th.y, 0.0011) * step(aq.x, th.x) * step(th.x - 0.046, aq.x)
                 + strokeOf(aq.x - th.x, 0.0011) * step(aq.y, th.y) * step(th.y - 0.046, aq.y);
 
-    LIN += headRule * 0.55 + clamp(scaleBar, 0.0, 1.0) * 0.6;
+    LIN += (headRule * 0.55 + clamp(scaleBar, 0.0, 1.0) * 0.6) * sheet;
 
     // ---- 合成 ----
     col = mix(col, uInk, clamp(INK, 0.0, 1.0) * 0.92);
     col = mix(col, uInk, clamp(LIN, 0.0, 1.0) * 0.62);
     col = mix(col, uInk, clamp(head, 0.0, 1.0) * 0.90);
     col = mix(col, uInk, clamp(label, 0.0, 1.0) * 0.92);
-    col = mix(col, uInk, clamp(ticks, 0.0, 1.0) * 0.34);
+    col = mix(col, uInk, clamp(ticks, 0.0, 1.0) * 0.34 * sheet);
     col = mix(col, uAccent, clamp(ACC, 0.0, 1.0) * 0.94);
 
     // 帯の中で「いまどの版の話か」を示す小さな鉤
     float mk = strokeOf(sdSeg(pa, vec2(-hx, hy), vec2(-hx + 0.030, hy)), 0.0020)
              + strokeOf(sdSeg(pa, vec2(-hx, hy), vec2(-hx, hy - 0.030)), 0.0020);
-    col = mix(col, uAccent, clamp(mk, 0.0, 1.0) * uFocus);
+    col = mix(col, uAccent, clamp(mk, 0.0, 1.0) * uFocus * sheet);
 
     // ---- 版の小口 ----
     vec2 hs = vec2(0.5 * ar, 0.5);
     float sd = sdBox(pa, hs);
     float alpha = 1.0 - smoothstep(-AA, AA, sd);
-    col = mix(col, uInk, (1.0 - smoothstep(0.0, 0.0032, -sd)) * 0.16);
+    col = mix(col, uInk, (1.0 - smoothstep(0.0, 0.0032, -sd)) * 0.16 * sheet);
+    // 床として描く版は、四角い紙ではなく床と立体のかたちで抜く
+    alpha = mix(plateA, alpha, sheet);
 
     alpha *= uFade * uAppear;
     if (alpha < 0.003) discard;

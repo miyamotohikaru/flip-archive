@@ -522,7 +522,9 @@ export default function Ribbon({
         u.uProgress.value = tile.progress.v;
         u.uFade.value = wrapFade * tile.fade.v;
         const su = tile.shadow.material.uniforms;
-        su.uFade.value = wrapFade * tile.fade.v;
+        // 床として描く版は四角い紙ではないので、紙の落ち影は出さない
+        su.uFade.value =
+          u.uHasArt.value > 0.5 ? 0.0 : wrapFade * tile.fade.v;
         su.uAppear.value = u.uAppear.value;
         tile.hit.visible = wrapFade > 0.6 && tile.fade.v > 0.5;
 
