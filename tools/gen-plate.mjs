@@ -17,11 +17,16 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const MODEL = "gemini-3.1-flash-image-preview";
 
 /** 図鑑じゅうで共通の見え方。ここを揃えないと版が並ばない。 */
-const STYLE = `A cute miniature diorama built entirely from small glossy plastic toy building blocks — voxel cubes, like nanoblock or LEGO micro build. Photographed as a real physical model: soft studio lighting from the upper left, a gentle soft drop shadow on the surface, shallow depth of field.
-Plain flat warm off-white backdrop (#eae7e0), nothing else in the frame.
+const STYLE = `A cute miniature model built entirely from small glossy plastic toy building blocks — voxel cubes, like nanoblock or LEGO micro build.
+
+BACKGROUND: pure flat WHITE (#ffffff), completely empty. No backdrop, no floor, no table, no ground plane, no shadow, no gradient, no vignette — the model is cut out and isolated on plain white, like a product photo on a white sweep with the shadow removed. Nothing in the frame except the blocks themselves.
+
+The model sits on its own base made of blocks (the base is part of the build, also blocks).
+
+Soft even studio lighting from the upper left so each cube reads as a solid three-dimensional block with a clear lit top face and a shaded side face. Crisp edges, no blur.
 Playful varied palette: warm brick red, mustard yellow, teal, sage green, cream, soft warm grey, a touch of orange. Slightly busy and richly detailed — many small cubes, hand-built block-toy feel.
-Three-quarter isometric view, the whole model centered with comfortable margin on all sides. Upright portrait composition.
-Absolutely NO text anywhere: no letters, no Japanese characters, no writing on scrolls or signs, no logos, no watermark, no human photograph. Clean, crisp, high detail.`;
+Three-quarter isometric view, the whole model centered, filling most of the frame with a small even margin. Upright portrait composition.
+Absolutely NO text anywhere: no letters, no Japanese characters, no writing on scrolls or signs, no logos, no watermark, no human photograph.`;
 
 const PLATES = {
   "01": {
@@ -30,7 +35,8 @@ const PLATES = {
 Subject: a tiny Japanese tea house (chashitsu), built from toy blocks, shown as a cutaway so the inside is visible from the side.
 Right now it has a WIDE and TALL doorway — a full-height opening that a person could walk straight through standing upright. Above the doorway the wall is open and airy. The roof sits HIGH.
 A small blocky toy figure stands UPRIGHT in front of the doorway, facing it, about to walk in without bending.
-Inside, a roomy floor covered with several pale straw-coloured tatami blocks. A short path of round stepping stones leads across the base toward the doorway. Wooden posts, a small tiled roof, a low block base like a display plinth under the whole model.`,
+Inside, a roomy floor covered with several pale straw-coloured tatami blocks. A short path of round stepping stones (also blocks) leads across the base toward the doorway. Wooden posts, a small tiled roof, a low block base under the whole model.
+Remember: plain pure white all around, no shadow, no ground surface.`,
     after: `Keep EXACTLY the same toy block model: same camera angle, same lighting, same shadow, same colours, same backdrop, same style and the same base plinth.
 
 Change ONLY these things:
@@ -39,7 +45,7 @@ Change ONLY these things:
 3. Inside, the floor is now exactly TWO tatami mats and the room is TIGHTER and NARROWER.
 4. The roof comes DOWN lower over the smaller room.
 
-Everything else stays identical. Same palette, same block style, same soft studio light.
+Everything else stays identical: same palette, same block style, same soft studio light, and the SAME PURE WHITE EMPTY BACKGROUND with no shadow and no ground surface.
 Keep the hanging scroll and every other surface BLANK — do not add any text, letters or Japanese characters anywhere.`,
   },
 };

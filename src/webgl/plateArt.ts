@@ -17,11 +17,10 @@ export type Art = {
   waiting: (() => void)[];
 };
 
-const SOURCES: Record<string, { before: string; after: string; aspect: number }> = {
+const SOURCES: Record<string, { before: string; after: string }> = {
   "taian-nijiriguchi": {
     before: "/plates/01-before.webp",
     after: "/plates/01-after.webp",
-    aspect: 720 / 964,
   },
 };
 
@@ -56,7 +55,10 @@ export function artFor(slug: string, onReady?: () => void): Art | null {
 
   const loader = new THREE.TextureLoader();
   let left = 2;
-  const done = () => {
+  const done = (t: THREE.Texture) => {
+    // 縦横は絵から取る。白地を抜いたぶん、書き出しごとに寸法が変わる。
+    const img = t.image as { width: number; height: number } | undefined;
+    if (img?.width) art.aspect = img.width / img.height;
     if (--left > 0) return;
     art.ready = true;
     art.waiting.splice(0).forEach((f) => f());
@@ -73,7 +75,7 @@ export function artFor(slug: string, onReady?: () => void): Art | null {
   const art: Art = {
     before: tune(loader.load(src.before, done)),
     after: tune(loader.load(src.after, done)),
-    aspect: src.aspect,
+    aspect: 1,
     ready: false,
     waiting: onReady ? [onReady] : [],
   };
