@@ -48,6 +48,8 @@ export default function Plate({
         seed,
         plate,
         label,
+        artSlug: c.slug,
+        onArtReady: () => paint(),
         progress: progress.current,
         aspect: el.clientWidth / Math.max(1, el.clientHeight),
       });

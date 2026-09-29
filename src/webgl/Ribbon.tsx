@@ -16,6 +16,7 @@ import {
 } from "./shaders";
 import { plateParamsFor } from "@/lib/plateParams";
 import { labelTexture, plateLabel } from "./labelTexture";
+import { artFor, blankArt } from "./plateArt";
 
 /* ------------------------------------------------------------------ *
  * 配置のパラメータ
@@ -148,6 +149,7 @@ export default function Ribbon({
     );
     const hitGeometry = new THREE.PlaneGeometry(CARD_W * 1.02, CARD_H * 1.02, 1, 1);
     const tiles: Tile[] = [];
+    const tilesArt: { art: ReturnType<typeof artFor>; material: THREE.ShaderMaterial }[] = [];
     const ribbon = Array.from({ length: cases.length * REPEATS }, (_, i) => i);
     const HALF = (ribbon.length * SPACING) / 2;
 
@@ -156,6 +158,7 @@ export default function Ribbon({
       const c = cases[ci];
       const pp = plateParamsFor(c);
       const lb = labelTexture(plateLabel(c));
+      const art = artFor(c.slug);
 
       const material = new THREE.ShaderMaterial({
         vertexShader: plateVertexShader,
@@ -179,8 +182,14 @@ export default function Ribbon({
           uLabelAspect: { value: lb.aspect },
           uHasLabel: { value: 1 },
           uLabelScale: { value: 1 },
+          uArtA: { value: art ? art.before : blankArt() },
+          uArtB: { value: art ? art.after : blankArt() },
+          uArtAspect: { value: art ? art.aspect : 1 },
+          uHasArt: { value: 0 },
         },
       });
+      // 絵は非同期で届く。届くまでは作図プログラムの絵を見せておく。
+      if (art) tilesArt.push({ art, material });
 
       const mesh = new THREE.Mesh(geometry, material);
 
@@ -358,6 +367,13 @@ export default function Ribbon({
       gsap.killTweensOf(tile.shifter.position);
       gsap.killTweensOf(tile.progress);
 
+      // 押した手ごたえ。いちど沈めてから起き上がる。
+      gsap.killTweensOf(tile.shifter.scale);
+      gsap.fromTo(
+        tile.shifter.scale,
+        { x: 0.95, y: 0.95, z: 1 },
+        { x: 1.12, y: 1.12, z: 1, ease: "back.out(3)", duration: D * 1.2 },
+      );
       gsap.to(tile.root.rotation, { y: 0, ease: "expo.out", duration: D });
       gsap.to(tile.shifter.position, {
         x: 0,
@@ -420,6 +436,13 @@ export default function Ribbon({
       const t = clock.getElapsedTime();
       const aspect = host.clientWidth / host.clientHeight;
 
+      // 届いた絵を版へ渡す
+      tilesArt.forEach((e) => {
+        if (e.art?.ready && e.material.uniforms.uHasArt.value < 0.5) {
+          e.material.uniforms.uHasArt.value = 1;
+        }
+      });
+
       // ホイールとドラッグを一本の進行量にまとめて追従させる
       const target = state.dragX - state.dragY;
       state.smoothed += (target - state.smoothed) * LERP;
@@ -481,6 +504,14 @@ export default function Ribbon({
             v: isHover ? 1 : 0,
             ease: isHover ? "expo.out" : "power2.inOut",
             duration: isHover ? 1.0 : 0.6,
+          });
+          // ゲームの札のように、選ばれた版がぽんと跳ねる
+          gsap.to(tile.shifter.scale, {
+            x: isHover ? 1.07 : 1,
+            y: isHover ? 1.07 : 1,
+            z: 1,
+            ease: isHover ? "back.out(2.6)" : "power2.out",
+            duration: isHover ? 0.5 : 0.35,
           });
         }
 
@@ -562,6 +593,7 @@ export default function Ribbon({
       window.removeEventListener("pointercancel", endDrag);
       tiles.forEach((tile) => {
         gsap.killTweensOf(tile.shifter.position);
+        gsap.killTweensOf(tile.shifter.scale);
         gsap.killTweensOf(tile.progress);
         gsap.killTweensOf(tile.fade);
         tile.mesh.material.dispose();

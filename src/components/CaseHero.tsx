@@ -69,9 +69,11 @@ export default function CaseHero({ c }: { c: Case }) {
           setOn((v) => !v);
         }}
         aria-pressed={on}
-        className="block w-full cursor-pointer"
+        className="group block w-full cursor-pointer"
       >
-        <Plate c={c} active={on} className="block aspect-[1/1.38] w-full" />
+        <div className="[transition:transform_340ms_cubic-bezier(0.34,1.56,0.64,1)] will-change-transform group-hover:-translate-y-1.5 group-hover:rotate-[-1deg] group-hover:scale-[1.025] group-active:translate-y-0 group-active:rotate-0 group-active:scale-[0.99]">
+          <Plate c={c} active={on} className="block aspect-[1/1.38] w-full" />
+        </div>
       </button>
       <p className="label mt-2.5 leading-[1.9] opacity-70">
         本図鑑が生成した配置図。実物の写真ではない。
