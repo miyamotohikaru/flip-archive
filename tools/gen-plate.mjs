@@ -27,7 +27,9 @@ THE PAGE IS THE FLOOR. Pure flat WHITE (#ffffff) everywhere, and that white IS t
 
 PALETTE: bold graphic colours — vermilion red, sunny yellow, grass green, sky blue, warm sand, dark charcoal grey, light grey, and a few pure white cubes. Bright and varied, many colours at once.
 
-COMPOSITION: true isometric view from above (30 degrees), looking down onto that floor. The main build sits in the middle; a few small single cubes sit ON the floor around it and a few more hover just above it — loose and playful, but only blocks, nothing else. Upright portrait framing, the whole scene centred with an even margin, nothing touching the edge of the frame.
+CAMERA: a STEEP high-angle three-quarter view, looking DOWN at about 55–60 degrees — much more top-down than a 30-degree isometric, but not a flat plan view. The floor plane faces the viewer almost square-on, and the building RISES OUT of it toward the camera. The roof's top surface is broad and clearly visible; the walls are strongly foreshortened and read as short. Ground-level things — stones, tree bases, the person's feet — spread out across the floor rather than stacking up the frame.
+
+COMPOSITION: looking down onto that floor. The main build sits in the middle; a few small single cubes sit ON the floor around it and a few more hover just above it — loose and playful, but only blocks, nothing else. Upright portrait framing, the whole scene centred with an even margin, nothing touching the edge of the frame.
 
 No text, no letters, no Japanese characters, no logos, no watermark.`;
 
@@ -50,7 +52,7 @@ Change ONLY these things:
 4. Keep the loose cubes around the house, and keep the white page as the floor — still no base plate, no grass tile, no island, no shadow.
 5. The roof comes DOWN lower over the smaller room.
 
-Everything else stays identical: same palette, same flat voxel shading, same isometric camera, and the SAME PURE WHITE EMPTY BACKGROUND with no shadow and no ground plane.
+Everything else stays identical: same palette, same flat voxel shading, the SAME STEEP HIGH-ANGLE CAMERA looking down at about 55–60 degrees, and the SAME PURE WHITE EMPTY BACKGROUND with no shadow and no ground plane.
 Keep the hanging scroll and every other surface BLANK — do not add any text, letters or Japanese characters anywhere.`,
   },
 };
