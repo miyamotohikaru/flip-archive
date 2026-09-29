@@ -17,35 +17,40 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const MODEL = "gemini-3.1-flash-image-preview";
 
 /** 図鑑じゅうで共通の見え方。ここを揃えないと版が並ばない。 */
-const STYLE = `A cute miniature model built entirely from small glossy plastic toy building blocks — voxel cubes, like nanoblock or LEGO micro build.
+const STYLE = `A crisp isometric VOXEL illustration — a little world built entirely from perfectly square 3D pixel cubes, in the style of voxel art (MagicaVoxel / 3D pixel art).
 
-BACKGROUND: pure flat WHITE (#ffffff), completely empty. No backdrop, no floor, no table, no ground plane, no shadow, no gradient, no vignette — the model is cut out and isolated on plain white, like a product photo on a white sweep with the shadow removed. Nothing in the frame except the blocks themselves.
+NOT a photograph. NOT plastic toy bricks: no studs, no glossy plastic, no bevelled edges, no depth of field, no reflections.
 
-The model sits on its own base made of blocks (the base is part of the build, also blocks).
+SHADING: flat and graphic. Every cube face is one single flat tone — the top face brightest, the two visible side faces two clearly darker steps of the same hue. Hard clean edges between faces. No soft gradients, no blur, no ambient occlusion, no cast shadow on the ground.
 
-Soft even studio lighting from the upper left so each cube reads as a solid three-dimensional block with a clear lit top face and a shaded side face. Crisp edges, no blur.
-Playful varied palette: warm brick red, mustard yellow, teal, sage green, cream, soft warm grey, a touch of orange. Slightly busy and richly detailed — many small cubes, hand-built block-toy feel.
-Three-quarter isometric view, the whole model centered, filling most of the frame with a small even margin. Upright portrait composition.
-Absolutely NO text anywhere: no letters, no Japanese characters, no writing on scrolls or signs, no logos, no watermark, no human photograph.`;
+BACKGROUND: pure flat WHITE (#ffffff), completely empty. No floor, no ground plane, no shadow, no gradient, no vignette. The scene floats, cut out on white.
+
+PALETTE: bold graphic colours — vermilion red, sunny yellow, grass green, sky blue, warm sand, dark charcoal grey, light grey, and a few pure white cubes. Bright and varied, many colours at once.
+
+COMPOSITION: true isometric view from above (30 degrees). The main build sits in the middle, and a scattering of small single cubes and tiny details floats loosely around it and drifts off into the empty white — slightly busy and playful, like a fragment of a tiny voxel world. Upright portrait framing, the whole scene centred with an even margin, nothing touching the edge of the frame.
+
+No text, no letters, no Japanese characters, no logos, no watermark.`;
 
 const PLATES = {
   "01": {
     before: `${STYLE}
 
-Subject: a tiny Japanese tea house (chashitsu), built from toy blocks, shown as a cutaway so the inside is visible from the side.
-Right now it has a WIDE and TALL doorway — a full-height opening that a person could walk straight through standing upright. Above the doorway the wall is open and airy. The roof sits HIGH.
-A small blocky toy figure stands UPRIGHT in front of the doorway, facing it, about to walk in without bending.
-Inside, a roomy floor covered with several pale straw-coloured tatami blocks. A short path of round stepping stones (also blocks) leads across the base toward the doorway. Wooden posts, a small tiled roof, a low block base under the whole model.
-Remember: plain pure white all around, no shadow, no ground surface.`,
+Subject: a tiny Japanese tea house (chashitsu) built from voxel cubes, cut away on one side so the inside is visible.
+Right now it has a WIDE, TALL opening in the front wall — a full-height doorway a person could walk straight through standing upright.
+A small voxel person stands UPRIGHT on the path in front of that opening, facing it.
+Inside, a floor of pale sand-coloured tatami cubes. A short line of round grey stepping-stone cubes leads to the doorway. Charcoal roof cubes, red-brown post cubes, green moss cubes and a few small trees around the base.
+Loose single cubes — red, yellow, blue, green — float and scatter in the white space around the little house.
+Remember: pure flat white all around, no ground plane, no shadow.`,
     after: `Keep EXACTLY the same toy block model: same camera angle, same lighting, same shadow, same colours, same backdrop, same style and the same base plinth.
 
 Change ONLY these things:
-1. The doorway shrinks into a TINY LOW SQUARE CRAWL HOLE near the ground, about knee height — small enough that a person must get down on hands and knees to pass through. The wall above the hole is now filled in solid with blocks.
-2. The small toy figure is now on ALL FOURS in a tidy crawling pose — knees on the stepping stone, both hands on the ground in front, back level, head lowered toward the tiny hole, clearly about to crawl through it. It must look deliberate and balanced, NOT fallen over, NOT lying on its side.
+1. The tall doorway shrinks into a TINY LOW SQUARE CRAWL HOLE near the ground, only two or three cubes high — small enough that a person must get down on hands and knees to pass through. The wall above the hole is now filled in solid with wall cubes.
+2. The small voxel person is now on ALL FOURS in a tidy crawling pose — knees on the stepping stone, both hands on the ground ahead, back level and horizontal, head lowered toward the tiny hole, clearly about to crawl through. Deliberate and balanced, NOT fallen over, NOT lying on its side.
 3. Inside, the floor is now exactly TWO tatami mats and the room is TIGHTER and NARROWER.
-4. The roof comes DOWN lower over the smaller room.
+4. Keep the loose floating cubes scattered around in the white space.
+5. The roof comes DOWN lower over the smaller room.
 
-Everything else stays identical: same palette, same block style, same soft studio light, and the SAME PURE WHITE EMPTY BACKGROUND with no shadow and no ground surface.
+Everything else stays identical: same palette, same flat voxel shading, same isometric camera, and the SAME PURE WHITE EMPTY BACKGROUND with no shadow and no ground plane.
 Keep the hanging scroll and every other surface BLANK — do not add any text, letters or Japanese characters anywhere.`,
   },
 };
