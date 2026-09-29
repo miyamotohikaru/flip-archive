@@ -3,6 +3,7 @@ import * as THREE from "three";
 // 版の色をCSSのトークンとそのまま一致させる（線形化させない）
 THREE.ColorManagement.enabled = false;
 import { plateFragmentShader, plateVertexShader } from "./shaders";
+import { blankTexture, labelTexture } from "./labelTexture";
 
 /**
  * 索引・詳細ページ用の単票レンダラ。
@@ -28,6 +29,8 @@ export type PlateParams = {
   plate: number;
   progress: number;
   aspect: number; // w / h
+  /** 版面に刷る事例名。省略すると刷らない。 */
+  label?: string;
 };
 
 const PAPER = new THREE.Color("#fffefb");
@@ -73,6 +76,10 @@ function ensure(width: number, height: number): Shared | null {
           uAccent: { value: ACCENT },
           uGrain: { value: 0.05 },
           uFocus: { value: 0 },
+          uLabel: { value: blankTexture() },
+          uLabelAspect: { value: 1 },
+          uHasLabel: { value: 0 },
+          uLabelScale: { value: 1 },
         },
       }),
     );
@@ -114,6 +121,17 @@ export function drawPlate(
   u.uPlate.value = params.plate;
   u.uProgress.value = params.progress;
   u.uSize.value.set(params.aspect, 1);
+  if (params.label) {
+    const l = labelTexture(params.label);
+    u.uLabel.value = l.texture;
+    u.uLabelAspect.value = l.aspect;
+    u.uHasLabel.value = 1;
+    // 版が小さく出るほど、文字は相対的に大きくしないと読めない
+    const shown = target.clientWidth;
+    u.uLabelScale.value = shown < 150 ? 1.5 : shown < 230 ? 1.28 : 1;
+  } else {
+    u.uHasLabel.value = 0;
+  }
 
   s.renderer.render(s.scene, s.camera);
 

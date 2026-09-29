@@ -9,14 +9,14 @@ export default function NotFound() {
           このCASEは、まだ収録していません。
         </h1>
         <p className="mt-4 max-w-[34rem] text-13 leading-[1.95] text-mute">
-          空白は、次の調査テーマとして扱う。収録判断の基準は「収録・編集方針」に置いてある。
+          空白は、次の調査テーマとして扱う。評価の基準は「評価について」に置いてある。
         </p>
         <div className="mt-8 flex gap-6">
           <Link href="/cases" className="label transition-colors hover:!text-ink">
             ← 索引へ
           </Link>
-          <Link href="/about" className="label transition-colors hover:!text-ink">
-            収録・編集方針
+          <Link href="/criteria" className="label transition-colors hover:!text-ink">
+            評価について
           </Link>
         </div>
       </div>

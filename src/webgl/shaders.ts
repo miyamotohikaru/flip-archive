@@ -24,7 +24,7 @@ export const plateFragmentShader = /* glsl */ `
   uniform float uTime;
   uniform float uSeed;
   uniform float uProgress;   // 配置操作の進行 0→1
-  uniform float uPlate;      // どのCASEの作図プログラムか 0..9
+  uniform float uPlate;      // どのCASEの作図プログラムか 0..6
   uniform float uFade;       // 帯の端でのフェード
   uniform float uAppear;     // 初回出現
   uniform vec2  uSize;       // 版面のワールド寸法
@@ -33,6 +33,10 @@ export const plateFragmentShader = /* glsl */ `
   uniform vec3  uAccent;
   uniform float uGrain;
   uniform float uFocus;     // 帯の中で手前に読まれている版
+  uniform sampler2D uLabel; // 版面に刷る事例名
+  uniform float uLabelAspect;
+  uniform float uHasLabel;
+  uniform float uLabelScale;  // 版が小さく出る画面では、文字だけ大きくする
 
   varying vec2 vUv;
 
@@ -82,376 +86,330 @@ export const plateFragmentShader = /* glsl */ `
   const vec2 AREA_H = vec2(0.290, 0.370);
   const vec2 AREA_C = vec2(0.0, -0.010);
 
+  // ---- ミニチュアの塗り -------------------------------------------------
+  // 線画ではなく、面を持った小さな模型として描くための道具。
+  // 版面の色に直接塗り重ねるので、INK / ACC / LIN は使わない。
+  vec3 MC;
+
+  float sdRound(vec2 p, vec2 b, float r) {
+    vec2 q = abs(p) - b + r;
+    return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
+  }
+
+  // 落ち影。形を右下へずらし、ぼかして地に落とす。
+  void mDrop(vec2 p, float d, float spread, float amt) {
+    float a = (1.0 - smoothstep(-spread * 0.25, spread, d)) * amt;
+    MC = mix(MC, mix(uPaper, uInk, 0.62), a);
+  }
+
+  // 平らな面。ふちだけ締め、上ほど明るい淡い階調をつける。
+  // 大きな面に膨らみを当てると角から筋が出るので、板にはこちらを使う。
+  void mPanel(vec2 p, float d, float rim, vec3 base, float y0, float y1) {
+    float cov = 1.0 - smoothstep(-AA, AA, d);
+    if (cov < 0.003) return;
+    float edge = smoothstep(0.0, rim, -d);
+    float up = clamp((p.y - y0) / max(y1 - y0, 1e-4), 0.0, 1.0);
+    vec3 tone = mix(mix(base, uInk, 0.30), base, edge);
+    tone = mix(tone, mix(base, vec3(1.0), 0.26), up * edge);
+    MC = mix(MC, tone, cov);
+  }
+
+  // ぽこっと膨れた塊。中央が高く、左上から光が当たる。
+  void mBody(vec2 p, vec2 c, float d, float soft, vec3 base) {
+    float cov = 1.0 - smoothstep(-AA, AA, d);
+    if (cov < 0.003) return;
+    float dome = sqrt(clamp(-d / soft, 0.0, 1.0));
+    vec2 n = normalize(p - c + vec2(1e-4));
+    float lam = 0.5 + 0.5 * dot(n, vec2(-0.52, 0.86));
+    vec3 lo = mix(base, uInk, 0.34);
+    vec3 hi = mix(base, vec3(1.0), 0.36);
+    vec3 tone = mix(lo, hi, clamp(dome * (0.28 + 0.72 * lam), 0.0, 1.0));
+    MC = mix(MC, tone, cov);
+  }
+
   // ======================================================================
-  // 01 泉 — 文脈置換
-  //   変容前: 展示室の枠と、その中に整列した作品。枠の外に量産品がひとつ。
-  //   実行後: 量産品が枠の内側へ移り、元の位置には破線が残る。
+  // 01 待庵の躙口 — 入口の寸法が、身体の振る舞いを変える
+  //   台の上に置いた小さな模型として描く。断面で中を見せる。
+  //   変容前: 立って通れる開口。天井が高く、床はひと続き。
+  //   実行後: 開口が膝の高さまで下がり、身体が折れ、床が二畳に締まる。
+  // ======================================================================
+  void plateNijiri(vec2 p, float t) {
+    // 模型を版面の真ん中へ、少し大きく据える
+    float k = 1.12;
+    p = (p - vec2(0.0, -0.036)) / k;
+    AA /= k;
+
+    vec3 cSlab  = mix(uPaper, uInk, 0.11);   // 台の上面
+    vec3 cSlabS = mix(uPaper, uInk, 0.28);   // 台の厚み
+    vec3 cRoom  = mix(uPaper, uInk, 0.17);   // 小間の奥の面
+    vec3 cWall  = mix(uPaper, uInk, 0.24);   // 躙口のある壁
+    vec3 cRoof  = mix(uPaper, uInk, 0.33);   // 屋根
+    vec3 cMat   = mix(uPaper, uInk, 0.14);   // 畳
+    vec3 cFig   = mix(uPaper, uInk, 0.76);   // 客
+    vec3 cStone = mix(uPaper, uInk, 0.26);   // 飛石
+
+    float gy = -0.108;                        // 台の上面
+    float roof = gy + mix(0.286, 0.176, t);   // 天井の高さ
+    float wx = -0.098;                        // 躙口のある壁
+    float back = mix(0.196, 0.124, t);        // 奥の面の右端
+
+    // --- 台。厚みのある板として、影ごと浮かせる。
+    vec2 slabC = vec2(0.0, gy - 0.046);
+    vec2 slabH = vec2(0.244, 0.046);
+    mDrop(p, sdRound(p - (slabC + vec2(0.020, -0.060)), slabH, 0.030), 0.082, 0.32);
+    vec2 slabD = slabC + vec2(0.0, -0.024);
+    mPanel(p, sdRound(p - slabD, slabH, 0.030), 0.030, cSlabS, slabD.y - 0.046, slabD.y + 0.046);
+    mPanel(p, sdRound(p - slabC, slabH, 0.030), 0.034, cSlab, slabC.y - 0.046, slabC.y + 0.046);
+
+    // --- 小間。奥の面を一段落として、内側を見せる。
+    vec2 roomC = vec2((wx + back) * 0.5, (gy + roof) * 0.5);
+    vec2 roomH = vec2((back - wx) * 0.5, (roof - gy) * 0.5);
+    mDrop(p, sdRound(p - (roomC + vec2(0.014, -0.014)), roomH, 0.022), 0.046, 0.22);
+    mPanel(p, sdRound(p - roomC, roomH, 0.022), 0.040, cRoom, gy, roof);
+
+    // --- 床。ひと続きの面が、二畳に分かれる。
+    float gap = mix(0.0, 0.012, t);
+    float mw = (back - wx - 0.036) * 0.25;
+    for (int i = 0; i < 2; i++) {
+      float fi = float(i);
+      vec2 mc = vec2(wx + 0.018 + mw + fi * (mw * 2.0 + gap * 2.0), gy + 0.019);
+      vec2 mh = vec2(mw, 0.017);
+      mDrop(p, sdRound(p - (mc + vec2(0.008, -0.010)), mh, 0.009), 0.022, 0.20);
+      mBody(p, mc, sdRound(p - mc, mh, 0.009), 0.026, cMat);
+    }
+
+    // --- 躙口のある壁。開口のぶんを抜く。
+    vec2 wallC = vec2(wx, (gy + roof) * 0.5);
+    vec2 wallH = vec2(0.026, (roof - gy) * 0.5);
+    float openY = gy + mix(0.118, 0.048, t);
+    float openH = mix(0.094, 0.032, t);
+    float dWall = sdRound(p - wallC, wallH, 0.013);
+    vec2 holeC = vec2(wx, openY);
+    float dHole = sdRound(p - holeC, vec2(0.030, openH), 0.010);
+    // 入口の奥。抜いた先が暗いことで、くぐる口だと分かる。
+    mBody(p, holeC, dHole, 0.030, mix(uPaper, uInk, 0.46));
+    mDrop(p, sdRound(p - (wallC + vec2(0.014, -0.014)), wallH, 0.013), 0.032, 0.20);
+    mPanel(p, max(dWall, -dHole), 0.014, cWall, gy, roof);
+
+    // 鴨居と敷居。開口の上下を朱で押さえる。
+    vec2 kamoi = vec2(wx, openY + openH + 0.006);
+    vec2 shiki = vec2(wx, openY - openH - 0.006);
+    mBody(p, kamoi, sdRound(p - kamoi, vec2(0.032, 0.0065), 0.006), 0.014, uAccent);
+    mBody(p, shiki, sdRound(p - shiki, vec2(0.032, 0.0065), 0.006), 0.014, uAccent);
+
+    // --- 屋根。天井が下りてくる。
+    vec2 roofC = vec2((wx + back) * 0.5, roof + 0.014);
+    vec2 roofH = vec2((back - wx) * 0.5 + 0.034, 0.015);
+    mDrop(p, sdRound(p - (roofC + vec2(0.016, -0.022)), roofH, 0.012), 0.040, 0.26);
+    mBody(p, roofC, sdRound(p - roofC, roofH, 0.012), 0.024, cRoof);
+
+    // --- 飛石。露地から躙口へ寄る。
+    for (int i = 0; i < 2; i++) {
+      float fi = float(i);
+      vec2 sc = vec2(-0.226 + fi * 0.036, gy + 0.007);
+      vec2 sh = vec2(0.015, 0.007);
+      mDrop(p, sdRound(p - (sc + vec2(0.006, -0.007)), sh, 0.007), 0.016, 0.20);
+      mBody(p, sc, sdRound(p - sc, sh, 0.007), 0.014, cStone);
+    }
+
+    // --- 客。直立の姿から、身をかがめる姿へ。
+    vec2 foot  = vec2(mix(-0.172, -0.158, t), gy + 0.013);
+    vec2 hip   = foot  + mix(vec2(0.0, 0.050), vec2(0.013, 0.028), t);
+    vec2 chest = hip   + mix(vec2(0.0, 0.058), vec2(0.048, 0.010), t);
+    vec2 head  = chest + mix(vec2(0.0, 0.045), vec2(0.038, -0.008), t);
+    float rHead = mix(0.029, 0.027, t);
+    mDrop(p, sdSeg(p - vec2(0.012, -0.014), foot, chest) - 0.028, 0.032, 0.24);
+    mDrop(p, length(p - head - vec2(0.012, -0.014)) - rHead, 0.028, 0.24);
+    mBody(p, mix(foot, hip, 0.5), sdSeg(p, foot, hip) - 0.020, 0.028, cFig);
+    mBody(p, mix(hip, chest, 0.5), sdSeg(p, hip, chest) - 0.028, 0.036, cFig);
+    mBody(p, head, length(p - head) - rHead, 0.032, cFig);
+  }
+
+  // ======================================================================
+  // 02 《泉》 — 出品と、展示見送りと、誌面
+  //   変容前: 展示室の枠に作品が整列し、外に量産品がひとつ置かれている。
+  //   実行後: 量産品は枠へ入らず、写真と記事として誌面の側に置かれる。
   // ======================================================================
   void plateFountain(vec2 p, float t) {
-    vec2 rc = vec2(-0.030, 0.045);
-    vec2 rh = vec2(0.190, 0.230);
+    // 展示室
+    vec2 rc = vec2(-0.028, 0.170);
+    vec2 rh = vec2(0.196, 0.152);
     LIN += frame(p, rc, rh, 0.0016);
-
-    // 展示室に整列した作品
-    for (int i = 0; i < 12; i++) {
-      if (i == 11) continue;   // 置き直す先として一区画を空けておく
-      float fi = float(i);
-      float col = mod(fi, 4.0), row = floor(fi / 4.0);
-      vec2 c = rc + vec2((col - 1.5) * 0.098, (1.0 - row) * 0.140 - 0.035);
-      float hh = 0.030 + 0.020 * hash11(fi * 3.1 + uSeed);
-      INK += box(p, c, vec2(0.028, hh));
-    }
-
-    // 量産品。枠の外から、枠の内側へ。
-    vec2 from = vec2(0.215, -0.300);
-    vec2 to = rc + vec2(1.5 * 0.098, -0.175);
-    vec2 c = mix(from, to, t);
-
-    // 便器の断面に見えるよう、上が広く下がすぼまる形にする
-    float body = box(p, c, vec2(0.046, 0.030));
-    body += box(p, c + vec2(0.0, 0.036), vec2(0.030, 0.010));
-    INK += body;
-
-    // 元の位置に残る破線と、置き直した先の朱
-    LIN += dashed(p, from, vec2(0.058, 0.052), 0.0013, 46.0) * t;
-    ACC += (body + frame(p, c, vec2(0.058, 0.052), 0.0013)) * t;
-
-    // 台座
-    LIN += seg(p, c + vec2(-0.052, -0.034), c + vec2(0.052, -0.034), 0.0012);
-  }
-
-  // ======================================================================
-  // 02 点字ブロック — 用途転換
-  //   変容前: 情報を持たない均質な舗装。
-  //   実行後: 足裏で読める経路が、同じ面の上に現れる。
-  // ======================================================================
-  void plateTactile(vec2 p, float t) {
-    // 舗装。均質な面として、まず地を敷く。
-    INK += box(p, AREA_C, AREA_H) * 0.12;
-    LIN += frame(p, AREA_C, AREA_H, 0.0012);
-    for (int i = 0; i < 9; i++) {
-      float y = -0.34 + float(i) * 0.085;
-      LIN += seg(p, vec2(-AREA_H.x, y), vec2(AREA_H.x, y), 0.0008) * 0.75;
-    }
-    for (int i = 0; i < 5; i++) {
-      float x = -0.24 + float(i) * 0.12;
-      LIN += seg(p, vec2(x, -0.36), vec2(x, 0.36), 0.0007) * 0.35;
-    }
-
-    // 歩く人と、向かう先。経路は誰のためのものかを示す。
-    INK += box(p, vec2(-0.150, -0.318), vec2(0.017, 0.017));
-    LIN += ring(p, vec2(-0.150, -0.318), 0.033, 0.0011);
-    LIN += frame(p, vec2(0.146, 0.170), vec2(0.048, 0.052), 0.0014);
-    LIN += seg(p, vec2(0.098, 0.118), vec2(0.194, 0.118), 0.0014);
-
-    // 経路。下から上へ伸び、途中で直角に折れる。
-    float head = t * 1.06;
-    for (int i = 0; i < 17; i++) {
-      float fi = float(i);
-      float s = fi / 16.0;
-      vec2 c;
-      if (s < 0.52) {
-        c = vec2(-0.150, -0.340 + s * 1.16);
-      } else if (s < 0.68) {
-        c = vec2(-0.150 + (s - 0.52) * 1.85, 0.263);
-      } else {
-        c = vec2(0.146, 0.263 - (s - 0.68) * 0.30);
-      }
-      float on = smoothstep(s, s + 0.06, head);
-      // 誘導は線状、折れ点は点状にする
-      float warn = step(0.50, s) * step(s, 0.70);
-      float d = mix(box(p, c, vec2(0.014, 0.030)), box(p, c, vec2(0.020, 0.020)), warn);
-      INK += d * on;
-      ACC += d * on * mix(0.35, 1.0, warn);
-    }
-  }
-
-  // ======================================================================
-  // 03 ボンエルフ — 役割反転
-  //   変容前: まっすぐな車路。歩行者は縁へ押し出されている。
-  //   実行後: 屈曲と植栽が入り、面の全幅が使われる。
-  // ======================================================================
-  void plateWoonerf(vec2 p, float t) {
-    LIN += frame(p, AREA_C, AREA_H, 0.0012) * 0.6;
-
-    // 車路の縁石。実行後には消える。
-    float w = 0.088;
-    LIN += seg(p, vec2(-w, -0.355), vec2(-w, 0.355), 0.0018) * (1.0 - t * 0.62);
-    LIN += seg(p, vec2(w, -0.355), vec2(w, 0.355), 0.0018) * (1.0 - t * 0.62);
-    // 実行後の路面。歩行者が使える面として灰で敷く。
-    INK += box(p, vec2(0.0, 0.0), vec2(0.245, 0.355)) * t * 0.10;
-    // 縁石の外側＝歩行者が押し込まれていた細い帯
-    LIN += seg(p, vec2(-0.245, -0.355), vec2(-0.245, 0.355), 0.0012);
-    LIN += seg(p, vec2(0.245, -0.355), vec2(0.245, 0.355), 0.0012);
-
-    // 車。多数がまっすぐ並んでいたものが、数を減らして蛇行する。
     for (int i = 0; i < 8; i++) {
       float fi = float(i);
-      float y = -0.320 + fi * 0.092;
-      float sway = sin(fi * 1.9 + 0.6) * 0.115 * t;
-      float keep = 1.0 - t * step(0.5, mod(fi, 2.0));
-      INK += box(p, vec2(sway, y), vec2(0.030, 0.038)) * keep;
-      LIN += frame(p, vec2(sway, y), vec2(0.030, 0.038), 0.0011) * keep;
+      float col = mod(fi, 4.0), row = floor(fi / 4.0);
+      vec2 c = rc + vec2((col - 1.5) * 0.098, 0.068 - row * 0.130);
+      float hh = 0.028 + 0.018 * hash11(fi * 3.1 + uSeed);
+      INK += box(p, c, vec2(0.026, hh));
+    }
+    // 空いたままの一区画。除外の決定がここに残る。
+    vec2 slot = rc + vec2(1.5 * 0.098, -0.062);
+    LIN += dashed(p, slot, vec2(0.040, 0.046), 0.0013, 46.0);
+    ACC += (seg(p, slot + vec2(-0.026, -0.030), slot + vec2(0.026, 0.030), 0.0016)
+          + seg(p, slot + vec2(-0.026, 0.030), slot + vec2(0.026, -0.030), 0.0016)) * t;
+
+    // 誌面。写真の枠と、本文の段。
+    vec2 pc = vec2(0.010, -0.212);
+    vec2 ph = vec2(0.196, 0.140);
+    LIN += frame(p, pc, ph, 0.0014) * t;
+    INK += box(p, pc, ph) * t * 0.05;
+    for (int i = 0; i < 7; i++) {
+      float y = pc.y - 0.100 + float(i) * 0.024;
+      float w = 0.070 - 0.004 * hash11(float(i) * 2.3 + uSeed);
+      LIN += seg(p, vec2(pc.x + 0.046, y), vec2(pc.x + 0.046 + w * 2.0, y), 0.0010) * t;
     }
 
-    // 歩行者。縁の細帯から、面の全幅へ散る。
-    for (int i = 0; i < 16; i++) {
-      float fi = float(i);
-      float side = mod(fi, 2.0) * 2.0 - 1.0;
-      float k = floor(fi / 2.0);
-      vec2 from = vec2(side * (0.212 + 0.020 * hash11(fi + uSeed)), -0.320 + k * 0.092);
-      vec2 to = vec2((hash11(fi * 3.7 + uSeed) - 0.5) * 0.470,
-                     -0.330 + hash11(fi * 5.1 + uSeed) * 0.660);
-      vec2 c = mix(from, to, t);
-      float sz = mix(0.0085, 0.0155, t);
-      INK += box(p, c, vec2(sz, sz));
-    }
-
-    // 植栽と滞留の島。実行後に車路のまん中へ据わる。
-    for (int i = 0; i < 5; i++) {
-      float fi = float(i);
-      float side = mod(fi, 2.0) * 2.0 - 1.0;
-      float y = -0.270 + fi * 0.145;
-      vec2 from = vec2(side * 0.300, y);
-      vec2 to = vec2(side * 0.062, y);
-      vec2 c = mix(from, to, t);
-      float o = box(p, c, vec2(0.042, 0.017));
-      INK += o * t;
-      ACC += o * t;
-      LIN += seg(p, c + vec2(-0.042, -0.024), c + vec2(0.042, -0.024), 0.0011) * t;
-    }
+    // 量産品。枠の外から、誌面の写真の中へ。
+    vec2 from = vec2(0.222, 0.026);
+    vec2 to = pc + vec2(-0.104, 0.024);
+    vec2 c = mix(from, to, t);
+    float body = box(p, c, vec2(0.040, 0.027));
+    body += box(p, c + vec2(0.0, 0.032), vec2(0.026, 0.009));
+    INK += body;
+    ACC += body * t;
+    LIN += frame(p, c, vec2(0.056, 0.052), 0.0013) * t;
+    LIN += seg(p, c + vec2(-0.048, -0.031), c + vec2(0.048, -0.031), 0.0012);
   }
 
   // ======================================================================
-  // 04 グラミン銀行 — 尺度変更
-  //   変容前: 少数の大口。担保のある者だけが対象。
-  //   実行後: 同じ量が、五人一組の小さな単位へ分解される。
+  // 03 Before I Die — 同じ書き出しと、空欄
+  //   変容前: 壁に、同じ書き出しの行と空欄だけが規則的に並ぶ。
+  //   実行後: 空欄が別々の筆跡で埋まり、隣の行へ返す言葉が現れる。
   // ======================================================================
-  void plateGrameen(vec2 p, float t) {
-    // 大口
-    for (int i = 0; i < 3; i++) {
-      float fi = float(i);
-      vec2 c = vec2(-0.150 + fi * 0.150, 0.215);
-      float s = 1.0 - t;
-      INK += box(p, c, vec2(0.058, 0.052) * s) * s;
-    }
-    LIN += seg(p, vec2(-0.26, 0.128), vec2(0.26, 0.128), 0.0009);
+  void plateWall(vec2 p, float t) {
+    LIN += frame(p, AREA_C, AREA_H, 0.0014);
+    INK += box(p, AREA_C, AREA_H) * 0.07;
 
-    // 五人一組の群
-    for (int g = 0; g < 6; g++) {
-      float fg = float(g);
-      vec2 gc = vec2(-0.176 + mod(fg, 3.0) * 0.176, -0.030 - floor(fg / 3.0) * 0.185);
-      float appear = smoothstep(fg / 8.0, fg / 8.0 + 0.35, t);
-      for (int k = 0; k < 5; k++) {
+    for (int r = 0; r < 8; r++) {
+      float fr = float(r);
+      float y = 0.306 - fr * 0.084;
+      for (int k = 0; k < 2; k++) {
         float fk = float(k);
-        float a = fk / 5.0 * 6.2831 - 1.5708;
-        vec2 c = gc + vec2(cos(a), sin(a)) * 0.040;
-        INK += box(p, c, vec2(0.014, 0.014)) * appear;
+        float x0 = -0.258 + fk * 0.274;
+
+        // 印刷された書き出し。どの行でも同じ長さ。
+        INK += box(p, vec2(x0 + 0.040, y + 0.016), vec2(0.040, 0.0052)) * 0.72;
+        // 空欄の罫
+        LIN += seg(p, vec2(x0, y - 0.010), vec2(x0 + 0.232, y - 0.010), 0.0011);
+
+        // 書き込まれた手。行ごとに長さも高さも揃わない。
+        float h = hash11(fr * 5.7 + fk * 2.3 + uSeed);
+        float on = smoothstep(h * 0.55, h * 0.55 + 0.30, t) * step(0.14, h);
+        float w = 0.050 + 0.150 * hash11(fr * 3.1 + fk * 7.9 + uSeed);
+        for (int s = 0; s < 7; s++) {
+          float fs = float(s);
+          if (fs * 0.030 > w) break;
+          float jitter = (hash11(fr * 11.0 + fk * 3.0 + fs + uSeed) - 0.5) * 0.010;
+          vec2 a = vec2(x0 + 0.004 + fs * 0.030, y - 0.002 + jitter);
+          vec2 b = vec2(a.x + 0.022, y - 0.002 - jitter);
+          INK += seg(p, a, b, 0.0022) * on;
+        }
       }
-      LIN += ring(p, gc, 0.058, 0.0009) * appear * 0.8;
-      if (g == 1) ACC += ring(p, gc, 0.058, 0.0013) * appear;
     }
 
-    // 尺度そのものの目盛
-    LIN += seg(p, vec2(-0.26, -0.330), vec2(0.26, -0.330), 0.0009) * t;
+    // 先に書かれた答えへ、次の人が返す矢印。
+    vec2 a0 = vec2(-0.084, 0.222);
+    vec2 a1 = vec2(0.020, 0.060);
+    ACC += seg(p, a0, a1, 0.0015) * smoothstep(0.55, 0.95, t);
+    ACC += seg(p, a1, a1 + vec2(-0.016, 0.018), 0.0015) * smoothstep(0.65, 0.95, t);
+    ACC += seg(p, a1, a1 + vec2(0.006, 0.024), 0.0015) * smoothstep(0.65, 0.95, t);
+  }
+
+  // ======================================================================
+  // 04 Key4All — 同じ一台へ、大勢の鍵
+  //   変容前: 一台の車に、一本の鍵だけが結ばれている。
+  //   実行後: 散らばる鍵すべてが同じ一台へ結ばれ、車の位置が動く。
+  // ======================================================================
+  void plateKeys(vec2 p, float t) {
+    // 車。実行後には位置が変わり、元の位置には破線が残る。
+    vec2 carFrom = vec2(-0.120, 0.086);
+    vec2 carTo = vec2(0.112, -0.118);
+    vec2 car = mix(carFrom, carTo, t);
+    LIN += dashed(p, carFrom, vec2(0.062, 0.030), 0.0012, 44.0) * t;
+    ACC += seg(p, carFrom, car, 0.0012) * t * 0.7;
+
+    // 鍵。円周に散らす。
     for (int i = 0; i < 11; i++) {
-      float x = -0.26 + float(i) * 0.052;
-      LIN += seg(p, vec2(x, -0.330), vec2(x, -0.330 + 0.014), 0.0008) * t;
+      float fi = float(i);
+      float a = fi / 11.0 * 6.2831 + 0.4 + hash11(fi + uSeed) * 0.22;
+      float rad = 0.276 + 0.048 * hash11(fi * 3.3 + uSeed);
+      vec2 k = vec2(cos(a) * rad * 0.86, sin(a) * rad);
+
+      // 鍵の形。輪と、刻みのある軸。
+      LIN += ring(p, k, 0.013, 0.0013);
+      vec2 dir = normalize(car - k);
+      INK += seg(p, k + dir * 0.012, k + dir * 0.036, 0.0024);
+      INK += seg(p, k + dir * 0.030, k + dir * 0.030 + vec2(-dir.y, dir.x) * 0.010, 0.0022);
+
+      // 車へ結ぶ線。変容前は一本だけ。
+      float link = (i == 0) ? 1.0 : t * smoothstep(fi / 14.0, fi / 14.0 + 0.45, t);
+      float w = (i == 0) ? 0.0013 : 0.0011;
+      LIN += seg(p, k + dir * 0.040, car - dir * 0.062, w) * link;
     }
+
+    // 車体
+    INK += box(p, car, vec2(0.062, 0.022));
+    INK += box(p, car + vec2(-0.004, 0.026), vec2(0.036, 0.016));
+    LIN += ring(p, car + vec2(-0.040, -0.026), 0.013, 0.0016);
+    LIN += ring(p, car + vec2(0.040, -0.026), 0.013, 0.0016);
+    ACC += frame(p, car, vec2(0.082, 0.058), 0.0013) * t;
   }
 
   // ======================================================================
-  // 05 包まれたライヒスタッグ — 可視化
-  //   変容前: 装飾と開口で埋まった立面。細部で読み取っている。
-  //   実行後: 布が細部を伏せ、量塊と輪郭だけが残る。
+  // 05 r/place — 一画素ずつ、同じ画面へ
+  //   変容前: 空の格子。置けるのは一画素で、次まで待つ。
+  //   実行後: 画素が埋まり、上書きの跡と、隣り合う図柄の境界が現れる。
   // ======================================================================
-  void plateWrapped(vec2 p, float t) {
-    vec2 bc = vec2(0.0, -0.040);
-    vec2 bh = vec2(0.230, 0.215);
+  void plateCanvas(vec2 p, float t) {
+    vec2 gh = vec2(0.268, 0.268);
+    vec2 gc = vec2(0.0, 0.046);
+    LIN += frame(p, gc, gh, 0.0014);
 
-    // 立面の細部
-    float detail = 1.0 - t;
-    for (int i = 0; i < 9; i++) {
-      float x = -0.196 + float(i) * 0.049;
-      for (int j = 0; j < 4; j++) {
-        float y = -0.196 + float(j) * 0.098;
-        INK += box(p, vec2(x, y), vec2(0.015, 0.030)) * detail;
+    float n = 14.0;
+    float cell = gh.x * 2.0 / n;
+
+    // 格子
+    for (int i = 1; i < 14; i++) {
+      float d = -gh.x + float(i) * cell;
+      LIN += seg(p, vec2(gc.x + d, gc.y - gh.y), vec2(gc.x + d, gc.y + gh.y), 0.0006) * 0.5;
+      LIN += seg(p, vec2(gc.x - gh.x, gc.y + d), vec2(gc.x + gh.x, gc.y + d), 0.0006) * 0.5;
+    }
+
+    // 画素。一枚ずつ置かれ、一部は上書きされる。
+    for (int y = 0; y < 14; y++) {
+      for (int x = 0; x < 14; x++) {
+        float fx = float(x), fy = float(y);
+        float h = hash21(vec2(fx, fy) + uSeed);
+        if (h < 0.34) continue;
+        float order = hash21(vec2(fy, fx) * 1.7 + uSeed);
+        float on = smoothstep(order * 0.72, order * 0.72 + 0.26, t);
+        vec2 c = gc + vec2(-gh.x + (fx + 0.5) * cell, -gh.y + (fy + 0.5) * cell);
+        float sq = box(p, c, vec2(cell * 0.5 - 0.0012, cell * 0.5 - 0.0012));
+        // 上書きされた画素は、下の層が残って薄く見える
+        float over = step(0.86, h);
+        INK += sq * on * mix(0.88, 0.34, over);
+        LIN += frame(p, c, vec2(cell * 0.5 - 0.0012, cell * 0.5 - 0.0012), 0.0010) * on * over;
       }
     }
-    // 塔とペディメント
-    INK += box(p, vec2(0.0, 0.215), vec2(0.055, 0.048)) * detail;
-    LIN += ring(p, vec2(0.0, 0.208), 0.056, 0.0016);
-    LIN += seg(p, vec2(-0.230, 0.168), vec2(0.230, 0.168), 0.0012);
-    LIN += frame(p, bc, bh, 0.0014);
 
-    // 布。輪郭をなぞりながら細部を伏せる。
-    float drape = box(p, bc, bh) * t;
-    INK += drape * 0.26;
-    for (int i = 0; i < 7; i++) {
-      float fi = float(i);
-      float x = -0.180 + fi * 0.060;
-      float bow = sin(fi * 1.3 + uSeed) * 0.014;
-      LIN += seg(p, vec2(x + bow, -0.245), vec2(x - bow, 0.160), 0.0009) * t * 0.7;
-    }
-    // 締めたロープ
-    for (int i = 0; i < 3; i++) {
-      float y = -0.170 + float(i) * 0.130;
-      ACC += seg(p, vec2(-0.232, y), vec2(0.232, y + 0.012), 0.0014) * t;
-    }
-    LIN += frame(p, bc, bh, 0.0022) * t;
-    LIN += seg(p, vec2(0.0, 0.208), vec2(0.0, 0.330), 0.0012); // 旗竿
-    INK += box(p, vec2(0.0, 0.208), vec2(0.056, 0.052)) * t * 0.26;
-  }
+    // 隣り合う図柄のあいだに引かれた境界。誰も指示していない線。
+    float grow = smoothstep(0.45, 1.0, t);
+    ACC += seg(p, gc + vec2(-0.268, 0.070), gc + vec2(-0.038, 0.070), 0.0018) * grow;
+    ACC += seg(p, gc + vec2(-0.038, 0.070), gc + vec2(-0.038, -0.268), 0.0018) * grow;
+    ACC += seg(p, gc + vec2(0.114, 0.268), gc + vec2(0.114, -0.106), 0.0018) * grow;
 
-  // ======================================================================
-  // 06 パントマイム — 役割反転
-  //   変容前: 街路と車列。歩行者は縁の小さな点。
-  //   実行後: 見ている側が前へ出て、判定の記号を掲げる。
-  // ======================================================================
-  void plateMime(vec2 p, float t) {
-    LIN += seg(p, vec2(-0.29, 0.130), vec2(0.29, 0.130), 0.0013);
-    LIN += seg(p, vec2(-0.29, -0.130), vec2(0.29, -0.130), 0.0013);
-    for (int i = 0; i < 7; i++) {
-      float x = -0.24 + float(i) * 0.08;
-      LIN += seg(p, vec2(x, 0.0), vec2(x + 0.045, 0.0), 0.0010) * 0.7;
-    }
-
-    // 車列。後ろへ退く。
-    for (int i = 0; i < 5; i++) {
-      float fi = float(i);
-      float x = -0.20 + fi * 0.10;
-      INK += box(p, vec2(x, 0.062), vec2(0.032, 0.030)) * (1.0 - t * 0.55);
-    }
-
-    // 見ている側。縁から前景へ。
-    for (int i = 0; i < 12; i++) {
-      float fi = float(i);
-      float side = mod(fi, 2.0) * 2.0 - 1.0;
-      float x = -0.245 + floor(fi / 2.0) * 0.098 + mod(fi, 2.0) * 0.049;
-      vec2 from = vec2(x, side * 0.312);
-      vec2 to = vec2(x * 0.86, side * 0.176);
-      vec2 c = mix(from, to, t);
-      float s = mix(0.0085, 0.020, t);
-      INK += box(p, c, vec2(s, s));
-      // 掲げられた判定の記号
-      float up = step(0.5, hash11(fi * 5.3 + uSeed));
-      float sign = seg(p, c + vec2(0.0, s * 1.6), c + vec2(0.0, s * 3.2), 0.0013)
-                 + seg(p, c + vec2(-0.008, s * 3.2 - mix(0.0, 0.010, up)),
-                          c + vec2(0.008, s * 3.2 - mix(0.010, 0.0, up)), 0.0013);
-      ACC += sign * t;
-    }
-
-    // 舗装に描かれた星（死者の座標）
-    for (int i = 0; i < 3; i++) {
-      vec2 c = vec2(-0.170 + float(i) * 0.170, -0.062);
-      for (int k = 0; k < 3; k++) {
-        float a = float(k) / 3.0 * PI;
-        INK += seg(p, c - vec2(cos(a), sin(a)) * 0.014,
-                      c + vec2(cos(a), sin(a)) * 0.014, 0.0016) * t;
-      }
-      LIN += ring(p, c, 0.026, 0.0009) * t * 0.6;
-    }
-  }
-
-  // ======================================================================
-  // 07 ピアノ階段 — 用途転換
-  //   変容前: 段の断面。隣にエスカレータの斜線。
-  //   実行後: 踏面が鍵盤に置き換わり、踏むと音が返る。
-  // ======================================================================
-  void plateStairs(vec2 p, float t) {
-    // 階段。躯体を面として置く。
-    for (int i = 0; i < 7; i++) {
-      float fj = float(i);
-      float x0 = -0.270 + fj * 0.062;
-      float y0 = -0.300 + fj * 0.070;
-      INK += box(p, vec2(x0 + 0.031, (y0 - 0.360) * 0.5), vec2(0.031, (y0 + 0.360) * 0.5)) * 0.13;
-    }
-    for (int i = 0; i < 7; i++) {
-      float fi = float(i);
-      float x0 = -0.270 + fi * 0.062;
-      float y0 = -0.300 + fi * 0.070;
-      LIN += seg(p, vec2(x0, y0), vec2(x0 + 0.062, y0), 0.0014);
-      LIN += seg(p, vec2(x0 + 0.062, y0), vec2(x0 + 0.062, y0 + 0.070), 0.0014);
-
-      // 踏面が鍵盤になる
-      float key = box(p, vec2(x0 + 0.031, y0 + 0.011), vec2(0.026, 0.010));
-      float black = step(0.5, mod(fi, 2.0));
-      INK += key * t * mix(1.0, 0.0, black);
-      LIN += frame(p, vec2(x0 + 0.031, y0 + 0.011), vec2(0.026, 0.010), 0.0010) * t;
-
-      // 鳴った音
-      float snd = ring(p, vec2(x0 + 0.031, y0 + 0.011), 0.022 + 0.009 * fi, 0.0010);
-      ACC += snd * t * smoothstep(fi / 8.0, fi / 8.0 + 0.4, t) * 0.55;
-    }
-
-    // 隣に残されたエスカレータ
-    LIN += seg(p, vec2(-0.250, 0.290), vec2(0.230, -0.055), 0.0012) * 0.8;
-    LIN += seg(p, vec2(-0.250, 0.330), vec2(0.230, -0.015), 0.0012) * 0.8;
+    // 待機。次の一画素まで置けない時間。
+    LIN += seg(p, vec2(-0.268, -0.330), vec2(0.268, -0.330), 0.0010);
+    float wait = mix(0.0, 0.536, fract(t * 1.6));
+    ACC += seg(p, vec2(-0.268, -0.330), vec2(-0.268 + wait, -0.330), 0.0020) * t;
     for (int i = 0; i < 6; i++) {
-      float s = float(i) / 5.0;
-      vec2 c = mix(vec2(-0.240, 0.310), vec2(0.220, -0.035), s);
-      INK += box(p, c, vec2(0.010, 0.010)) * (1.0 - t * 0.5);
+      float x = -0.268 + float(i) * 0.1072;
+      LIN += seg(p, vec2(x, -0.330), vec2(x, -0.316), 0.0009);
     }
   }
 
   // ======================================================================
-  // 08 零時政府 — 命名
-  //   変容前: 一本の系統樹。末端に閉じた輪がひとつ。
-  //   実行後: 輪の一文字が置き換わり、隣に同じ形の別版が生える。
-  // ======================================================================
-  void plateG0v(vec2 p, float t) {
-    // 公式の系統。左側の一本。
-    vec2 root = vec2(-0.235, 0.310);
-    LIN += seg(p, root, root + vec2(0.0, -0.560), 0.0016);
-    INK += box(p, root, vec2(0.014, 0.014));
-    for (int i = 0; i < 5; i++) {
-      float fi = float(i);
-      float y = 0.235 - fi * 0.118;
-      float len = 0.086 + 0.030 * hash11(fi + uSeed);
-      LIN += seg(p, vec2(root.x, y), vec2(root.x + len, y), 0.0013);
-      INK += box(p, vec2(root.x + len, y), vec2(0.012, 0.012));
-      for (int k = 0; k < 2; k++) {
-        float fk = float(k);
-        float sub = 0.034 + 0.024 * hash11(fi * 3.0 + fk + uSeed);
-        vec2 e = vec2(root.x + len + sub, y - 0.026 + fk * 0.052);
-        LIN += seg(p, vec2(root.x + len, y), e, 0.0011);
-        INK += box(p, e, vec2(0.008, 0.008));
-      }
-    }
-
-    // 住所の一文字。塗りつぶしの輪から、抜きの輪へ。
-    vec2 nodeC = vec2(-0.235, -0.302);
-    LIN += seg(p, vec2(-0.235, -0.250), nodeC, 0.0013);
-    INK += fillOf(length(p - nodeC) - 0.026) * (1.0 - t);
-    LIN += ring(p, nodeC, 0.026, 0.0022) * t;
-    ACC += ring(p, nodeC, 0.026, 0.0026) * t;
-    ACC += seg(p, nodeC + vec2(-0.016, -0.022), nodeC + vec2(0.016, 0.022), 0.0020) * t;
-
-    // 置き換わった一文字から、同じ形の別版が生える。
-    float grow = smoothstep(0.10, 0.95, t);
-    vec2 root2 = vec2(0.075, 0.310);
-    ACC += seg(p, nodeC + vec2(0.030, 0.010), vec2(root2.x, -0.250), 0.0013) * grow;
-    ACC += seg(p, vec2(root2.x, -0.250), root2 * vec2(1.0, 1.0), 0.0015) * grow;
-    ACC += box(p, root2, vec2(0.013, 0.013)) * grow;
-    for (int i = 0; i < 5; i++) {
-      float fi = float(i);
-      float y = 0.235 - fi * 0.118;
-      float g2 = smoothstep(0.15 + fi * 0.11, 0.45 + fi * 0.11, t);
-      float len = 0.086 + 0.030 * hash11(fi + uSeed);
-      ACC += seg(p, vec2(root2.x, y), vec2(root2.x + len, y), 0.0013) * g2;
-      ACC += box(p, vec2(root2.x + len, y), vec2(0.012, 0.012)) * g2;
-      for (int k = 0; k < 2; k++) {
-        float fk = float(k);
-        float sub = 0.034 + 0.024 * hash11(fi * 3.0 + fk + uSeed);
-        vec2 e = vec2(root2.x + len + sub, y - 0.026 + fk * 0.052);
-        ACC += seg(p, vec2(root2.x + len, y), e, 0.0011) * g2;
-        ACC += box(p, e, vec2(0.008, 0.008)) * g2;
-      }
-    }
-  }
-
-  // ======================================================================
-  // 09 愛はゴミ箱の中に — 消去
+  // 06 Love is in the Bin — 額の中の裁断
   //   変容前: 額に収まった一枚。落札の記録が並ぶ。
   //   実行後: 下半分が短冊になり、額の内側に残る。
   // ======================================================================
@@ -494,40 +452,64 @@ export const plateFragmentShader = /* glsl */ `
   }
 
   // ======================================================================
-  // 10 ATMリーダーボード — 可視化
-  //   変容前: 閉じた箱が同じ大きさで並ぶ。中の数値は外から見えない。
-  //   実行後: 数値が抜き出され、大きい順に並び替えられる。
+  // 07 Pokémon GO — 同じ街路に、別の目的が重なる
+  //   変容前: 街区の格子を、目的地へまっすぐ抜ける経路。
+  //   実行後: 同じ格子に捕獲点と補給地点が重なり、経路が寄り道で折れる。
   // ======================================================================
-  void plateAtm(vec2 p, float t) {
-    LIN += seg(p, vec2(-0.268, 0.352), vec2(0.268, 0.352), 0.0012);
-    for (int i = 0; i < 8; i++) {
-      float fi = float(i);
-      float v = 0.10 + 0.85 * hash11(fi * 7.7 + uSeed);
-      float y = 0.290 - fi * 0.086;
+  void plateStreets(vec2 p, float t) {
+    LIN += frame(p, AREA_C, AREA_H, 0.0012) * 0.6;
 
-      // 残高の大きい順。同値は元の並び順で解く。
-      float rank = 0.0;
-      for (int j = 0; j < 8; j++) {
-        float fj = float(j);
-        float vj = 0.10 + 0.85 * hash11(fj * 7.7 + uSeed);
-        float bigger = step(v, vj);
-        float tie = step(abs(vj - v), 1e-5);
-        rank += mix(bigger, step(fj, fi - 0.5), tie);
-      }
-      float cy = mix(y, 0.290 - rank * 0.086, t);
-
-      // 口座。番号は残り、中身の見え方だけが変わる。
-      LIN += frame(p, vec2(-0.242, cy), vec2(0.030, 0.030), 0.0016);
-      INK += box(p, vec2(-0.242, cy), vec2(0.017, 0.017)) * mix(1.0, 0.30, t);
-
-      // 抜き出された残高
-      float w = (0.010 + 0.222 * v) * t;
-      float bar = box(p, vec2(-0.190 + w, cy), vec2(w, 0.022));
-      INK += bar;
-      if (i == 0) ACC += bar;
+    // 街区。道路は変えない。
+    for (int i = 0; i < 5; i++) {
+      float x = -0.232 + float(i) * 0.116;
+      LIN += seg(p, vec2(x, -0.372), vec2(x, 0.352), 0.0013);
     }
-    LIN += seg(p, vec2(-0.190, -0.372), vec2(-0.190, 0.330), 0.0013) * t;
-    ACC += seg(p, vec2(-0.268, 0.352), vec2(0.268, 0.352), 0.0018) * t;
+    for (int i = 0; i < 6; i++) {
+      float y = -0.330 + float(i) * 0.136;
+      LIN += seg(p, vec2(-0.290, y), vec2(0.290, y), 0.0013);
+    }
+    // 街区の内側
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < 5; j++) {
+        vec2 c = vec2(-0.174 + float(i) * 0.116, -0.262 + float(j) * 0.136);
+        INK += box(p, c, vec2(0.046, 0.052)) * 0.07;
+      }
+    }
+
+    // 出発点と目的地。どちらも動かない。
+    vec2 a = vec2(-0.232, -0.330);
+    vec2 b = vec2(0.232, 0.352);
+    INK += box(p, a, vec2(0.014, 0.014));
+    LIN += ring(p, b, 0.020, 0.0014);
+    INK += box(p, b, vec2(0.009, 0.009));
+
+    // 重なる目的。捕獲点と補給地点。
+    for (int i = 0; i < 9; i++) {
+      float fi = float(i);
+      float gx = floor(hash11(fi * 2.7 + uSeed) * 5.0);
+      float gy = floor(hash11(fi * 5.3 + uSeed) * 6.0);
+      vec2 c = vec2(-0.232 + gx * 0.116, -0.330 + gy * 0.136)
+             + vec2((hash11(fi * 7.1 + uSeed) - 0.5) * 0.070, 0.0);
+      float on = smoothstep(fi / 12.0, fi / 12.0 + 0.40, t);
+      float kind = step(0.62, hash11(fi * 9.7 + uSeed));
+      // 捕獲点は朱の小円、補給地点は抜きの角
+      ACC += fillOf(length(p - c) - 0.0105) * on * (1.0 - kind);
+      LIN += frame(p, c, vec2(0.014, 0.014), 0.0014) * on * kind;
+      LIN += ring(p, c, 0.030, 0.0008) * on * 0.5;
+    }
+
+    // 経路。まっすぐ抜ける道筋から、寄り道で折れる道筋へ。
+    for (int i = 0; i < 20; i++) {
+      float s = float(i) / 19.0;
+      // 変容前: 街路に沿って最短で抜ける
+      vec2 d0 = vec2(mix(a.x, b.x, clamp(s * 1.6, 0.0, 1.0)),
+                     mix(a.y, b.y, clamp((s - 0.38) * 1.6, 0.0, 1.0)));
+      // 実行後: 同じ格子の上で、寄り道して進む
+      float w = sin(s * 9.4 + uSeed) * 0.098;
+      vec2 d1 = vec2(mix(a.x, b.x, s) + w, mix(a.y, b.y, s) - w * 0.62);
+      vec2 c = mix(d0, d1, t);
+      INK += box(p, c, vec2(0.0075, 0.0075)) * 0.8;
+    }
   }
 
   // ======================================================================
@@ -543,23 +525,25 @@ export const plateFragmentShader = /* glsl */ `
 
     INK = 0.0; ACC = 0.0; LIN = 0.0;
 
-    float id = uPlate;
-    if      (id < 0.5) plateFountain(pa, te);
-    else if (id < 1.5) plateTactile(pa, te);
-    else if (id < 2.5) plateWoonerf(pa, te);
-    else if (id < 3.5) plateGrameen(pa, te);
-    else if (id < 4.5) plateWrapped(pa, te);
-    else if (id < 5.5) plateMime(pa, te);
-    else if (id < 6.5) plateStairs(pa, te);
-    else if (id < 7.5) plateG0v(pa, te);
-    else if (id < 8.5) plateShred(pa, te);
-    else               plateAtm(pa, te);
-
     // ---- 紙 ----
     vec3 col = uPaper;
     float grain = vnoise(vUv * 430.0) * 0.55 + vnoise(vUv * 1150.0) * 0.45;
     col -= (grain - 0.5) * uGrain;
     col -= (vnoise(vUv * 3.0 + uSeed * 3.0) - 0.5) * 0.014;
+
+    // 模型として描く版は、線ではなく、この紙の上へ直接面を置く
+    MC = col;
+
+    float id = uPlate;
+    if      (id < 0.5) plateNijiri(pa, te);
+    else if (id < 1.5) plateFountain(pa, te);
+    else if (id < 2.5) plateWall(pa, te);
+    else if (id < 3.5) plateKeys(pa, te);
+    else if (id < 4.5) plateCanvas(pa, te);
+    else if (id < 5.5) plateShred(pa, te);
+    else               plateStreets(pa, te);
+
+    if (id < 0.5) col = MC;
 
     // ---- 版面の柱 ----
     float hx = 0.5 * ar - 0.040;
@@ -567,11 +551,23 @@ export const plateFragmentShader = /* glsl */ `
 
     float head = box(pa, vec2(-hx + 0.026, hy - 0.020), vec2(0.026, 0.0072));
     // 版番号を刻む。図版ごとに本数が変わる。
-    for (int k = 0; k < 10; k++) {
+    for (int k = 0; k < 7; k++) {
       float on = step(float(k), uPlate);
       float gap = step(5.0, float(k)) * 0.010;
       head += box(pa, vec2(-hx + 0.068 + float(k) * 0.0125 + gap, hy - 0.020),
                   vec2(0.0042, 0.0072)) * on;
+    }
+    head *= 1.0 - uHasLabel;   // 名前を刷る版では、刻みに代えて名前を置く
+
+    // 版面の名前。左上の柱に、通し番号と事例名を刷る。
+    float label = 0.0;
+    if (uHasLabel > 0.5) {
+      float lh = 0.034 * uLabelScale;
+      float lw = lh * uLabelAspect;
+      vec2 luv = (pa - vec2(-hx + 0.012, hy - 0.020 - lh * 0.5)) / vec2(lw, lh);
+      if (luv.x > 0.0 && luv.x < 1.0 && luv.y > 0.0 && luv.y < 1.0) {
+        label = smoothstep(0.12, 0.62, texture2D(uLabel, luv).a);
+      }
     }
     float headRule = seg(pa, vec2(-hx, hy - 0.048), vec2(hx, hy - 0.048), 0.0008);
 
@@ -595,6 +591,7 @@ export const plateFragmentShader = /* glsl */ `
     col = mix(col, uInk, clamp(INK, 0.0, 1.0) * 0.92);
     col = mix(col, uInk, clamp(LIN, 0.0, 1.0) * 0.62);
     col = mix(col, uInk, clamp(head, 0.0, 1.0) * 0.90);
+    col = mix(col, uInk, clamp(label, 0.0, 1.0) * 0.92);
     col = mix(col, uInk, clamp(ticks, 0.0, 1.0) * 0.34);
     col = mix(col, uAccent, clamp(ACC, 0.0, 1.0) * 0.94);
 

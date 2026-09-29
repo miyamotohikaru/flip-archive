@@ -2,17 +2,32 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const NAV = [
   { href: "/", label: "OVERVIEW", ja: "図版" },
   { href: "/cases", label: "INDEX", ja: "索引" },
+  { href: "/criteria", label: "CRITERIA", ja: "評価" },
   { href: "/about", label: "ABOUT", ja: "方針" },
 ];
 
 export default function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const [scrolled, setScrolled] = useState(false);
+
+  // 本文が頭の下をくぐると読めなくなるので、送ったときだけ地色を敷く。
+  // 図版ビューは本文を送らないので、地色は敷かない。
+  useEffect(() => {
+    if (isHome) {
+      setScrolled(false);
+      return;
+    }
+    const onScroll = () => setScrolled(window.scrollY > 6);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isHome]);
 
   useEffect(() => {
     document.body.classList.toggle("locked", isHome);
@@ -25,7 +40,14 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
 
   return (
     <>
-      <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex flex-wrap items-baseline gap-x-7 gap-y-2 px-4 py-3.5 sm:px-6 sm:py-4">
+      <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex flex-wrap items-baseline gap-x-4 gap-y-2 px-4 py-3.5 sm:gap-x-7 sm:px-6 sm:py-4">
+        <div
+          aria-hidden="true"
+          className={`absolute inset-0 -z-10 border-b border-line bg-bg transition-opacity duration-300 ${
+            scrolled ? "opacity-100" : "opacity-0"
+          }`}
+        />
+
         <Link
           href="/"
           className="pointer-events-auto group flex items-baseline gap-2"
@@ -38,7 +60,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
           </span>
         </Link>
 
-        <nav className="pointer-events-auto flex items-baseline gap-4 sm:gap-6">
+        <nav className="pointer-events-auto flex items-baseline gap-3 sm:gap-6">
           {NAV.map((n) => {
             const active =
               n.href === "/"
@@ -79,7 +101,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
           <span className="label">
             KOSU.KUMA<span className="hidden sm:inline"> / INTERNAL WORKING DRAFT</span>
           </span>
-          <span className="label hidden sm:inline">収録・編集方針 v0.2</span>
+          <span className="label hidden sm:inline">PLACEBO 評価基準 v1.3 ・ R04-5</span>
         </footer>
       )}
     </>
