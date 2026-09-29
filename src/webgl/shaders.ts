@@ -566,16 +566,11 @@ export const plateFragmentShader = /* glsl */ `
       // 絵を敷くときに MC を下に残すと、絵の透けた部分から模型が覗く。
       if (uHasArt < 0.5) col = MC;
       if (uHasArt > 0.5) {
-        float ah = 0.300;                    // 高さの半分
+        // 傾けた面そのものが絵に入っているので、版の側では影を敷かない。
+        float ah = 0.372;                    // 高さの半分
         float aw = ah * uArtAspect;
-        float base = -0.330;                 // 面に着く高さ
-        vec2 ac = vec2(0.0, base + ah);
+        vec2 ac = vec2(0.0, -0.014);
         vec2 auv = (pa - ac) / (vec2(aw, ah) * 2.0) + 0.5;
-
-        // 接地。面の上にうっすら影を敷いて、浮かないようにする。
-        vec2 sp = (pa - vec2(0.012, base - 0.006)) / vec2(0.230, 0.042);
-        col = mix(col, mix(uPaper, uInk, 0.42),
-                  (1.0 - smoothstep(0.55, 1.0, length(sp))) * 0.24);
 
         if (auv.x > 0.0 && auv.x < 1.0 && auv.y > 0.0 && auv.y < 1.0) {
           vec4 art = mix(texture2D(uArtA, auv), texture2D(uArtB, auv), te);
