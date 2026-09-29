@@ -19,9 +19,13 @@ const MODEL = "gemini-3.1-flash-image-preview";
 /** 図鑑じゅうで共通の見え方。ここを揃えないと版が並ばない。 */
 const STYLE = `A relief built from voxel blocks on a flat board, seen STRAIGHT ON.
 
-THE VIEW: the camera looks square at the board, dead centre, orthographic. No tilt, no isometric, no perspective skew — horizontals stay horizontal, verticals stay vertical. At a glance it reads as a flat graphic panel.
+THE VIEW: a real camera with a normal lens, aimed square at the CENTRE of the board. Horizontals stay horizontal, verticals stay vertical — at a glance it reads as a flat graphic panel. But it is a real photograph, not an orthographic drawing: pieces near the centre are seen face-on, while pieces toward the edges clearly reveal their THICK SIDE FACES. That mild perspective is what shows how far each piece stands out.
 
-THE DEPTH: but every element is a solid block standing out from the board toward the camera, each at a different height. You catch only thin slivers of their top and side faces around their edges. Soft shadows fall down and slightly to the right — onto the board and onto the lower blocks — and that is what makes the depth read. Turn it sideways and it would obviously be three-dimensional.
+THE DEPTH — make this strong. Every element is a CHUNKY SOLID standing far out from the board toward the camera, each at a clearly different height, like a deep bas-relief you could grip.
+
+Rough depths: the roof band stands out the furthest, roughly a third of its own height; the posts and beams stand out about half that; the wall panels are set back behind them; the doorway is a deep recess; the person is a fully rounded figure standing well proud of the wall, with obvious thickness front to back; the trees and stones are fat lumps.
+
+You must SEE the side faces — thick slabs of colour along every edge, not thin slivers. Long soft shadows fall down and to the right onto the board and onto the pieces behind, long enough to read how far each piece projects. Turn it sideways and it would obviously be a deep three-dimensional build.
 
 DENSE: pack the board with many blocks of different sizes and heights, tightly fitted like a well-built LEGO panel. Small details everywhere, little gaps, a rich busy surface.
 
@@ -41,7 +45,7 @@ const PLATES = {
 
 Subject, laid out as a flat elevation of a tiny Japanese tea house: a band of charcoal roof blocks across the top, standing out the furthest. Below it, red-brown post blocks and yellow wall panels at a middle height. In the centre of the wall a WIDE, TALL opening — a full-height doorway where the blocks are removed and the white board shows through, with pale sand tatami blocks set low inside it. A small blocky person stands UPRIGHT in front of that opening. Along the bottom, a row of round grey stepping-stone blocks and a few green tree blocks, all at low heights.
 
-Every piece is a block of its own height, casting a soft shadow down-right onto what is behind it.`,
+Every piece is a chunky solid of its own depth, standing well out from the board, showing its thick side faces and casting a long soft shadow down-right onto what is behind it. The person in particular must read as a rounded solid figure, not a flat cut-out.`,
     after: `Keep EXACTLY the same toy block model: same camera angle, same lighting, same shadow, same colours, same backdrop, same style and the same base plinth.
 
 Change ONLY these things:
@@ -51,7 +55,7 @@ Change ONLY these things:
 4. Keep every other block exactly where it is, at the same height, with the same shadows.
 5. The roof band stays exactly as it is.
 
-Everything else stays identical: the SAME straight-on orthographic view, the same white board, the same palette, the same flat shading, the same block heights and the same soft down-right shadows.
+Everything else stays identical: the SAME straight-on view, the same white board, the same palette, the same shading, the same deep block projections and the same long soft down-right shadows.
 Keep the hanging scroll and every other surface BLANK — do not add any text, letters or Japanese characters anywhere.`,
   },
 };
