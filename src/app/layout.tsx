@@ -24,11 +24,27 @@ const notoSansJp = Noto_Sans_JP({
   display: "swap",
 });
 
+const DESCRIPTION =
+  "現実の当たり前に具体的な仕掛けを置き、人が関わる経験を通して、その当たり前の別の姿を立ち上げた企画を記録するアーカイブ。PLACEBO 7軸で読んだ先行7事例の試行審査結果。";
+
 export const metadata: Metadata = {
+  metadataBase: new URL("https://flip-archive.kosukuma.com"),
   title: "世界のFLIP図鑑 — WORLD FLIP ARCHIVE",
-  description:
-    "現実の当たり前に具体的な仕掛けを置き、人が関わる経験を通して、その当たり前の別の姿を立ち上げた企画を記録するアーカイブ。PLACEBO 7軸で読んだ先行7事例の試行審査結果。",
-  robots: { index: false, follow: false },
+  description: DESCRIPTION,
+  openGraph: {
+    // 呼び名で出す。<title> の流用にしない。
+    title: "世界のFLIP図鑑",
+    description: DESCRIPTION,
+    url: "https://flip-archive.kosukuma.com",
+    siteName: "世界のFLIP図鑑",
+    locale: "ja_JP",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "世界のFLIP図鑑",
+    description: DESCRIPTION,
+  },
 };
 
 export default function RootLayout({
