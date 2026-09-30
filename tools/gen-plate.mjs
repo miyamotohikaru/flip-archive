@@ -74,7 +74,8 @@ Keep the hanging scroll and every other surface BLANK — do not add any text, l
   "02": {
     before: `${STYLE}
 
-Subject, seen SQUARE ON — the wall faces the camera flat, no tilt, no perspective, no vanishing point; its edges stay horizontal and vertical. A gallery wall. A horizontal row of framed pictures hangs across it, all the same size, evenly spaced, each frame cut from paper and stacked thick so it stands proud of the wall. ONE place in the row is EMPTY — just bare wall there. On the floor below, off to the right and clearly apart from the row, stands a single white porcelain urinal on a low plinth, turned on its back like a sculpture.`,
+Subject, seen SQUARE ON — the wall faces the camera flat, no tilt, no perspective, no vanishing point; its edges stay horizontal and vertical. A gallery wall. A horizontal row of framed pictures hangs across it, all the same size, evenly spaced, each frame cut from paper and stacked thick so it stands proud of the wall. ONE place in the row is EMPTY — just bare wall there. On the floor below, off to the right and clearly apart from the row, stands a single WHITE PORCELAIN URINAL on a low plinth, turned on its back so it faces the viewer like a sculpture.
+Make the urinal UNMISTAKABLE and large — as tall as a third of the wall. Seen face on: a smooth shield-shaped bowl, WIDE and rounded at the top, narrowing to a rounded lip at the bottom, with a shallow basin hollowed into its face and a small dark oval drain near the lower end. Bright glazed white against the greys, the only object of its kind in the picture.`,
     after: `Keep everything identical: same wall, same row of frames, same spacing, same style, same light, same shadows.
 Change ONLY these:
 1. The urinal is GONE from the floor.
@@ -83,7 +84,7 @@ Change ONLY these:
   "03": {
     before: `${STYLE}
 
-Subject, flat and straight on: a long outdoor wall covered with a grid of identical rows, eight rows by two columns. Every row is exactly the same: a short printed opening phrase on the left as a small dark bar of paper, and to its right a BARE RULED LINE with NOTHING on it. Every blank is completely empty — no writing, no marks, no colour, no chalk, nothing at all. Only the printed bar and the empty rule, repeated identically down the wall. The wall is quiet and almost monochrome. All cut from paper and stacked so the rows stand proud of the wall.`,
+Subject, flat and straight on: a single DARK SLATE WALL PANEL — one solid deep blue-black rectangle, clearly darker than everything else, sitting in the middle of the frame with a generous empty margin of white all around it, not touching any edge. On that dark panel is a grid of identical rows, eight rows by two columns. Every row is exactly the same: a short printed opening phrase on the left as a small dark bar of paper, and to its right a BARE RULED LINE with NOTHING on it. Every blank is completely empty — no writing, no marks, no colour, no chalk, nothing at all. Only the printed bar and the empty rule, repeated identically down the wall. The wall is quiet and almost monochrome. All cut from paper and stacked so the rows stand proud of the wall.`,
     after: `Keep the wall and the grid identical: same rows, same printed bars, same ruled blanks, same style and light.
 Change ONLY this: most of the blanks are now FILLED with handwriting — short strokes of paper in different lengths and different colours, no two alike, some short, some running to the end of the line. A few blanks are still empty. One filled answer has a bright arrow drawn from it down to another answer.`,
   },

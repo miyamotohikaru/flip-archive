@@ -44,7 +44,7 @@ def peel(img):
                 seen[y, x] = True
                 q.append((y, x))
 
-    tol = 6  # 隣の画素とこれだけ違ってよい
+    tol = 3  # 隣の画素とこれだけ違ってよい。大きいと明るい絵の中へ食い込む。
     while q:
         y, x = q.popleft()
         c = a[y, x]
