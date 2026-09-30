@@ -13,6 +13,8 @@ import {
   plateVertexShader,
   shadowFragmentShader,
   shadowVertexShader,
+  artFragmentShader,
+  artVertexShader,
 } from "./shaders";
 import { plateParamsFor } from "@/lib/plateParams";
 import { labelTexture, plateLabel } from "./labelTexture";
@@ -30,6 +32,9 @@ const DEPTH_K = 1.5; // 奥行きへの倒し込み
 const LERP = 0.1; // ポインタ／ドラッグ追従
 const HOVER_SHIFT = 0.26;
 const SHADOW_PAD = 1.34;
+// 組みを版から浮かせる高さ。判面の幅を100mmとみて、だいたい1cmぶん。
+// 斜めから見たときに、版から出っ張っていることが分かる量。
+const ART_LIFT = 0.11;
 
 const PAPER = new THREE.Color("#fffefb");
 const INK = new THREE.Color("#121110");
@@ -43,6 +48,10 @@ type Tile = {
   mesh: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>;
   shadow: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>;
   hit: THREE.Mesh;
+  /** 版から浮かせて置く組みと、その影。絵を持つCASEだけ。 */
+  art: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial> | null;
+  artShadow: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial> | null;
+  artReady: (() => boolean) | null;
   progress: { v: number };
   fade: { v: number };
   hovered: boolean;
@@ -149,7 +158,6 @@ export default function Ribbon({
     );
     const hitGeometry = new THREE.PlaneGeometry(CARD_W * 1.02, CARD_H * 1.02, 1, 1);
     const tiles: Tile[] = [];
-    const tilesArt: { art: ReturnType<typeof artFor>; material: THREE.ShaderMaterial }[] = [];
     const ribbon = Array.from({ length: cases.length * REPEATS }, (_, i) => i);
     const HALF = (ribbon.length * SPACING) / 2;
 
@@ -188,8 +196,6 @@ export default function Ribbon({
           uHasArt: { value: 0 },
         },
       });
-      // 絵は非同期で届く。届くまでは作図プログラムの絵を見せておく。
-      if (art) tilesArt.push({ art, material });
 
       const mesh = new THREE.Mesh(geometry, material);
 
@@ -216,6 +222,50 @@ export default function Ribbon({
       shifter.add(shadow);
       shifter.add(mesh);
 
+      // 絵を持つCASEは、版に刷らずに版の手前へ浮かせて置く。
+      // こうすると斜めから見たとき、組みが版から出っ張って見える。
+      let artMesh: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial> | null = null;
+      let artShadow: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial> | null = null;
+      if (art) {
+        const uniforms = () => ({
+          uArtA: { value: art.before },
+          uArtB: { value: art.after },
+          uProgress: { value: 0 },
+          uFade: { value: 1 },
+          uAppear: { value: 0 },
+          uShadow: { value: 0 },
+        });
+        const artMat = new THREE.ShaderMaterial({
+          vertexShader: artVertexShader,
+          fragmentShader: artFragmentShader,
+          transparent: true,
+          depthWrite: false,
+          uniforms: uniforms(),
+        });
+        const shMat = new THREE.ShaderMaterial({
+          vertexShader: artVertexShader,
+          fragmentShader: artFragmentShader,
+          transparent: true,
+          depthWrite: false,
+          uniforms: { ...uniforms(), uShadow: { value: 1 } },
+        });
+        // 版のどこに、どの大きさで置くか。plateの作画と合わせる。
+        const ar = CARD_W / CARD_H;
+        const hx = 0.5 * ar - 0.04;
+        const rw = 2 * hx * CARD_H;
+        const rh = 2 * 0.398 * CARD_H;
+        const a = art.aspect || 1;
+        const w = a > rw / rh ? rw : rh * a;
+        const h = a > rw / rh ? rw / a : rh;
+        const g = new THREE.PlaneGeometry(w, h, 1, 1);
+        artMesh = new THREE.Mesh(g, artMat);
+        artMesh.position.set(0, -0.012 * CARD_H, ART_LIFT);
+        artShadow = new THREE.Mesh(g, shMat);
+        artShadow.position.set(0, -0.012 * CARD_H, 0.004);
+        shifter.add(artShadow);
+        shifter.add(artMesh);
+      }
+
       const hit = new THREE.Mesh(
         hitGeometry,
         new THREE.MeshBasicMaterial({
@@ -238,6 +288,9 @@ export default function Ribbon({
         shifter,
         mesh,
         shadow,
+        art: artMesh,
+        artShadow,
+        artReady: art ? () => art.ready : null,
         hit,
         progress: { v: 0 },
         fade: { v: 1 },
@@ -436,12 +489,6 @@ export default function Ribbon({
       const t = clock.getElapsedTime();
       const aspect = host.clientWidth / host.clientHeight;
 
-      // 届いた絵を版へ渡す
-      tilesArt.forEach((e) => {
-        if (e.art?.ready && e.material.uniforms.uHasArt.value < 0.5) {
-          e.material.uniforms.uHasArt.value = 1;
-        }
-      });
 
       // ホイールとドラッグを一本の進行量にまとめて追従させる
       const target = state.dragX - state.dragY;
@@ -523,6 +570,17 @@ export default function Ribbon({
         u.uFade.value = wrapFade * tile.fade.v;
         const su = tile.shadow.material.uniforms;
         su.uFade.value = wrapFade * tile.fade.v;
+
+        // 浮かせた組みも、版と同じように進み・消え・出現に従う
+        if (tile.art && tile.artShadow) {
+          const on = tile.artReady?.() ? 1 : 0;
+          [tile.art, tile.artShadow].forEach((m) => {
+            const au = m.material.uniforms;
+            au.uProgress.value = tile.progress.v;
+            au.uFade.value = wrapFade * tile.fade.v;
+            au.uAppear.value = u.uAppear.value * on;
+          });
+        }
         su.uAppear.value = u.uAppear.value;
         tile.hit.visible = wrapFade > 0.6 && tile.fade.v > 0.5;
 
@@ -598,6 +656,9 @@ export default function Ribbon({
         gsap.killTweensOf(tile.fade);
         tile.mesh.material.dispose();
         tile.shadow.material.dispose();
+        tile.art?.material.dispose();
+        tile.artShadow?.material.dispose();
+        tile.art?.geometry.dispose();
         (tile.hit.material as THREE.Material).dispose();
       });
       geometry.dispose();

@@ -672,3 +672,48 @@ export const shadowFragmentShader = /* glsl */ `
     gl_FragColor = vec4(0.07, 0.065, 0.06, a);
   }
 `;
+
+/**
+ * 版から浮かせて置く組み。
+ * 帯では版の面より手前に出すので、斜めから見ると版から出っ張って見える。
+ * uShadow を立てると、同じ形を版の上に落ちる影として描く。
+ */
+export const artVertexShader = plateVertexShader;
+
+export const artFragmentShader = /* glsl */ `
+  precision highp float;
+
+  uniform sampler2D uArtA;
+  uniform sampler2D uArtB;
+  uniform float uProgress;
+  uniform float uFade;
+  uniform float uAppear;
+  uniform float uShadow;
+
+  varying vec2 vUv;
+
+  void main() {
+    float t = uProgress;
+    float te = t * t * (3.0 - 2.0 * t);
+
+    if (uShadow > 0.5) {
+      // 版の上に落ちる影。形を右下へずらして、数点ぼかす。
+      vec2 so = vec2(-0.022, 0.028);
+      float a = 0.0;
+      a += texture2D(uArtA, vUv + so).a;
+      a += texture2D(uArtA, vUv + so + vec2(0.018, 0.0)).a;
+      a += texture2D(uArtA, vUv + so - vec2(0.018, 0.0)).a;
+      a += texture2D(uArtA, vUv + so + vec2(0.0, 0.018)).a;
+      a += texture2D(uArtA, vUv + so - vec2(0.0, 0.018)).a;
+      float al = clamp(a / 5.0, 0.0, 1.0) * 0.20 * uFade * uAppear;
+      if (al < 0.003) discard;
+      gl_FragColor = vec4(0.34, 0.32, 0.30, al);
+      return;
+    }
+
+    vec4 c = mix(texture2D(uArtA, vUv), texture2D(uArtB, vUv), te);
+    float al = clamp(c.a, 0.0, 1.0) * uFade * uAppear;
+    if (al < 0.003) discard;
+    gl_FragColor = vec4(c.rgb, al);
+  }
+`;
