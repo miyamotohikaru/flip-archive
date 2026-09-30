@@ -571,8 +571,10 @@ export const plateFragmentShader = /* glsl */ `
         vec2 EXT = vec2(-0.015, 0.018);    // 小口の出る向き
         // 小口が片側へ出るぶん、置き場を少し縮めてから半分だけ寄せる。
         // こうしないと、出たぶんが版の外へはみ出して切れる。
-        vec2 rh = vec2(hx, 0.398) * (1.0 - abs(EXT));
-        vec2 rc = vec2(0.0, -0.012) + EXT * rh;
+        // 実測して合わせた寄せ。組みの中心が版の作画域の中心に来る量。
+        vec2 NUDGE = vec2(0.009, 0.0096);
+        vec2 rh = vec2(hx, 0.398) * (1.0 - abs(EXT)) - abs(NUDGE);
+        vec2 rc = vec2(0.0, -0.012) + EXT * rh + NUDGE;
         vec2 auv = (pa - rc) / (rh * 2.0) + 0.5;
 
         // まるごと収める。余った側は透過なので、版の紙が出る。
