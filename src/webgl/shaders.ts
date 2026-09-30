@@ -566,19 +566,35 @@ export const plateFragmentShader = /* glsl */ `
       // 絵を敷くときに MC を下に残すと、絵の透けた部分から模型が覗く。
       if (uHasArt < 0.5) col = MC;
       if (uHasArt > 0.5) {
-        // 絵の地は紙と同じ白。版面いっぱいに、まるごと収めて敷く。
+        // 地は抜いてある。版面いっぱいに、まるごと収めて敷く。
         vec2 rc = vec2(0.0, -0.012);
         vec2 rh = vec2(hx, 0.398);
         vec2 auv = (pa - rc) / (rh * 2.0) + 0.5;
 
-        // まるごと収める。余った側は絵の白＝紙と同じなので、境目は見えない。
+        // まるごと収める。余った側は透過なので、版の紙が出る。
         float ra = rh.x / rh.y;
         if (uArtAspect > ra) auv.y = 0.5 + (auv.y - 0.5) * (uArtAspect / ra);
         else                 auv.x = 0.5 + (auv.x - 0.5) * (ra / uArtAspect);
 
+        // 立ち上がりの小口。まっすぐ見る版でも厚みが分かるように、
+        // 同じ形を少しずつずらして重ね、色紙を積んだ側面をつくる。
+        vec2 ext = vec2(0.015, -0.018);
+        for (int i = 12; i >= 1; i--) {
+          float d = float(i) / 12.0;
+          vec2 uv2 = auv - ext * d;
+          if (uv2.x <= 0.0 || uv2.x >= 1.0 || uv2.y <= 0.0 || uv2.y >= 1.0) continue;
+          vec4 sm = mix(texture2D(uArtA, uv2), texture2D(uArtB, uv2), te);
+          if (sm.a < 0.55) continue;
+          float f = fract(d * 6.0);
+          float seam = smoothstep(0.0, 0.18, f) * (1.0 - smoothstep(0.78, 1.0, f));
+          vec3 sheet = mix(sm.rgb, uInk, 0.10 + 0.26 * d);
+          col = mix(mix(sheet, uInk, 0.20), sheet, seam);
+        }
+
         if (auv.x > 0.0 && auv.x < 1.0 && auv.y > 0.0 && auv.y < 1.0) {
-          // 絵の地は版の紙と同じ白に合わせてあるので、そのまま敷ける
-          col = mix(texture2D(uArtA, auv), texture2D(uArtB, auv), te).rgb;
+          // 地は抜いてあるので、紙がそのまま地になる
+          vec4 a = mix(texture2D(uArtA, auv), texture2D(uArtB, auv), te);
+          col = mix(col, a.rgb, clamp(a.a, 0.0, 1.0));
         }
       }
     }
