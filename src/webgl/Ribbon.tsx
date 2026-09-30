@@ -32,9 +32,10 @@ const DEPTH_K = 1.5; // 奥行きへの倒し込み
 const LERP = 0.1; // ポインタ／ドラッグ追従
 const HOVER_SHIFT = 0.26;
 const SHADOW_PAD = 1.34;
-// 組みを版から浮かせる高さ。判面の幅を100mmとみて、だいたい1cmぶん。
-// 斜めから見たときに、版から出っ張っていることが分かる量。
-const ART_LIFT = 0.11;
+// 組みの厚み。判面の幅を100mmとみて、だいたい1.4cmぶん。
+// 同じ形をこのぶん奥へ重ねて胴をつくるので、斜めから見ると側面が出る。
+const ART_LIFT = 0.14;
+const ART_SLICES = 14; // 胴を何枚で埋めるか
 
 const PAPER = new THREE.Color("#fffefb");
 const INK = new THREE.Color("#121110");
@@ -48,9 +49,8 @@ type Tile = {
   mesh: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>;
   shadow: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>;
   hit: THREE.Mesh;
-  /** 版から浮かせて置く組みと、その影。絵を持つCASEだけ。 */
-  art: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial> | null;
-  artShadow: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial> | null;
+  /** 版から立ち上がる組み。表の面・胴・接地の影。絵を持つCASEだけ。 */
+  artParts: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>[];
   artReady: (() => boolean) | null;
   progress: { v: number };
   fade: { v: number };
@@ -222,34 +222,11 @@ export default function Ribbon({
       shifter.add(shadow);
       shifter.add(mesh);
 
-      // 絵を持つCASEは、版に刷らずに版の手前へ浮かせて置く。
-      // こうすると斜めから見たとき、組みが版から出っ張って見える。
-      let artMesh: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial> | null = null;
-      let artShadow: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial> | null = null;
+      // 絵を持つCASEは、版に刷らずに版から立ち上げる。
+      // 同じ形を奥へ何枚も重ねて胴をつくるので、斜めから見ると
+      // 影ではなく実体の側面として出っ張って見える。
+      const artParts: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>[] = [];
       if (art) {
-        const uniforms = () => ({
-          uArtA: { value: art.before },
-          uArtB: { value: art.after },
-          uProgress: { value: 0 },
-          uFade: { value: 1 },
-          uAppear: { value: 0 },
-          uShadow: { value: 0 },
-        });
-        const artMat = new THREE.ShaderMaterial({
-          vertexShader: artVertexShader,
-          fragmentShader: artFragmentShader,
-          transparent: true,
-          depthWrite: false,
-          uniforms: uniforms(),
-        });
-        const shMat = new THREE.ShaderMaterial({
-          vertexShader: artVertexShader,
-          fragmentShader: artFragmentShader,
-          transparent: true,
-          depthWrite: false,
-          uniforms: { ...uniforms(), uShadow: { value: 1 } },
-        });
-        // 版のどこに、どの大きさで置くか。plateの作画と合わせる。
         const ar = CARD_W / CARD_H;
         const hx = 0.5 * ar - 0.04;
         const rw = 2 * hx * CARD_H;
@@ -258,12 +235,41 @@ export default function Ribbon({
         const w = a > rw / rh ? rw : rh * a;
         const h = a > rw / rh ? rw / a : rh;
         const g = new THREE.PlaneGeometry(w, h, 1, 1);
-        artMesh = new THREE.Mesh(g, artMat);
-        artMesh.position.set(0, -0.012 * CARD_H, ART_LIFT);
-        artShadow = new THREE.Mesh(g, shMat);
-        artShadow.position.set(0, -0.012 * CARD_H, 0.004);
-        shifter.add(artShadow);
-        shifter.add(artMesh);
+        const cy = -0.012 * CARD_H;
+
+        const make = (mode: number, depth: number, z: number) => {
+          const m = new THREE.Mesh(
+            g,
+            new THREE.ShaderMaterial({
+              vertexShader: artVertexShader,
+              fragmentShader: artFragmentShader,
+              transparent: true,
+              depthWrite: false,
+              uniforms: {
+                uArtA: { value: art.before },
+                uArtB: { value: art.after },
+                uPaper: { value: PAPER },
+                uInk: { value: INK },
+                uProgress: { value: 0 },
+                uFade: { value: 1 },
+                uAppear: { value: 0 },
+                uMode: { value: mode },
+                uDepth: { value: depth },
+              },
+            }),
+          );
+          m.position.set(0, cy, z);
+          shifter.add(m);
+          artParts.push(m);
+          return m;
+        };
+
+        make(2, 0, 0.003); // 版に接するところの浅い影
+        // 胴。奥から手前へ重ねる。
+        for (let k = ART_SLICES; k >= 1; k--) {
+          make(1, k / ART_SLICES, (ART_LIFT * (ART_SLICES - k)) / ART_SLICES);
+        }
+        make(0, 0, ART_LIFT); // 表の面
       }
 
       const hit = new THREE.Mesh(
@@ -288,8 +294,7 @@ export default function Ribbon({
         shifter,
         mesh,
         shadow,
-        art: artMesh,
-        artShadow,
+        artParts,
         artReady: art ? () => art.ready : null,
         hit,
         progress: { v: 0 },
@@ -571,10 +576,10 @@ export default function Ribbon({
         const su = tile.shadow.material.uniforms;
         su.uFade.value = wrapFade * tile.fade.v;
 
-        // 浮かせた組みも、版と同じように進み・消え・出現に従う
-        if (tile.art && tile.artShadow) {
+        // 立ち上げた組みも、版と同じように進み・消え・出現に従う
+        if (tile.artParts.length) {
           const on = tile.artReady?.() ? 1 : 0;
-          [tile.art, tile.artShadow].forEach((m) => {
+          tile.artParts.forEach((m) => {
             const au = m.material.uniforms;
             au.uProgress.value = tile.progress.v;
             au.uFade.value = wrapFade * tile.fade.v;
@@ -656,9 +661,8 @@ export default function Ribbon({
         gsap.killTweensOf(tile.fade);
         tile.mesh.material.dispose();
         tile.shadow.material.dispose();
-        tile.art?.material.dispose();
-        tile.artShadow?.material.dispose();
-        tile.art?.geometry.dispose();
+        tile.artParts.forEach((m) => m.material.dispose());
+        if (tile.artParts.length) tile.artParts[0].geometry.dispose();
         (tile.hit.material as THREE.Material).dispose();
       });
       geometry.dispose();
