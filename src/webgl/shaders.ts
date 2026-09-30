@@ -567,8 +567,12 @@ export const plateFragmentShader = /* glsl */ `
       if (uHasArt < 0.5) col = MC;
       if (uHasArt > 0.5) {
         // 地は抜いてある。版面いっぱいに、まるごと収めて敷く。
-        vec2 rc = vec2(0.0, -0.012);
-        vec2 rh = vec2(hx, 0.398);
+        // 小口が片側へ出るぶん、絵の側をその半分だけ戻して中央に置く。
+        vec2 EXT = vec2(-0.015, 0.018);    // 小口の出る向き
+        // 小口が片側へ出るぶん、置き場を少し縮めてから半分だけ寄せる。
+        // こうしないと、出たぶんが版の外へはみ出して切れる。
+        vec2 rh = vec2(hx, 0.398) * (1.0 - abs(EXT));
+        vec2 rc = vec2(0.0, -0.012) + EXT * rh;
         vec2 auv = (pa - rc) / (rh * 2.0) + 0.5;
 
         // まるごと収める。余った側は透過なので、版の紙が出る。
@@ -578,10 +582,9 @@ export const plateFragmentShader = /* glsl */ `
 
         // 立ち上がりの小口。まっすぐ見る版でも厚みが分かるように、
         // 同じ形を少しずつずらして重ね、色紙を積んだ側面をつくる。
-        vec2 ext = vec2(0.015, -0.018);
         for (int i = 12; i >= 1; i--) {
           float d = float(i) / 12.0;
-          vec2 uv2 = auv - ext * d;
+          vec2 uv2 = auv - EXT * d;
           if (uv2.x <= 0.0 || uv2.x >= 1.0 || uv2.y <= 0.0 || uv2.y >= 1.0) continue;
           vec4 sm = mix(texture2D(uArtA, uv2), texture2D(uArtB, uv2), te);
           if (sm.a < 0.55) continue;
