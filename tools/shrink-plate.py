@@ -3,10 +3,9 @@
 
     python3 tools/shrink-plate.py 01
 
-**白抜きはしない。** 紙の上に落ちた影の縁で切れてぎざつくため。
-かわりに四隅から地の色を測り、そこが255になるように全体を持ち上げる。
-地が版の紙と同じ白になるので、そのまま敷いても継ぎ目が出ない。
-影は地より暗いぶんだけ残る。
+地を抜いて透過にする。**隣の画素との差**で広げる塗りつぶしなので、
+紙の上のなだらかな影も最後まで追えて、切り紙の硬い縁で止まる。
+版の紙がそのまま地になり、背景は完全に白になる。
 """
 import hashlib
 import json
@@ -15,30 +14,79 @@ import re
 import sys
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 
 ID = sys.argv[1] if len(sys.argv) > 1 else "01"
 VERSION_TS = "src/webgl/plateArtVersion.ts"
 
+def peel(img):
+    """縁からつながっている地を抜く。
+
+    しきい値を「種の色との差」で測ると、紙の上に落ちた影のところで切れて
+    ぎざつく。ここでは**隣の画素との差**で広げるので、なだらかな影は最後まで
+    追えて、切り紙の硬い縁でぴたりと止まる。
+    """
+    from collections import deque
+
+    a = np.asarray(img).astype(np.int16)
+    h, w, _ = a.shape
+    seen = np.zeros((h, w), dtype=bool)
+    q = deque()
+
+    for x in range(w):
+        for y in (0, h - 1):
+            if not seen[y, x]:
+                seen[y, x] = True
+                q.append((y, x))
+    for y in range(h):
+        for x in (0, w - 1):
+            if not seen[y, x]:
+                seen[y, x] = True
+                q.append((y, x))
+
+    tol = 6  # 隣の画素とこれだけ違ってよい
+    while q:
+        y, x = q.popleft()
+        c = a[y, x]
+        for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            ny, nx = y + dy, x + dx
+            if 0 <= ny < h and 0 <= nx < w and not seen[ny, nx]:
+                if int(np.abs(a[ny, nx] - c).max()) <= tol:
+                    seen[ny, nx] = True
+                    q.append((ny, nx))
+    return seen
+
+
+# 二枚は溶かし合わせるので、**同じ枠で切る**。別々に切ると、
+# 変容前と実行後で組みの位置がずれる。
+cut = {}
+boxes = []
 for name in (f"{ID}-before", f"{ID}-after"):
     src = Image.open(f"tools/plates-src/{name}.png").convert("RGB")
-
-    # 地の色は四隅から取る（まっ白とはかぎらない）
-    corners = [src.getpixel(p) for p in
-               ((2, 2), (src.width - 3, 2), (2, src.height - 3), (src.width - 3, src.height - 3))]
-    ground = tuple(int(np.median([c[i] for c in corners])) for i in range(3))
-
-    # 抜かずに、地を版の紙と同じ白へ合わせる。
-    # 抜こうとすると、紙の上に落ちた影の縁で切れてぎざつく（実際に出た）。
-    gain = 255.0 / max(1, int(np.mean(ground)))
-    arr = np.asarray(src).astype(np.float32) * gain
-    out = Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "RGB")
-
     w = 760
-    out = out.resize((w, round(w * out.height / out.width)), Image.LANCZOS)
+    src = src.resize((w, round(w * src.height / src.width)), Image.LANCZOS)
+
+    bg = peel(src)
+    alpha = Image.fromarray(np.where(bg, 0, 255).astype(np.uint8), "L")
+    alpha = alpha.filter(ImageFilter.GaussianBlur(0.7))
+    alpha = alpha.point(lambda v: 0 if v < 90 else min(255, int((v - 90) * 255 / 130)))
+
+    out = src.convert("RGBA")
+    out.putalpha(alpha)
+    cut[name] = out
+    boxes.append(Image.fromarray(np.array(alpha)).getbbox())
+
+box = (min(b[0] for b in boxes), min(b[1] for b in boxes),
+       max(b[2] for b in boxes), max(b[3] for b in boxes))
+
+for name, img in cut.items():
+    out = img.crop(box)
+    edge = 6
+    framed = Image.new("RGBA", (out.width + edge * 2, out.height + edge * 2), (255, 255, 255, 0))
+    framed.paste(out, (edge, edge))
     path = f"public/plates/{name}.webp"
-    out.save(path, "WEBP", quality=92, method=6)
-    print(name, "地", ground, "→白", out.size, os.path.getsize(path), "bytes")
+    framed.save(path, "WEBP", quality=92, method=6)
+    print(name, framed.size, os.path.getsize(path), "bytes")
 
 
 # 絵を差し替えてもURLが同じだと、ブラウザが古い絵を返し続ける。
