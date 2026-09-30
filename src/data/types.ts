@@ -73,6 +73,8 @@ export type Case = {
   yearLabel: string;
   /** 一行概要。 */
   headline: string;
+  /** 初めて見る人に向けた、何をした企画かの説明。評価の前に置く。 */
+  outline: string;
   /** 80〜140字程度の短評。 */
   body: string;
   /** 誰の・どの経験を読んだか。 */
