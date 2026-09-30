@@ -676,7 +676,7 @@ export const shadowFragmentShader = /* glsl */ `
 /**
  * 版から浮かせて置く組み。
  * 帯では版の面より手前に出すので、斜めから見ると版から出っ張って見える。
- * uShadow を立てると、同じ形を版の上に落ちる影として描く。
+ * uMode で、表の面／胴（側面をつくる層）／接地の影 を描き分ける。
  */
 export const artVertexShader = plateVertexShader;
 
@@ -685,34 +685,42 @@ export const artFragmentShader = /* glsl */ `
 
   uniform sampler2D uArtA;
   uniform sampler2D uArtB;
+  uniform vec3  uPaper;
+  uniform vec3  uInk;
   uniform float uProgress;
   uniform float uFade;
   uniform float uAppear;
-  uniform float uShadow;
+  uniform float uMode;   // 0=表の面 / 1=胴（側面をつくる層） / 2=接地の影
+  uniform float uDepth;  // 胴のどのあたりか。0=手前 1=版に接する側
 
   varying vec2 vUv;
 
   void main() {
     float t = uProgress;
     float te = t * t * (3.0 - 2.0 * t);
+    vec4 c = mix(texture2D(uArtA, vUv), texture2D(uArtB, vUv), te);
+    float a = clamp(c.a, 0.0, 1.0);
 
-    if (uShadow > 0.5) {
-      // 版の上に落ちる影。形を右下へずらして、数点ぼかす。
-      vec2 so = vec2(-0.022, 0.028);
-      float a = 0.0;
-      a += texture2D(uArtA, vUv + so).a;
-      a += texture2D(uArtA, vUv + so + vec2(0.018, 0.0)).a;
-      a += texture2D(uArtA, vUv + so - vec2(0.018, 0.0)).a;
-      a += texture2D(uArtA, vUv + so + vec2(0.0, 0.018)).a;
-      a += texture2D(uArtA, vUv + so - vec2(0.0, 0.018)).a;
-      float al = clamp(a / 5.0, 0.0, 1.0) * 0.20 * uFade * uAppear;
+    if (uMode > 1.5) {
+      // 版に接するところの、ごく浅い影
+      float al = a * 0.16 * uFade * uAppear;
       if (al < 0.003) discard;
       gl_FragColor = vec4(0.34, 0.32, 0.30, al);
       return;
     }
 
-    vec4 c = mix(texture2D(uArtA, vUv), texture2D(uArtB, vUv), te);
-    float al = clamp(c.a, 0.0, 1.0) * uFade * uAppear;
+    if (uMode > 0.5) {
+      // 胴。同じ形を奥へ重ねて、斜めから見たとき側面として見えるようにする。
+      // 奥ほど暗くして、立ち上がりの陰にする。
+      if (a < 0.55) discard;
+      vec3 side = mix(mix(uPaper, uInk, 0.26), mix(uPaper, uInk, 0.52), uDepth);
+      float al = uFade * uAppear;
+      if (al < 0.003) discard;
+      gl_FragColor = vec4(side, al);
+      return;
+    }
+
+    float al = a * uFade * uAppear;
     if (al < 0.003) discard;
     gl_FragColor = vec4(c.rgb, al);
   }
