@@ -20,6 +20,12 @@ export type Art = {
 
 const SOURCES: Record<string, { id: string }> = {
   "taian-nijiriguchi": { id: "01" },
+  "fountain-duchamp": { id: "02" },
+  "before-i-die": { id: "03" },
+  key4all: { id: "04" },
+  "r-place": { id: "05" },
+  "love-is-in-the-bin": { id: "06" },
+  "pokemon-go": { id: "07" },
 };
 
 /**

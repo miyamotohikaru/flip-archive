@@ -35,6 +35,9 @@ const SHADOW_PAD = 1.34;
 // 組みの厚み。判面の幅を100mmとみて、だいたい1.4cmぶん。
 // 同じ形をこのぶん奥へ重ねて胴をつくるので、斜めから見ると側面が出る。
 const ART_LIFT = 0.14;
+// 帯が落ち着いたときに手前へ来る版を CASE 01 にするための送り。
+// 何も足さないと 06 から始まる（版の並びと巻き戻りの位置で決まる）。
+const CASE_OFFSET = 2;
 const ART_SLICES = 32; // 胴を何枚で埋めるか。紙の小口の線を出すので細かく取る
 
 const PAPER = new THREE.Color("#fffefb");
@@ -162,7 +165,7 @@ export default function Ribbon({
     const HALF = (ribbon.length * SPACING) / 2;
 
     ribbon.forEach((i) => {
-      const ci = i % cases.length;
+      const ci = (i + CASE_OFFSET) % cases.length;
       const c = cases[ci];
       const pp = plateParamsFor(c);
       const lb = labelTexture(plateLabel(c));

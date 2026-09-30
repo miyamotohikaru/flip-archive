@@ -58,6 +58,61 @@ Change ONLY these things:
 Everything else stays identical: the SAME straight-on view, the same white page, the same matte paper material with visible cut edges, the same palette, the same stacked layers and the same long soft down-right shadows.
 Keep the hanging scroll and every other surface BLANK — do not add any text, letters or Japanese characters anywhere.`,
   },
+
+  "02": {
+    before: `${STYLE}
+
+Subject, flat and straight on: a gallery wall. A horizontal row of framed pictures hangs across it, all the same size, evenly spaced, each frame cut from paper and stacked thick so it stands proud of the wall. ONE place in the row is EMPTY — just bare wall there. On the floor below, off to the right and clearly apart from the row, stands a single white porcelain urinal on a low plinth, turned on its back like a sculpture.`,
+    after: `Keep everything identical: same wall, same row of frames, same spacing, same style, same light, same shadows.
+Change ONLY these:
+1. The urinal is GONE from the floor.
+2. The empty place in the row is now filled with a framed magazine page — a photograph of that same urinal at the top, and columns of printed text below it.`,
+  },
+  "03": {
+    before: `${STYLE}
+
+Subject, flat and straight on: a long outdoor wall covered with a grid of identical rows, eight rows by two columns. Every row is exactly the same: a short printed opening phrase on the left as a small dark bar of paper, and an empty ruled blank line to its right. Nothing is written in any blank yet. All cut from paper and stacked so the rows stand proud of the wall.`,
+    after: `Keep the wall and the grid identical: same rows, same printed bars, same ruled blanks, same style and light.
+Change ONLY this: most of the blanks are now FILLED with handwriting — short strokes of paper in different lengths and different colours, no two alike, some short, some running to the end of the line. A few blanks are still empty. One filled answer has a bright arrow drawn from it down to another answer.`,
+  },
+  "04": {
+    before: `${STYLE}
+
+Subject, flat and straight on: one small car in the middle of the board, seen from the side, cut from paper and stacked thick. Around it, eleven keys of different colours scattered across the board, each one separate and cut from paper. Exactly ONE key is joined to the car by a single line. All the other keys are joined to nothing.`,
+    after: `Keep every key exactly where it is, same colours, same style, same light.
+Change ONLY these:
+1. EVERY key is now joined to the car by its own line, so lines converge on the car from all around.
+2. The car has MOVED to a different place on the board, and a dashed outline marks where it used to be.`,
+  },
+  "05": {
+    before: `${STYLE}
+
+Subject, flat and straight on: a large empty grid of square cells, fourteen by fourteen, cut from paper so the grid lines stand proud and the cells sit low. Only ONE cell is filled, with a single bright colour. Below the grid, a thin horizontal bar marks a waiting time, mostly empty.`,
+    after: `Keep the grid exactly the same size and position, same style and light.
+Change ONLY these:
+1. Most of the cells are now FILLED with many colours, forming several distinct patches of pattern side by side.
+2. A few cells are half-overwritten, showing a lower layer underneath.
+3. Bold lines run along the borders where neighbouring patches meet.
+4. The waiting bar below is now partly filled.`,
+  },
+  "06": {
+    before: `${STYLE}
+
+Subject, flat and straight on: a single framed picture hanging on a wall, whole and intact, the frame cut from paper and stacked thick. Below it, a row of small bars like a record of prices.`,
+    after: `Keep the frame, the wall and the picture's upper half identical, same style and light.
+Change ONLY these:
+1. The LOWER HALF of the picture has become a row of narrow vertical strips hanging down out of the bottom edge of the frame, at slightly different lengths, as if shredded.
+2. One of the small bars below is now much longer than the others.`,
+  },
+  "07": {
+    before: `${STYLE}
+
+Subject, flat and straight on, seen from directly above: a city street grid — straight roads crossing at right angles, with blocks between them, cut from paper and stacked so the blocks stand proud and the roads sit low. A line of small markers runs across the grid from one corner to the opposite one, taking the shortest way along the roads.`,
+    after: `Keep the streets and blocks exactly the same, same style and light.
+Change ONLY these:
+1. Small bright round markers and small square markers are now scattered across the grid at many places along the roads.
+2. The line of markers no longer runs straight — it wanders and detours to pass by them.`,
+  },
 };
 
 async function image(ai, parts) {
