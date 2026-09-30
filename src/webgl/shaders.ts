@@ -711,13 +711,14 @@ export const artFragmentShader = /* glsl */ `
 
     if (uMode > 0.5) {
       // 胴。同じ形を奥へ重ねて、斜めから見たとき側面として見えるようにする。
-      // 色は紙そのもの。何枚かごとに境目の線を入れて、紙を重ねた小口に見せる。
+      // 色はその駒の色を引き継ぎ、奥ほど沈ませる。
+      // 何枚かごとに境目の線を入れて、紙を重ねた小口に見せる。
       if (a < 0.55) discard;
       float sheets = 8.0;
       float f = fract(uDepth * sheets);
       float seam = smoothstep(0.0, 0.16, f) * (1.0 - smoothstep(0.80, 1.0, f));
-      vec3 sheet = mix(uPaper, mix(uPaper, uInk, 0.13), uDepth);  // 奥ほどわずかに沈む
-      vec3 side = mix(mix(sheet, uInk, 0.22), sheet, seam);
+      vec3 sheet = mix(c.rgb, uInk, 0.08 + 0.26 * uDepth);
+      vec3 side = mix(mix(sheet, uInk, 0.20), sheet, seam);
       float al = uFade * uAppear;
       if (al < 0.003) discard;
       gl_FragColor = vec4(side, al);
