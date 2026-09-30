@@ -73,10 +73,11 @@ export function artFor(slug: string, onReady?: () => void): Art | null {
   };
   const tune = (t: THREE.Texture) => {
     t.colorSpace = THREE.SRGBColorSpace;
-    t.minFilter = THREE.LinearMipmapLinearFilter;
+    // ミップマップは使わない。版の側で小口を描くとき、繰り返しの中で
+    // テクスチャを引いているので、段階の選び方が壊れて大きな四角い筋が出る。
+    t.minFilter = THREE.LinearFilter;
     t.magFilter = THREE.LinearFilter;
-    t.generateMipmaps = true;
-    t.anisotropy = 8;
+    t.generateMipmaps = false;
     return t;
   };
 
