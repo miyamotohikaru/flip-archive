@@ -41,6 +41,7 @@ export const plateFragmentShader = /* glsl */ `
   uniform sampler2D uArtB;    // 同（実行後）
   uniform float uArtAspect;
   uniform float uHasArt;
+  uniform float uArtOnPlate;  // 版に絵を刷るか。帯では版から浮かせるので0。
 
   varying vec2 vUv;
 
@@ -567,7 +568,7 @@ export const plateFragmentShader = /* glsl */ `
     if (uHasArt < 0.5 && id < 0.5) col = MC;
     if (uHasArt > 0.5) { INK = 0.0; ACC = 0.0; LIN = 0.0; }
     {
-      if (uHasArt > 0.5) {
+      if (uHasArt > 0.5 && uArtOnPlate > 0.5) {
         // 地は抜いてある。版面いっぱいに、まるごと収めて敷く。
         // 小口が片側へ出るぶん、絵の側をその半分だけ戻して中央に置く。
         vec2 EXT = vec2(-0.015, 0.018);    // 小口の出る向き

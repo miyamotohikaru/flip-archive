@@ -89,6 +89,7 @@ function ensure(width: number, height: number): Shared | null {
           uArtB: { value: blankArt() },
           uArtAspect: { value: 1 },
           uHasArt: { value: 0 },
+          uArtOnPlate: { value: 1 },
         },
       }),
     );

@@ -197,6 +197,8 @@ export default function Ribbon({
           uArtB: { value: art ? art.after : blankArt() },
           uArtAspect: { value: art ? art.aspect : 1 },
           uHasArt: { value: 0 },
+          // 帯では版に刷らず、版から浮かせた胴として立てる
+          uArtOnPlate: { value: 0 },
         },
       });
 
@@ -582,6 +584,8 @@ export default function Ribbon({
         // 立ち上げた組みも、版と同じように進み・消え・出現に従う
         if (tile.artParts.length) {
           const on = tile.artReady?.() ? 1 : 0;
+          // 絵が届いたら、版に残っている線画を捨てる
+          u.uHasArt.value = on;
           tile.artParts.forEach((m) => {
             const au = m.material.uniforms;
             au.uProgress.value = tile.progress.v;
