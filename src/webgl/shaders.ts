@@ -589,7 +589,8 @@ export const plateFragmentShader = /* glsl */ `
           vec2 uv2 = auv - EXT * d;
           if (uv2.x <= 0.0 || uv2.x >= 1.0 || uv2.y <= 0.0 || uv2.y >= 1.0) continue;
           vec4 sm = mix(texture2D(uArtA, uv2), texture2D(uArtB, uv2), te);
-          if (sm.a < 0.55) continue;
+          // 縁のぼかしは地の色を含むので、しっかり不透明なところだけ小口にする
+          if (sm.a < 0.92) continue;
           float f = fract(d * 6.0);
           float seam = smoothstep(0.0, 0.18, f) * (1.0 - smoothstep(0.78, 1.0, f));
           vec3 sheet = mix(sm.rgb, uInk, 0.10 + 0.26 * d);
@@ -734,7 +735,7 @@ export const artFragmentShader = /* glsl */ `
       // 胴。同じ形を奥へ重ねて、斜めから見たとき側面として見えるようにする。
       // 色はその駒の色を引き継ぎ、奥ほど沈ませる。
       // 何枚かごとに境目の線を入れて、紙を重ねた小口に見せる。
-      if (a < 0.55) discard;
+      if (a < 0.92) discard;
       float sheets = 8.0;
       float f = fract(uDepth * sheets);
       float seam = smoothstep(0.0, 0.16, f) * (1.0 - smoothstep(0.80, 1.0, f));
