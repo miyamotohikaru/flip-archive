@@ -75,35 +75,47 @@ Keep the hanging scroll and every other surface BLANK — do not add any text, l
     before: `${STYLE}
 
 Subject, seen SQUARE ON — everything faces the camera flat, no tilt, no perspective, no vanishing point; all edges stay horizontal and vertical.
-A plain back-room wall: one large deep-green paper panel filling most of the frame with an even white margin all around, built from five or six sheets so it stands well proud of the page.
-Standing against it, ONE WHITE PORCELAIN URINAL, upright, exactly as it would sit in a lavatory — the plumbing fitting, nothing else. It is the ONLY object in the picture and it is BIG: two thirds as tall as the green panel, dead centre.
-Seen face on: a smooth shield shape, WIDE and rounded across the top, curving inward at the waist, flaring to a rounded lip at the bottom, with a shallow basin hollowed into its face, a small dark oval drain low down, and a short pipe entering at the top. Build it from six or seven stacked sheets of bright bone-white card so it is the tallest, thickest thing in the picture, its cut edges clearly visible.
-Around it, low on the wall, a few small dull fittings — a bracket, a pipe collar, a tap — each only one or two sheets thick, so they sit far lower than the urinal. No frames, no pictures, no gallery, no plinth, no label.`,
-    after: `Keep the green wall, the light and the shadows identical, and keep the SAME white urinal — same shape, same size, same paper, same stacked edges.
+**There is NO wall panel and NO background board.** The bare white page IS the gallery wall. Nothing large and rectangular sits behind the objects — the silhouette of the whole build must be ragged and open, never a filled rectangle.
+
+Across the upper half, a horizontal ROW OF FIVE EMPTY PICTURE FRAMES hangs directly on the white, all about the same size, evenly spaced. The row is COMPLETE and sits well INSIDE the picture: there is a clear band of empty white to the left of the first frame and to the right of the last one, and no frame is cut off by the edge of the image. Each frame is cut from card and stacked to a DIFFERENT thickness — some three sheets, some seven — so the row steps up and down. Each frame is a hollow rectangle of moulding: you see the white page through the middle. Their mouldings are cream, bone, warm grey and antique brass, each with several stepped inner lips like a real frame profile. ONE place in the row is empty — a plain gap with nothing in it.
+
+Below the row, off to the right and clearly apart from it, stands ONE WHITE PORCELAIN URINAL on a low cream plinth — the wall-hung kind found in a gents' lavatory. It is the biggest single object in the picture, as tall as half the build, and it must be INSTANTLY RECOGNISABLE. Build it as exactly FOUR flat cut pieces, no more, so it stays clean and legible:
+1. THE BODY — one bone-white silhouette: a tall upright oval, WIDE and softly rounded across the top, narrowing gently down the sides, and closing in a rounded U at the bottom. Symmetrical left to right. Cut from six stacked sheets, its cut edge a clean countable stack all the way round. It is a simple solid shape — NOT a spiral, NOT a coil, NOT concentric rings, NOT a swirl.
+2. THE RIM — one slightly smaller piece of the same shape laid on top of the body, two sheets thick, leaving an even bone-white border of body showing all the way around it. This is the raised lip.
+3. THE BASIN — one smaller piece of the same shape again, in a pale warm grey, laid inside the rim and sitting LOWER than it, so the middle reads as hollowed out.
+4. THE DRAIN — one small dark grey oval low in the basin.
+Above the body, a short straight cream pipe goes up from the centre of the top edge, with a small collar near its end.
+
+Place two small dull fittings — a pipe collar and a tap — low and to the left, one or two sheets thick each, so they sit far below the urinal. Nothing else.`,
+    after: `Keep the light, the shadows and the bare white page exactly as they are, and keep the SAME white urinal — the same four clean cut pieces, the same care in the detail, and above all THE SAME SIZE. It must stay the biggest object in the picture; do not shrink it.
 Change ONLY these:
-1. The urinal is now LAID ON ITS BACK — rotated exactly a quarter turn clockwise, so its wide rounded top points LEFT and its lip points RIGHT. It stays perfectly level: horizontal edges horizontal, nothing tilted at an angle. It keeps its full size and its thick stack of sheets, and it rests on a low cream paper plinth.
-2. A row of framed pictures now hangs across the green wall behind it, all the same size, evenly spaced, each frame cut from card and stacked at a different thickness — but the urinal still stands taller and thicker than any of them.
-3. A small blank cream label card is fixed to the wall beside the plinth.
-Remove the brackets, pipes and taps. Do not shrink the urinal and do not tilt it.`,
+1. The urinal is LAID ON ITS BACK — rotated exactly a quarter turn clockwise, so its wide rounded top points LEFT and its rounded foot points RIGHT. It stays perfectly level: nothing tilted on a slant.
+2. It has been RAISED UP into the row of frames and now fills the empty gap there, resting on its cream plinth, taking the place a picture would have had. Because it is large, the frames on either side of it shift outward to make room, and the row now steps around it.
+3. A small blank cream label card is fixed on the white just below it.
+4. The frames are no longer empty — each holds a small flat collage of muted colour.
+The row of frames stays complete and well inside the picture, with empty white at both ends; no frame is cut off by the edge.
+Remove the pipe collar and the tap. Still NO wall panel and NO background board — the white page stays bare behind everything.`,
   },
   "03": {
     before: `${STYLE}
 
-Subject, seen SQUARE ON, flat, no tilt and no perspective: ONE deep INDIGO VIOLET chalkboard panel — a dark blue-purple, with no green in it, a tall rectangle in the middle of the frame with a generous white margin all around, not touching any edge, built from six sheets so it is a thick slab.
-Down the panel run ten identical rows. Each row is: a short printed opening phrase on the left — a small cream bar of card, three sheets thick — and to its right ONE BARE RULED LINE, a single hairline-thin cream strip lying flat on the indigo, with NOTHING on it.
-Every blank is completely empty — no writing, no marks, no colour, no chalk. Only the printed bar and the empty hairline rule, repeated identically down the panel.
-The rows are the only thing on the panel. The panel must read as blue-purple, never as green. No books, no shelves, no boxes, no blocks — the ruled lines must read as thin lines, never as objects sitting on a shelf.`,
-    after: `Keep the indigo panel and the grid identical: same rows, same cream printed bars, same positions, same style and light.
-Change ONLY this: most of the hairline rules are now covered by HANDWRITING — long thin wavy strips of card cut like a line of cursive script, with loops and gaps, lying along each rule. Each one is a different powdery chalk colour — pink, mint, lemon, sky, lilac, white — and a different length: some trail off after a couple of words, some run the whole width. Each is only one or two sheets thick, so the writing stays much lower than the printed bars.
-Three or four blanks are still empty.
+Subject, seen SQUARE ON, flat, no tilt and no perspective.
+Down the middle of the page run ten identical ROWS, stacked one above the other like the lines of a form. Each row is built as its own thick object standing on the white page:
+— on the left, the printed opening phrase: a small deep INDIGO VIOLET bar (a dark blue-purple, no green in it), built from FIVE OR SIX stacked sheets so it stands up as a chunky block with its layers countable along the cut edge;
+— to its right, the blank to be filled: a long cream tray, three sheets thick, with a hairline rule along its lower edge and NOTHING written on it.
+The rows are the ONLY things in the picture. **There is NO wall panel, NO board and NO backing rectangle behind them** — the bare white page shows between and around every row, so the silhouette of the whole build is a ragged stack of separate bars, never one filled rectangle.
+Give the rows clearly different lengths so the right-hand edge steps in and out, and vary their heights so some blocks sit noticeably taller than their neighbours. Every blank is completely empty — no writing, no marks, no colour.`,
+    after: `Keep the rows identical: same indigo blocks, same cream trays, same positions, same heights, same style and light, same bare white page with no panel behind them.
+Change ONLY this: most of the cream trays are now covered by HANDWRITING — long thin wavy strips of card cut like a line of cursive script, with loops and gaps, lying along the tray. Each one is a different powdery chalk colour — coral, mint, lemon, sky, lilac, white — and a different length: some trail off after a couple of words, some run the whole tray. Each is only one or two sheets thick, so the writing stays much lower than the indigo blocks.
+Three or four trays are still empty.
 The writing is ABSTRACT SCRIBBLE, not language: no readable letters, no words, no alphabet, no numbers — just the rise and fall of a hand moving along the line.
-Every stroke stays INSIDE the indigo panel; nothing crosses its edge or spills onto the white.
-Nothing else changes. Do NOT add arrows, boxes, blocks, books, frames, labels or any straight-edged shapes — only the wavy written lines.`,
+Do NOT add arrows, boxes, books, frames, labels, a background panel or any other straight-edged shape — only the wavy written lines.`,
   },
   "04": {
     before: `${STYLE}
 
-Subject, flat and straight on: one small car in the middle, seen from the side, CUT FROM MATTE CARD and stacked five or six sheets thick so it is the tallest thing in the picture. Around it, eleven keys, each CUT FROM MATTE CARD as a flat silhouette — a ring at one end, a toothed blade at the other — in different paper colours, stacked at clearly different thicknesses, some thin, some thick. They are paper keys: no metal, no gloss, no shine, no photographic detail. Exactly ONE key is joined to the car by a single line. All the other keys are joined to nothing.`,
+Subject, flat and straight on: one small car in the middle, seen from the side, CUT FROM MATTE CARD and stacked five or six sheets thick so it is the tallest thing in the picture. Around it, eleven keys, each CUT FROM MATTE CARD as a flat silhouette — a ring at one end, a toothed blade at the other — in different paper colours, stacked at clearly different thicknesses, some thin, some thick. They are paper keys: no metal, no gloss, no shine, no photographic detail.
+SPREAD THEM RIGHT OUT. The keys reach into all four corners of the composition and use the whole of it — none of them huddle around the car, and there is a generous, even breath of empty white between every key and its neighbours. Lay them at many different angles: some upright, some lying flat, some on the diagonal. The car sits alone in a clear opening at the centre with nothing touching it. Exactly ONE key is joined to the car by a single line. All the other keys are joined to nothing.`,
     after: `Keep every key exactly where it is, same colours, same style, same light.
 Change ONLY these:
 1. EVERY key is now joined to the car by its own STRIP OF PAPER — a thin flat cut ribbon, not a wire or a cable — so the strips converge on the car from all around.
@@ -123,11 +135,14 @@ Change ONLY these:
   "06": {
     before: `${STYLE}
 
-Subject, flat and straight on: a single framed picture, whole and intact. The gold frame is CUT FROM CARD and stacked six sheets thick so it stands well proud; the picture inside it is a low, flat collage of dusty rose and greys, only one or two sheets thick, so the frame clearly sits above it. Below, a row of small bars of different thicknesses, like a record of prices. Behind everything, a wide charcoal paper panel, a few sheets thick.`,
-    after: `Keep the frame, the wall and the picture's upper half identical, same style and light.
+Subject, flat and straight on: ONE framed picture, whole and intact, hanging at the centre.
+Draw the frame with real care: a wide gold moulding built from six or seven stacked sheets so it stands well proud, its profile stepping down in three or four distinct ledges from the outer edge to the picture, each ledge a slightly different gold — pale, warm, deep — and the stack countable along every cut edge. Inside it a thin bone slip, then the picture: a low flat collage of dusty rose, warm charcoal and dove grey, only one or two sheets thick, so the frame clearly rides above it.
+Around and behind the frame, a loose drift of plain rectangles in charcoal, grey and bone — like other canvases stacked against a wall — at many different thicknesses and many different sizes, some tall, some small, reaching out past the frame on every side so the outline of the whole build is RAGGED. **No single large panel or board behind everything** — the bare white page shows through the gaps.
+Below the frame, a long row of narrow upright bars of different heights and thicknesses, like a record of prices, each its own cut piece with a clear gap beside it.`,
+    after: `Keep the frame, the drift of rectangles, the row of bars and the upper half of the picture identical — same style, same light, same shadows.
 Change ONLY these:
-1. The LOWER HALF of the picture has become a row of narrow vertical strips hanging down out of the bottom edge of the frame, at slightly different lengths, as if shredded.
-2. One of the small bars below is now much longer than the others.`,
+1. The LOWER HALF of the picture has become a row of narrow vertical strips hanging down out of the bottom edge of the frame, at slightly different lengths, as if it had been shredded. The strips keep the colours of the part of the picture they came from, and a few hang below the frame onto the white page.
+2. One of the bars below is now much taller and thicker than all the others.`,
   },
   "07": {
     before: `${STYLE}
