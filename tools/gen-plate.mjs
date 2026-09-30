@@ -9,7 +9,7 @@
  *        public/plates/<id>-{before,after}.webp（版に載せる軽い方・要 tools/shrink-plate.py）
  */
 import { GoogleGenAI } from "@google/genai";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -43,11 +43,11 @@ No text, no letters, no Japanese characters, no logos, no watermark.`;
 /** CASEごとの色。7枚が並んだときに飽きないよう、それぞれ別の気分にする。 */
 const PALETTES = {
   "01": "earthy and warm — charcoal black, vermilion brown, deep ochre yellow, moss green, sand, stone grey. Quiet and old.",
-  "02": "cool and restrained, like a gallery — chalk white, pale warm grey, soft slate blue, deep black, cream, and one small note of brass. Almost no saturation.",
-  "03": "chalk on a dark ground — deep slate blue-black for the wall, and the writing in soft chalk pastels: pink, mint, lemon, sky, lilac, white. Powdery and light.",
-  "04": "metallic and industrial — brass, steel grey, copper, gunmetal, deep navy, off-white, with ONE strong signal red. Cold except for the red.",
+  "02": "a warm gallery — deep forest green for the wall, cream and bone for the frames, soft black, warm grey, and antique brass. The urinal alone is bright glazed white, so it jumps out of the green.",
+  "03": "a chalkboard wall in deep indigo violet — a dark blue-purple, definitely not green — with the printed parts in warm cream and soft grey. When writing appears it is in powdery chalk pastels: coral, mint, lemon, sky, lilac, white. Light and dusty against the indigo.",
+  "04": "paper in metal-ish colours, never actual metal — mustard, warm grey, terracotta, deep navy, bone, sage, with ONE strong signal red for the car. Flat matte card throughout.",
   "05": "the palette of an old screen — pure saturated primaries: red, blue, green, yellow, magenta, cyan, plus pure white and pure black. Bright and blocky, many colours at once.",
-  "06": "near-monochrome with one gold — deep black, several greys, bone white, and a warm gold for the frame. Sombre, with the gold doing all the work.",
+  "06": "soft and sombre with one gold — warm charcoal, dove grey, bone white, a dusty rose for the picture, and a warm gold for the frame. The gold does all the work.",
   "07": "map colours — mint green blocks, pale aqua, warm pale grey roads, soft butter yellow, and coral for the markers. Light, open, a little sunny.",
 };
 
@@ -74,27 +74,39 @@ Keep the hanging scroll and every other surface BLANK — do not add any text, l
   "02": {
     before: `${STYLE}
 
-Subject, seen SQUARE ON — the wall faces the camera flat, no tilt, no perspective, no vanishing point; its edges stay horizontal and vertical. A gallery wall. A horizontal row of framed pictures hangs across it, all the same size, evenly spaced, each frame cut from paper and stacked thick so it stands proud of the wall. ONE place in the row is EMPTY — just bare wall there. On the floor below, off to the right and clearly apart from the row, stands a single WHITE PORCELAIN URINAL on a low plinth, turned on its back so it faces the viewer like a sculpture.
-Make the urinal UNMISTAKABLE and large — as tall as a third of the wall. Seen face on: a smooth shield-shaped bowl, WIDE and rounded at the top, narrowing to a rounded lip at the bottom, with a shallow basin hollowed into its face and a small dark oval drain near the lower end. Bright glazed white against the greys, the only object of its kind in the picture.`,
-    after: `Keep everything identical: same wall, same row of frames, same spacing, same style, same light, same shadows.
+Subject, seen SQUARE ON — everything faces the camera flat, no tilt, no perspective, no vanishing point; all edges stay horizontal and vertical.
+A plain back-room wall: one large deep-green paper panel filling most of the frame with an even white margin all around, built from five or six sheets so it stands well proud of the page.
+Standing against it, ONE WHITE PORCELAIN URINAL, upright, exactly as it would sit in a lavatory — the plumbing fitting, nothing else. It is the ONLY object in the picture and it is BIG: two thirds as tall as the green panel, dead centre.
+Seen face on: a smooth shield shape, WIDE and rounded across the top, curving inward at the waist, flaring to a rounded lip at the bottom, with a shallow basin hollowed into its face, a small dark oval drain low down, and a short pipe entering at the top. Build it from six or seven stacked sheets of bright bone-white card so it is the tallest, thickest thing in the picture, its cut edges clearly visible.
+Around it, low on the wall, a few small dull fittings — a bracket, a pipe collar, a tap — each only one or two sheets thick, so they sit far lower than the urinal. No frames, no pictures, no gallery, no plinth, no label.`,
+    after: `Keep the green wall, the light and the shadows identical, and keep the SAME white urinal — same shape, same size, same paper, same stacked edges.
 Change ONLY these:
-1. The urinal is GONE from the floor.
-2. The empty place in the row is now filled with a framed magazine page — a photograph of that same urinal at the top, and columns of printed text below it.`,
+1. The urinal is now LAID ON ITS BACK — rotated exactly a quarter turn clockwise, so its wide rounded top points LEFT and its lip points RIGHT. It stays perfectly level: horizontal edges horizontal, nothing tilted at an angle. It keeps its full size and its thick stack of sheets, and it rests on a low cream paper plinth.
+2. A row of framed pictures now hangs across the green wall behind it, all the same size, evenly spaced, each frame cut from card and stacked at a different thickness — but the urinal still stands taller and thicker than any of them.
+3. A small blank cream label card is fixed to the wall beside the plinth.
+Remove the brackets, pipes and taps. Do not shrink the urinal and do not tilt it.`,
   },
   "03": {
     before: `${STYLE}
 
-Subject, flat and straight on: a single DARK SLATE WALL PANEL — one solid deep blue-black rectangle, clearly darker than everything else, sitting in the middle of the frame with a generous empty margin of white all around it, not touching any edge. On that dark panel is a grid of identical rows, eight rows by two columns. Every row is exactly the same: a short printed opening phrase on the left as a small dark bar of paper, and to its right a BARE RULED LINE with NOTHING on it. Every blank is completely empty — no writing, no marks, no colour, no chalk, nothing at all. Only the printed bar and the empty rule, repeated identically down the wall. The wall is quiet and almost monochrome. All cut from paper and stacked so the rows stand proud of the wall.`,
-    after: `Keep the wall and the grid identical: same rows, same printed bars, same ruled blanks, same style and light.
-Change ONLY this: most of the blanks are now FILLED with handwriting — short strokes of paper in different lengths and different colours, no two alike, some short, some running to the end of the line. A few blanks are still empty. One filled answer has a bright arrow drawn from it down to another answer.`,
+Subject, seen SQUARE ON, flat, no tilt and no perspective: ONE deep INDIGO VIOLET chalkboard panel — a dark blue-purple, with no green in it, a tall rectangle in the middle of the frame with a generous white margin all around, not touching any edge, built from six sheets so it is a thick slab.
+Down the panel run ten identical rows. Each row is: a short printed opening phrase on the left — a small cream bar of card, three sheets thick — and to its right ONE BARE RULED LINE, a single hairline-thin cream strip lying flat on the indigo, with NOTHING on it.
+Every blank is completely empty — no writing, no marks, no colour, no chalk. Only the printed bar and the empty hairline rule, repeated identically down the panel.
+The rows are the only thing on the panel. The panel must read as blue-purple, never as green. No books, no shelves, no boxes, no blocks — the ruled lines must read as thin lines, never as objects sitting on a shelf.`,
+    after: `Keep the indigo panel and the grid identical: same rows, same cream printed bars, same positions, same style and light.
+Change ONLY this: most of the hairline rules are now covered by HANDWRITING — long thin wavy strips of card cut like a line of cursive script, with loops and gaps, lying along each rule. Each one is a different powdery chalk colour — pink, mint, lemon, sky, lilac, white — and a different length: some trail off after a couple of words, some run the whole width. Each is only one or two sheets thick, so the writing stays much lower than the printed bars.
+Three or four blanks are still empty.
+The writing is ABSTRACT SCRIBBLE, not language: no readable letters, no words, no alphabet, no numbers — just the rise and fall of a hand moving along the line.
+Every stroke stays INSIDE the indigo panel; nothing crosses its edge or spills onto the white.
+Nothing else changes. Do NOT add arrows, boxes, blocks, books, frames, labels or any straight-edged shapes — only the wavy written lines.`,
   },
   "04": {
     before: `${STYLE}
 
-Subject, flat and straight on: one small car in the middle of the board, seen from the side, cut from paper and stacked thick. Around it, eleven keys of different colours scattered across the board, each one separate and cut from paper. Exactly ONE key is joined to the car by a single line. All the other keys are joined to nothing.`,
+Subject, flat and straight on: one small car in the middle, seen from the side, CUT FROM MATTE CARD and stacked five or six sheets thick so it is the tallest thing in the picture. Around it, eleven keys, each CUT FROM MATTE CARD as a flat silhouette — a ring at one end, a toothed blade at the other — in different paper colours, stacked at clearly different thicknesses, some thin, some thick. They are paper keys: no metal, no gloss, no shine, no photographic detail. Exactly ONE key is joined to the car by a single line. All the other keys are joined to nothing.`,
     after: `Keep every key exactly where it is, same colours, same style, same light.
 Change ONLY these:
-1. EVERY key is now joined to the car by its own line, so lines converge on the car from all around.
+1. EVERY key is now joined to the car by its own STRIP OF PAPER — a thin flat cut ribbon, not a wire or a cable — so the strips converge on the car from all around.
 2. The car has MOVED to a different place on the board, and a dashed outline marks where it used to be.`,
   },
   "05": {
@@ -111,7 +123,7 @@ Change ONLY these:
   "06": {
     before: `${STYLE}
 
-Subject, flat and straight on: a single framed picture hanging on a wall, whole and intact, the frame cut from paper and stacked thick. Below it, a row of small bars like a record of prices.`,
+Subject, flat and straight on: a single framed picture, whole and intact. The gold frame is CUT FROM CARD and stacked six sheets thick so it stands well proud; the picture inside it is a low, flat collage of dusty rose and greys, only one or two sheets thick, so the frame clearly sits above it. Below, a row of small bars of different thicknesses, like a record of prices. Behind everything, a wide charcoal paper panel, a few sheets thick.`,
     after: `Keep the frame, the wall and the picture's upper half identical, same style and light.
 Change ONLY these:
 1. The LOWER HALF of the picture has become a row of narrow vertical strips hanging down out of the bottom edge of the frame, at slightly different lengths, as if shredded.
@@ -160,9 +172,17 @@ mkdirSync(dir, { recursive: true });
 
 const palette = PALETTES[id] || PALETTES["01"];
 console.log(`[${id}] 変容前を起こす…`);
-const before = await image(ai, [{ text: plate.before.replace("__PALETTE__", palette) }]);
-writeFileSync(join(dir, `${id}-before.png`), before);
-console.log(`[${id}] → ${id}-before.png (${before.length} bytes)`);
+// 《実行後》だけ描き直したいときは --after で、置いてある《変容前》を種にする
+const afterOnly = process.argv.includes("--after");
+const before = afterOnly
+  ? readFileSync(join(dir, `${id}-before.png`))
+  : await image(ai, [{ text: plate.before.replace("__PALETTE__", palette) }]);
+if (afterOnly) {
+  console.log(`[${id}] 《変容前》は置いてあるものを使う`);
+} else {
+  writeFileSync(join(dir, `${id}-before.png`), before);
+  console.log(`[${id}] → ${id}-before.png (${before.length} bytes)`);
+}
 
 console.log(`[${id}] その絵を種に、実行後へ…`);
 const after = await image(ai, [
