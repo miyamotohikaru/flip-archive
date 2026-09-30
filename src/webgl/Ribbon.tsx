@@ -35,7 +35,7 @@ const SHADOW_PAD = 1.34;
 // 組みの厚み。判面の幅を100mmとみて、だいたい1.4cmぶん。
 // 同じ形をこのぶん奥へ重ねて胴をつくるので、斜めから見ると側面が出る。
 const ART_LIFT = 0.14;
-const ART_SLICES = 14; // 胴を何枚で埋めるか
+const ART_SLICES = 32; // 胴を何枚で埋めるか。紙の小口の線を出すので細かく取る
 
 const PAPER = new THREE.Color("#fffefb");
 const INK = new THREE.Color("#121110");
