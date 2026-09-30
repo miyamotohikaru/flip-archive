@@ -31,13 +31,25 @@ BACKGROUND: plain flat WHITE (#ffffff), edge to edge. **Do NOT draw a board, pan
 
 SHAPES: simple, blocky, graphic — the shapes of pixel art, but cut from paper.
 
-PALETTE: bold graphic colours in matte paper — vermilion red, sunny yellow, grass green, sky blue, warm sand, charcoal grey, light grey.
+PALETTE: __PALETTE__
 
 DENSE: many cut pieces of different sizes stacked at many different heights, with small gaps between them. Small details everywhere.
 
 COMPOSITION: upright portrait, the build centred with a small even margin of empty white around it.
 
 No text, no letters, no Japanese characters, no logos, no watermark.`;
+
+
+/** CASEごとの色。7枚が並んだときに飽きないよう、それぞれ別の気分にする。 */
+const PALETTES = {
+  "01": "earthy and warm — charcoal black, vermilion brown, deep ochre yellow, moss green, sand, stone grey. Quiet and old.",
+  "02": "cool and restrained, like a gallery — chalk white, pale warm grey, soft slate blue, deep black, cream, and one small note of brass. Almost no saturation.",
+  "03": "chalk on a dark ground — deep slate blue-black for the wall, and the writing in soft chalk pastels: pink, mint, lemon, sky, lilac, white. Powdery and light.",
+  "04": "metallic and industrial — brass, steel grey, copper, gunmetal, deep navy, off-white, with ONE strong signal red. Cold except for the red.",
+  "05": "the palette of an old screen — pure saturated primaries: red, blue, green, yellow, magenta, cyan, plus pure white and pure black. Bright and blocky, many colours at once.",
+  "06": "near-monochrome with one gold — deep black, several greys, bone white, and a warm gold for the frame. Sombre, with the gold doing all the work.",
+  "07": "map colours — mint green blocks, pale aqua, warm pale grey roads, soft butter yellow, and coral for the markers. Light, open, a little sunny.",
+};
 
 const PLATES = {
   "01": {
@@ -62,7 +74,7 @@ Keep the hanging scroll and every other surface BLANK — do not add any text, l
   "02": {
     before: `${STYLE}
 
-Subject, flat and straight on: a gallery wall. A horizontal row of framed pictures hangs across it, all the same size, evenly spaced, each frame cut from paper and stacked thick so it stands proud of the wall. ONE place in the row is EMPTY — just bare wall there. On the floor below, off to the right and clearly apart from the row, stands a single white porcelain urinal on a low plinth, turned on its back like a sculpture.`,
+Subject, seen SQUARE ON — the wall faces the camera flat, no tilt, no perspective, no vanishing point; its edges stay horizontal and vertical. A gallery wall. A horizontal row of framed pictures hangs across it, all the same size, evenly spaced, each frame cut from paper and stacked thick so it stands proud of the wall. ONE place in the row is EMPTY — just bare wall there. On the floor below, off to the right and clearly apart from the row, stands a single white porcelain urinal on a low plinth, turned on its back like a sculpture.`,
     after: `Keep everything identical: same wall, same row of frames, same spacing, same style, same light, same shadows.
 Change ONLY these:
 1. The urinal is GONE from the floor.
@@ -71,7 +83,7 @@ Change ONLY these:
   "03": {
     before: `${STYLE}
 
-Subject, flat and straight on: a long outdoor wall covered with a grid of identical rows, eight rows by two columns. Every row is exactly the same: a short printed opening phrase on the left as a small dark bar of paper, and an empty ruled blank line to its right. Nothing is written in any blank yet. All cut from paper and stacked so the rows stand proud of the wall.`,
+Subject, flat and straight on: a long outdoor wall covered with a grid of identical rows, eight rows by two columns. Every row is exactly the same: a short printed opening phrase on the left as a small dark bar of paper, and to its right a BARE RULED LINE with NOTHING on it. Every blank is completely empty — no writing, no marks, no colour, no chalk, nothing at all. Only the printed bar and the empty rule, repeated identically down the wall. The wall is quiet and almost monochrome. All cut from paper and stacked so the rows stand proud of the wall.`,
     after: `Keep the wall and the grid identical: same rows, same printed bars, same ruled blanks, same style and light.
 Change ONLY this: most of the blanks are now FILLED with handwriting — short strokes of paper in different lengths and different colours, no two alike, some short, some running to the end of the line. A few blanks are still empty. One filled answer has a bright arrow drawn from it down to another answer.`,
   },
@@ -107,7 +119,7 @@ Change ONLY these:
   "07": {
     before: `${STYLE}
 
-Subject, flat and straight on, seen from directly above: a city street grid — straight roads crossing at right angles, with blocks between them, cut from paper and stacked so the blocks stand proud and the roads sit low. A line of small markers runs across the grid from one corner to the opposite one, taking the shortest way along the roads.`,
+Subject, flat and straight on, seen from directly above: a simple city street grid: FIVE wide straight roads running down and SIX running across, crossing at right angles. The roads are WIDE, EMPTY and pale, and they sit LOW. Between them sit large plain blocks of a single quiet colour each, cut from paper and stacked so they stand well proud of the roads. Keep it simple and open — few colours, plenty of empty road, the grid must read clearly at a glance. A line of small markers runs across the grid from one corner to the opposite one, taking the shortest way along the roads.`,
     after: `Keep the streets and blocks exactly the same, same style and light.
 Change ONLY these:
 1. Small bright round markers and small square markers are now scattered across the grid at many places along the roads.
@@ -145,15 +157,16 @@ const ai = new GoogleGenAI({ apiKey });
 const dir = join(ROOT, "tools", "plates-src");
 mkdirSync(dir, { recursive: true });
 
+const palette = PALETTES[id] || PALETTES["01"];
 console.log(`[${id}] 変容前を起こす…`);
-const before = await image(ai, [{ text: plate.before }]);
+const before = await image(ai, [{ text: plate.before.replace("__PALETTE__", palette) }]);
 writeFileSync(join(dir, `${id}-before.png`), before);
 console.log(`[${id}] → ${id}-before.png (${before.length} bytes)`);
 
 console.log(`[${id}] その絵を種に、実行後へ…`);
 const after = await image(ai, [
   { inlineData: { mimeType: "image/png", data: before.toString("base64") } },
-  { text: plate.after },
+  { text: plate.after.replace("__PALETTE__", palette) },
 ]);
 writeFileSync(join(dir, `${id}-after.png`), after);
 console.log(`[${id}] → ${id}-after.png (${after.length} bytes)`);
