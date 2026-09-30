@@ -79,8 +79,24 @@ for name in (f"{ID}-before", f"{ID}-after"):
 box = (min(b[0] for b in boxes), min(b[1] for b in boxes),
        max(b[2] for b in boxes), max(b[3] for b in boxes))
 
+# 二枚の枠は同じだが、そのぶん《変容前》の中身が枠の中で片寄る
+# （《実行後》のほうが人の姿で右へ張り出すため）。版に出るのはまず変容前なので、
+# **変容前の中身が真ん中に来るように**、二枚へ同じだけ透明を足す。
+ref = np.asarray(cut[f"{ID}-before"].crop(box).split()[-1])
+rys, rxs = np.nonzero(ref > 8)
+bw, bh = box[2] - box[0], box[3] - box[1]
+cx, cy = (rxs.min() + rxs.max()) / 2, (rys.min() + rys.max()) / 2
+padL = int(round(max(0, (bw / 2 - cx) * 2)))
+padR = int(round(max(0, (cx - bw / 2) * 2)))
+padT = int(round(max(0, (bh / 2 - cy) * 2)))
+padB = int(round(max(0, (cy - bh / 2) * 2)))
+print("変容前の中心", round(cx), round(cy), "／枠", bw, bh, "／足す L,R,T,B =", padL, padR, padT, padB)
+
 for name, img in cut.items():
     out = img.crop(box)
+    pad = Image.new("RGBA", (out.width + padL + padR, out.height + padT + padB), (255, 255, 255, 0))
+    pad.paste(out, (padL, padT))
+    out = pad
     edge = 6
     framed = Image.new("RGBA", (out.width + edge * 2, out.height + edge * 2), (255, 255, 255, 0))
     framed.paste(out, (edge, edge))
