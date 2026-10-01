@@ -110,11 +110,11 @@ export default function Heptagon({
         [1, 2, 3, 4, 5].map((lv) => (
           <text
             key={lv}
-            x={CX - labelSize * 0.53}
-            y={CY - (R * lv) / 5 + labelSize * 0.37}
+            x={CX - labelSize * 0.36}
+            y={CY - (R * lv) / 5 + labelSize * 0.24}
             textAnchor="end"
             fill="var(--color-faint)"
-            fontSize={labelSize * 0.84}
+            fontSize={labelSize * 0.56}
             fontFamily="var(--font-mono)"
           >
             {lv}
