@@ -1,0 +1,51 @@
+<!--
+  SNSのサムネ（public/og.png）の原版。
+
+  1. トップを 1200x630 のビューポートで撮り、og-1200.png としてこの隣に置く
+     node ~/.claude/skills/shot/shot.mjs http://localhost:3010/ \
+       --w 1200 --vh 630 --viewport --scale 1 --name og
+     ※ WebGLを描かせるので --use-angle=swiftshader に差し替えた shot.mjs を使う
+  2. このファイルを同じ大きさで撮り、public/og.png に置く
+  3. python3 で sha1 を取り、src/app/og-version.ts を書き換える
+     （Xは og:image を URL 単位で覚えるので、版番号なしでは古い絵が出続ける）
+
+  背景を下へずらしているのは、トップ右下の書誌と七角形を画面外へ逃がすため。
+-->
+<!doctype html><html lang="ja"><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{width:1200px;height:630px;overflow:hidden;position:relative;background:#eae7e0;
+       font-family:Inter,"Noto Sans JP",system-ui,sans-serif;font-feature-settings:"palt" 1;
+       -webkit-font-smoothing:antialiased;color:#121110}
+  .shot{position:absolute;inset:0;background:url(og-1200.png) 10px 240px/1200px 630px no-repeat}
+  /* 左半分だけ地色をかぶせて、呼び名が沈まないようにする */
+  .veil{position:absolute;inset:0;
+        background:linear-gradient(100deg,#eae7e0 0%,#eae7e0 41%,rgba(234,231,224,.94) 53%,rgba(234,231,224,0) 69%)}
+  /* 右下に出る書誌と七角形は、サムネでは要らないので地色へ溶かす */
+  .veil2{position:absolute;right:0;bottom:0;width:620px;height:300px;
+         background:radial-gradient(135% 135% at 100% 100%,#eae7e0 46%,rgba(234,231,224,0) 76%)}
+  /* 右下隅にだけ、帯の下に残る文字の頭が覗くので消す */
+  .veil2{position:absolute;right:0;bottom:0;width:300px;height:110px;
+         background:radial-gradient(130% 130% at 100% 100%,#eae7e0 52%,rgba(234,231,224,0) 82%)}
+  .box{position:absolute;left:72px;top:0;height:630px;width:560px;
+       display:flex;flex-direction:column;justify-content:center}
+  h1{font-size:67px;font-weight:500;letter-spacing:-.035em;line-height:1.08}
+  .en{margin-top:16px;font-size:21px;font-weight:400;letter-spacing:.2em;color:#6d685f}
+  .en sup{font-size:11px;vertical-align:super;letter-spacing:0}
+  .lead{margin-top:34px;font-size:18px;font-weight:300;line-height:2.05;color:#3f3b35;letter-spacing:.01em}
+  .foot{margin-top:38px;font-family:"IBM Plex Mono",ui-monospace,monospace;
+        font-size:12.5px;letter-spacing:.14em;color:#928d84}
+  .rule{margin-top:30px;width:92px;border-top:1px solid #121110}
+</style></head><body>
+<div class="shot"></div><div class="veil"></div><div class="veil2"></div>
+<div class="box">
+  <h1>世界のFLIP図鑑</h1>
+  <p class="en">WORLD FLIP ARCHIVE<sup>&reg;</sup></p>
+  <div class="rule"></div>
+  <p class="lead">現実の当たり前に具体的な仕掛けを置き、<br>人が関わる経験を通して、<br>その当たり前の別の姿を立ち上げた企画の記録。</p>
+  <p class="foot">KOSU.KUMA / PLACEBO v1.3 / 07 CASES</p>
+</div>
+</body></html>

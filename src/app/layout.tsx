@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { OG_VERSION } from "./og-version";
 import { Inter, IBM_Plex_Mono, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import SiteChrome from "@/components/SiteChrome";
@@ -39,11 +40,20 @@ export const metadata: Metadata = {
     siteName: "世界のFLIP図鑑",
     locale: "ja_JP",
     type: "website",
+    images: [
+      {
+        url: `/og.png?v=${OG_VERSION}`,
+        width: 1200,
+        height: 630,
+        alt: "世界のFLIP図鑑 — WORLD FLIP ARCHIVE",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "世界のFLIP図鑑",
     description: DESCRIPTION,
+    images: [`/og.png?v=${OG_VERSION}`],
   },
 };
 
