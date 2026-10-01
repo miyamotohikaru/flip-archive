@@ -69,15 +69,8 @@ export default async function CasePage({
                 {c.headline}
               </p>
 
-              <div className="mt-8">
-                <div className="mb-2.5 flex items-baseline gap-2.5">
-                  <h2 className="text-13 font-medium tracking-[0.02em]">
-                    どんな企画か
-                  </h2>
-                  <span className="label">WHAT IT WAS</span>
-                </div>
-                <p className="copy max-w-[40rem]">{c.outline}</p>
-              </div>
+              {/* 初めて見る人に、何をした企画かを先に渡す。見出しは立てない。 */}
+              <p className="copy mt-5 max-w-[40rem]">{c.outline}</p>
 
               <div className="mt-8">
                 <div className="mb-2.5 flex items-baseline gap-2.5">
