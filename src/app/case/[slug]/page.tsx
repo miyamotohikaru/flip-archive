@@ -7,6 +7,7 @@ import { AXIS_ORDER } from "@/data/types";
 import CaseHero from "@/components/CaseHero";
 import Heptagon from "@/components/Heptagon";
 import AxisMark from "@/components/AxisMark";
+import ScoreBar from "@/components/ScoreBar";
 import BackToIndex from "@/components/BackToIndex";
 
 export function generateStaticParams() {
@@ -147,43 +148,78 @@ export default async function CasePage({
                 v1.2から継承した試行値であり、新たな独立再採点の結果ではない。
               </p>
 
+              {/* 7軸を先に一度に見渡す。どこが強い企画かを一目で渡す。 */}
+              <ul className="mb-10 max-w-[46rem] border-t border-line">
+                {AXIS_ORDER.map((id, idx) => (
+                  <li
+                    key={id}
+                    className="flex items-center gap-3 border-b border-line py-2.5 sm:gap-4"
+                  >
+                    <span className="label !text-accent tnum w-3 shrink-0">
+                      {axes[idx].letter}
+                    </span>
+                    <span className="w-[4.25rem] shrink-0 text-13 sm:w-[5rem]">
+                      {axes[idx].ja}
+                    </span>
+                    <ScoreBar score={c.review[id].score} className="min-w-0 flex-1" />
+                    <span className="w-4 shrink-0 text-right text-13 font-medium tnum">
+                      {c.review[id].score ?? "—"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
               <ol className="max-w-[46rem] border-t border-line">
                 {AXIS_ORDER.map((id, idx) => {
                   const a = axes[idx];
                   const rv = c.review[id];
                   return (
-                    <li key={id} className="border-b border-line py-7 sm:py-6">
-                      <div className="flex items-center gap-3">
+                    <li key={id} className="border-b border-line py-8 sm:py-7">
+                      {/* しるし・軸名・評点 */}
+                      <div className="flex items-start gap-3">
                         <AxisMark
                           axis={id}
-                          size={26}
-                          className="shrink-0 text-sub"
+                          size={28}
+                          className="mt-0.5 shrink-0 text-faint"
                         />
-                        <span className="label !text-accent tnum text-12">
-                          {a.letter}
-                        </span>
-                        <span className="text-13 font-medium">{a.ja}</span>
-                        <span className="label">{a.en}</span>
-                        <span className="ml-auto text-[1.5rem] font-medium leading-none tnum">
-                          {rv.score ?? "—"}
-                          <span className="label ml-1 align-baseline">/5</span>
-                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-baseline gap-2">
+                            <span className="label !text-accent tnum">
+                              {a.letter}
+                            </span>
+                            <h3 className="text-[1.05rem] font-medium tracking-[-0.01em] sm:text-[1rem]">
+                              {a.ja}
+                            </h3>
+                          </div>
+                          <p className="label mt-0.5">{a.en}</p>
+                        </div>
+                        <p className="shrink-0 text-right leading-none">
+                          <span className="text-[2.1rem] font-medium tnum sm:text-[1.8rem]">
+                            {rv.score ?? "—"}
+                          </span>
+                          <span className="label ml-0.5">/5</span>
+                        </p>
                       </div>
 
+                      <ScoreBar score={rv.score} className="mt-4" />
+
+                      {/* 理由を主文として置く */}
+                      <p className="copy mt-5">{rv.reason}</p>
+
+                      {/* その点が指す目盛りと留保は、理由のうしろに小さく添える */}
                       {rv.score != null && (
-                        <p className="copy-sm mt-3 border-l border-line pl-4 text-mute">
+                        <p className="copy-sm mt-4 bg-paper px-4 py-3.5 text-mute">
+                          <span className="label mr-2 !text-faint">
+                            目盛り{rv.score}
+                          </span>
                           {a.levels[rv.score - 1]}
                         </p>
                       )}
-
-                      <p className="copy mt-4">
-                        {rv.reason}
-                      </p>
-                      <p className="copy-sm mt-2.5 text-mute">
+                      <p className="copy-sm mt-3 text-mute">
                         <span className="label mr-2">留保</span>
                         {rv.caveat}
                       </p>
-                      <p className="mt-2.5 flex flex-wrap gap-x-2 gap-y-1">
+                      <p className="mt-3 flex flex-wrap gap-x-2 gap-y-1">
                         {rv.sourceIds.map((sid) => (
                           <a
                             key={sid}

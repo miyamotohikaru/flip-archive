@@ -40,7 +40,11 @@ const ART_LIFT = 0.14;
 const CASE_OFFSET = 2;
 const ART_SLICES = 32; // 胴を何枚で埋めるか。紙の小口の線を出すので細かく取る
 
-const PAPER = new THREE.Color("#fffefb");
+// 版の紙。縦長の画面では版が画面の大半を占めるので、白が飛んで見える。
+// 携帯だけ一段沈めて、地色との差は残したまま眩しさを落とす。
+const PAPER_WIDE = "#fffefb";
+const PAPER_TALL = "#f7f4ee";
+const PAPER = new THREE.Color(PAPER_WIDE);
 const INK = new THREE.Color("#121110");
 const ACCENT = new THREE.Color("#c7452a");
 
@@ -142,6 +146,8 @@ export default function Ribbon({
     );
     const setCameraForViewport = () => {
       const aspect = host.clientWidth / host.clientHeight;
+      // 共有の色なので、ここで差し替えれば全部の版に効く
+      PAPER.set(aspect < 1 ? PAPER_TALL : PAPER_WIDE);
       camera.aspect = aspect;
       camera.position.set(0, 100 / 7.5, aspect < 1 ? 46 : 30);
       camera.lookAt(0, 0, 0);
