@@ -24,9 +24,9 @@ export default function Home() {
         {/* 携帯は右下に表を置く幅がないので、帯が通らない左上に出す */}
         <Heptagon
           c={shown}
-          size={234}
-          labelSize={14}
-          className="-ml-2 -mt-4 block opacity-0 [animation:fadeIn_1.4s_1.6s_forwards] sm:hidden"
+          size={176}
+          labelSize={22}
+          className="-ml-1 -mt-4 block opacity-0 [animation:fadeIn_1.4s_1.6s_forwards] sm:hidden"
         />
         <p className="hidden max-w-[18rem] text-11 leading-[2] text-mute opacity-0 [animation:fadeIn_1.4s_1.8s_forwards] sm:block">
           現実の当たり前に具体的な仕掛けを置き、
