@@ -33,14 +33,20 @@ export default function Heptagon({
   c,
   size = 300,
   labels = true,
+  labelSize = 9.5,
   className = "",
 }: {
   c: Case;
   size?: number;
   /** 頂点の軸名と点数を刷るか。索引の小さい図では落とす。 */
   labels?: boolean;
+  /** 図を小さく出すときは、名と点を相対的に大きくしないと読めない。 */
+  labelSize?: number;
   className?: string;
 }) {
+  // 名と点は図の外へ出るので、その分だけ外枠を広げる
+  const pad = labelSize * 4;
+  const padTop = labelSize * 3.2;
   const scores: Score[] = AXIS_ORDER.map((id) => c.review[id].score);
 
   // 隣り合う評点のあいだだけを結ぶ。未評価の頂点は連結しない。
@@ -61,7 +67,11 @@ export default function Heptagon({
 
   return (
     <svg
-      viewBox={labels ? "-38 -30 376 376" : "0 0 300 300"}
+      viewBox={
+        labels
+          ? `${-pad} ${-padTop} ${300 + pad * 2} ${300 + pad * 2}`
+          : "0 0 300 300"
+      }
       width={size}
       height={size}
       className={className}
@@ -100,11 +110,11 @@ export default function Heptagon({
         [1, 2, 3, 4, 5].map((lv) => (
           <text
             key={lv}
-            x={CX - 5}
-            y={CY - (R * lv) / 5 + 3.5}
+            x={CX - labelSize * 0.53}
+            y={CY - (R * lv) / 5 + labelSize * 0.37}
             textAnchor="end"
             fill="var(--color-faint)"
-            fontSize="8"
+            fontSize={labelSize * 0.84}
             fontFamily="var(--font-mono)"
           >
             {lv}
@@ -150,19 +160,19 @@ export default function Heptagon({
             <g key={id}>
               <text
                 x={x + dx}
-                y={y + dy + (up ? -11 : 3)}
+                y={y + dy + labelSize * (up ? -1.16 : 0.32)}
                 textAnchor={anchor}
                 fill="var(--color-mute)"
-                fontSize="9.5"
+                fontSize={labelSize}
               >
                 {a.letter} {a.jaShort}
               </text>
               <text
                 x={x + dx}
-                y={y + dy + (up ? 4 : 16)}
+                y={y + dy + labelSize * (up ? 0.42 : 1.68)}
                 textAnchor={anchor}
                 fill="var(--color-ink)"
-                fontSize="10.5"
+                fontSize={labelSize * 1.11}
                 fontFamily="var(--font-mono)"
               >
                 {s ?? "—"}

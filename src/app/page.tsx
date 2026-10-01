@@ -4,8 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { cases } from "@/data/cases";
-import { axes } from "@/data/axes";
-import { AXIS_ORDER } from "@/data/types";
 import Heptagon from "@/components/Heptagon";
 import JaText from "@/components/JaText";
 
@@ -26,9 +24,9 @@ export default function Home() {
         {/* 携帯は右下に表を置く幅がないので、帯が通らない左上に出す */}
         <Heptagon
           c={shown}
-          size={158}
-          labels={false}
-          className="-ml-3 block opacity-0 [animation:fadeIn_1.4s_1.6s_forwards] sm:hidden"
+          size={234}
+          labelSize={14}
+          className="-ml-2 -mt-4 block opacity-0 [animation:fadeIn_1.4s_1.6s_forwards] sm:hidden"
         />
         <p className="hidden max-w-[18rem] text-11 leading-[2] text-mute opacity-0 [animation:fadeIn_1.4s_1.8s_forwards] sm:block">
           現実の当たり前に具体的な仕掛けを置き、
@@ -61,24 +59,14 @@ export default function Home() {
             <p className="mt-1.5 ml-auto max-w-[24rem] text-12 leading-[1.8] text-mute">
               <JaText>{shown.headline}</JaText>
             </p>
-            <div className="mt-3 flex flex-wrap justify-end gap-x-3">
-              {AXIS_ORDER.map((id, i) => (
-                <span key={id} className="label tnum">
-                  <span className="!text-ink">{axes[i].letter}</span>
-                  <span className="ml-0.5 !text-accent">
-                    {shown.review[id].score ?? "—"}
-                  </span>
-                </span>
-              ))}
-            </div>
           </div>
         </div>
 
         <Heptagon
           c={shown}
-          size={172}
-          labels={false}
-          className="-mb-7 hidden shrink-0 sm:block"
+          size={262}
+          labelSize={12}
+          className="-mb-2 -mr-2 hidden shrink-0 sm:block"
         />
       </div>
 
