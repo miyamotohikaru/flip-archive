@@ -13,12 +13,9 @@ import {
   plateVertexShader,
   shadowFragmentShader,
   shadowVertexShader,
-  artFragmentShader,
-  artVertexShader,
 } from "./shaders";
 import { plateParamsFor } from "@/lib/plateParams";
 import { labelTexture, plateLabel } from "./labelTexture";
-import { artFor, blankArt } from "./plateArt";
 
 /* ------------------------------------------------------------------ *
  * 配置のパラメータ
@@ -34,11 +31,9 @@ const HOVER_SHIFT = 0.26;
 const SHADOW_PAD = 1.34;
 // 組みの厚み。判面の幅を100mmとみて、だいたい1.4cmぶん。
 // 同じ形をこのぶん奥へ重ねて胴をつくるので、斜めから見ると側面が出る。
-const ART_LIFT = 0.14;
 // 帯が落ち着いたときに手前へ来る版を CASE 01 にするための送り。
 // 何も足さないと 06 から始まる（版の並びと巻き戻りの位置で決まる）。
 const CASE_OFFSET = 2;
-const ART_SLICES = 32; // 胴を何枚で埋めるか。紙の小口の線を出すので細かく取る
 
 // 版の紙。縦長の画面では版が画面の大半を占めるので、白が飛んで見える。
 // 携帯だけ一段沈めて、地色との差は残したまま眩しさを落とす。
@@ -57,8 +52,6 @@ type Tile = {
   shadow: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>;
   hit: THREE.Mesh;
   /** 版から立ち上がる組み。表の面・胴・接地の影。絵を持つCASEだけ。 */
-  artParts: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>[];
-  artReady: (() => boolean) | null;
   progress: { v: number };
   fade: { v: number };
   hovered: boolean;
@@ -175,7 +168,6 @@ export default function Ribbon({
       const c = cases[ci];
       const pp = plateParamsFor(c);
       const lb = labelTexture(plateLabel(c));
-      const art = artFor(c.slug);
 
       const material = new THREE.ShaderMaterial({
         vertexShader: plateVertexShader,
@@ -199,12 +191,6 @@ export default function Ribbon({
           uLabelAspect: { value: lb.aspect },
           uHasLabel: { value: 1 },
           uLabelScale: { value: 1 },
-          uArtA: { value: art ? art.before : blankArt() },
-          uArtB: { value: art ? art.after : blankArt() },
-          uArtAspect: { value: art ? art.aspect : 1 },
-          uHasArt: { value: 0 },
-          // 帯では版に刷らず、版から浮かせた胴として立てる
-          uArtOnPlate: { value: 0 },
         },
       });
 
@@ -233,56 +219,6 @@ export default function Ribbon({
       shifter.add(shadow);
       shifter.add(mesh);
 
-      // 絵を持つCASEは、版に刷らずに版から立ち上げる。
-      // 同じ形を奥へ何枚も重ねて胴をつくるので、斜めから見ると
-      // 影ではなく実体の側面として出っ張って見える。
-      const artParts: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>[] = [];
-      if (art) {
-        const ar = CARD_W / CARD_H;
-        const hx = 0.5 * ar - 0.04;
-        const rw = 2 * hx * CARD_H;
-        const rh = 2 * 0.398 * CARD_H;
-        const a = art.aspect || 1;
-        const w = a > rw / rh ? rw : rh * a;
-        const h = a > rw / rh ? rw / a : rh;
-        const g = new THREE.PlaneGeometry(w, h, 1, 1);
-        const cy = -0.012 * CARD_H;
-
-        const make = (mode: number, depth: number, z: number) => {
-          const m = new THREE.Mesh(
-            g,
-            new THREE.ShaderMaterial({
-              vertexShader: artVertexShader,
-              fragmentShader: artFragmentShader,
-              transparent: true,
-              depthWrite: false,
-              uniforms: {
-                uArtA: { value: art.before },
-                uArtB: { value: art.after },
-                uPaper: { value: PAPER },
-                uInk: { value: INK },
-                uProgress: { value: 0 },
-                uFade: { value: 1 },
-                uAppear: { value: 0 },
-                uMode: { value: mode },
-                uDepth: { value: depth },
-              },
-            }),
-          );
-          m.position.set(0, cy, z);
-          shifter.add(m);
-          artParts.push(m);
-          return m;
-        };
-
-        make(2, 0, 0.003); // 版に接するところの浅い影
-        // 胴。奥から手前へ重ねる。
-        for (let k = ART_SLICES; k >= 1; k--) {
-          make(1, k / ART_SLICES, (ART_LIFT * (ART_SLICES - k)) / ART_SLICES);
-        }
-        make(0, 0, ART_LIFT); // 表の面
-      }
-
       const hit = new THREE.Mesh(
         hitGeometry,
         new THREE.MeshBasicMaterial({
@@ -305,8 +241,6 @@ export default function Ribbon({
         shifter,
         mesh,
         shadow,
-        artParts,
-        artReady: art ? () => art.ready : null,
         hit,
         progress: { v: 0 },
         fade: { v: 1 },
@@ -586,19 +520,6 @@ export default function Ribbon({
         u.uFade.value = wrapFade * tile.fade.v;
         const su = tile.shadow.material.uniforms;
         su.uFade.value = wrapFade * tile.fade.v;
-
-        // 立ち上げた組みも、版と同じように進み・消え・出現に従う
-        if (tile.artParts.length) {
-          const on = tile.artReady?.() ? 1 : 0;
-          // 絵が届いたら、版に残っている線画を捨てる
-          u.uHasArt.value = on;
-          tile.artParts.forEach((m) => {
-            const au = m.material.uniforms;
-            au.uProgress.value = tile.progress.v;
-            au.uFade.value = wrapFade * tile.fade.v;
-            au.uAppear.value = u.uAppear.value * on;
-          });
-        }
         su.uAppear.value = u.uAppear.value;
         tile.hit.visible = wrapFade > 0.6 && tile.fade.v > 0.5;
 
@@ -674,8 +595,6 @@ export default function Ribbon({
         gsap.killTweensOf(tile.fade);
         tile.mesh.material.dispose();
         tile.shadow.material.dispose();
-        tile.artParts.forEach((m) => m.material.dispose());
-        if (tile.artParts.length) tile.artParts[0].geometry.dispose();
         (tile.hit.material as THREE.Material).dispose();
       });
       geometry.dispose();
