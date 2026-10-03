@@ -4,6 +4,10 @@ import { PLATE_ART_VERSION } from "./plateArtVersion";
 /**
  * 版に載せる絵。
  *
+ * ※ いまは使っていない。版は shaders.ts の作図プログラム（線画）で描く。
+ *    生成した絵（public/plates）ごと残してあるので、戻すときはここから繋ぐ。
+ *
+ *
  * CASEによっては、作図プログラムではなく生成した絵をそのまま版にする。
  * 《変容前》と《実行後》の二枚を持ち、uProgress で溶かし合わせる。
  */

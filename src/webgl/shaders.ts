@@ -37,11 +37,6 @@ export const plateFragmentShader = /* glsl */ `
   uniform float uLabelAspect;
   uniform float uHasLabel;
   uniform float uLabelScale;  // 版が小さく出る画面では、文字だけ大きくする
-  uniform sampler2D uArtA;    // 版に載せる絵（変容前）
-  uniform sampler2D uArtB;    // 同（実行後）
-  uniform float uArtAspect;
-  uniform float uHasArt;
-  uniform float uArtOnPlate;  // 版に絵を刷るか。帯では版から浮かせるので0。
 
   varying vec2 vUv;
 
@@ -91,149 +86,80 @@ export const plateFragmentShader = /* glsl */ `
   const vec2 AREA_H = vec2(0.290, 0.370);
   const vec2 AREA_C = vec2(0.0, -0.010);
 
-  // 絵の外は透明として扱う。端の画素が引き伸ばされるのを防ぐ。
-  float artA(vec2 uv) {
-    if (uv.x <= 0.0 || uv.x >= 1.0 || uv.y <= 0.0 || uv.y >= 1.0) return 0.0;
-    return texture2D(uArtA, uv).a;
-  }
-
-  // ---- ミニチュアの塗り -------------------------------------------------
-  // 線画ではなく、面を持った小さな模型として描くための道具。
-  // 版面の色に直接塗り重ねるので、INK / ACC / LIN は使わない。
-  vec3 MC;
-
-  float sdRound(vec2 p, vec2 b, float r) {
-    vec2 q = abs(p) - b + r;
-    return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
-  }
-
-  // 落ち影。形を右下へずらし、ぼかして地に落とす。
-  void mDrop(vec2 p, float d, float spread, float amt) {
-    float a = (1.0 - smoothstep(-spread * 0.25, spread, d)) * amt;
-    MC = mix(MC, mix(uPaper, uInk, 0.62), a);
-  }
-
-  // 平らな面。ふちだけ締め、上ほど明るい淡い階調をつける。
-  // 大きな面に膨らみを当てると角から筋が出るので、板にはこちらを使う。
-  void mPanel(vec2 p, float d, float rim, vec3 base, float y0, float y1) {
-    float cov = 1.0 - smoothstep(-AA, AA, d);
-    if (cov < 0.003) return;
-    float edge = smoothstep(0.0, rim, -d);
-    float up = clamp((p.y - y0) / max(y1 - y0, 1e-4), 0.0, 1.0);
-    vec3 tone = mix(mix(base, uInk, 0.30), base, edge);
-    tone = mix(tone, mix(base, vec3(1.0), 0.26), up * edge);
-    MC = mix(MC, tone, cov);
-  }
-
-  // ぽこっと膨れた塊。中央が高く、左上から光が当たる。
-  void mBody(vec2 p, vec2 c, float d, float soft, vec3 base) {
-    float cov = 1.0 - smoothstep(-AA, AA, d);
-    if (cov < 0.003) return;
-    float dome = sqrt(clamp(-d / soft, 0.0, 1.0));
-    vec2 n = normalize(p - c + vec2(1e-4));
-    float lam = 0.5 + 0.5 * dot(n, vec2(-0.52, 0.86));
-    vec3 lo = mix(base, uInk, 0.34);
-    vec3 hi = mix(base, vec3(1.0), 0.36);
-    vec3 tone = mix(lo, hi, clamp(dome * (0.28 + 0.72 * lam), 0.0, 1.0));
-    MC = mix(MC, tone, cov);
-  }
-
   // ======================================================================
   // 01 待庵の躙口 — 入口の寸法が、身体の振る舞いを変える
-  //   台の上に置いた小さな模型として描く。断面で中を見せる。
-  //   変容前: 立って通れる開口。天井が高く、床はひと続き。
+  //   変容前: 立って通れる開口。直立のまま、広い床へ入る。
   //   実行後: 開口が膝の高さまで下がり、身体が折れ、床が二畳に締まる。
   // ======================================================================
   void plateNijiri(vec2 p, float t) {
-    // 模型を版面の真ん中へ、少し大きく据える
-    float k = 1.12;
-    p = (p - vec2(0.0, -0.036)) / k;
-    AA /= k;
+    float ground = -0.286;
+    float wx = -0.060;          // 壁の位置
+    float wt = 0.013;           // 壁の厚み
 
-    vec3 cSlab  = mix(uPaper, uInk, 0.11);   // 台の上面
-    vec3 cSlabS = mix(uPaper, uInk, 0.28);   // 台の厚み
-    vec3 cRoom  = mix(uPaper, uInk, 0.17);   // 小間の奥の面
-    vec3 cWall  = mix(uPaper, uInk, 0.24);   // 躙口のある壁
-    vec3 cRoof  = mix(uPaper, uInk, 0.33);   // 屋根
-    vec3 cMat   = mix(uPaper, uInk, 0.14);   // 畳
-    vec3 cFig   = mix(uPaper, uInk, 0.76);   // 客
-    vec3 cStone = mix(uPaper, uInk, 0.26);   // 飛石
+    // 外と内をつなぐ地面
+    LIN += seg(p, vec2(-0.290, ground), vec2(0.290, ground), 0.0016);
 
-    float gy = -0.108;                        // 台の上面
-    float roof = gy + mix(0.286, 0.176, t);   // 天井の高さ
-    float wx = -0.098;                        // 躙口のある壁
-    float back = mix(0.196, 0.124, t);        // 奥の面の右端
+    // 室内。天井が下がり、床が二畳に締まる。
+    float ceil = mix(0.300, 0.166, t);
+    float back = mix(0.290, 0.196, t);
+    INK += box(p, vec2((wx + back) * 0.5, (ground + ceil) * 0.5),
+                  vec2((back - wx) * 0.5, (ceil - ground) * 0.5)) * 0.055;
+    LIN += seg(p, vec2(wx, ceil), vec2(back, ceil), 0.0013);
+    LIN += seg(p, vec2(back, ground), vec2(back, ceil), 0.0013);
 
-    // --- 台。厚みのある板として、影ごと浮かせる。
-    vec2 slabC = vec2(0.0, gy - 0.046);
-    vec2 slabH = vec2(0.244, 0.046);
-    mDrop(p, sdRound(p - (slabC + vec2(0.020, -0.060)), slabH, 0.030), 0.082, 0.32);
-    vec2 slabD = slabC + vec2(0.0, -0.024);
-    mPanel(p, sdRound(p - slabD, slabH, 0.030), 0.030, cSlabS, slabD.y - 0.046, slabD.y + 0.046);
-    mPanel(p, sdRound(p - slabC, slabH, 0.030), 0.034, cSlab, slabC.y - 0.046, slabC.y + 0.046);
-
-    // --- 小間。奥の面を一段落として、内側を見せる。
-    vec2 roomC = vec2((wx + back) * 0.5, (gy + roof) * 0.5);
-    vec2 roomH = vec2((back - wx) * 0.5, (roof - gy) * 0.5);
-    mDrop(p, sdRound(p - (roomC + vec2(0.014, -0.014)), roomH, 0.022), 0.046, 0.22);
-    mPanel(p, sdRound(p - roomC, roomH, 0.022), 0.040, cRoom, gy, roof);
-
-    // --- 床。ひと続きの面が、二畳に分かれる。
-    float gap = mix(0.0, 0.012, t);
-    float mw = (back - wx - 0.036) * 0.25;
+    // 畳。実行後に二枚だけ敷かれる。
     for (int i = 0; i < 2; i++) {
       float fi = float(i);
-      vec2 mc = vec2(wx + 0.018 + mw + fi * (mw * 2.0 + gap * 2.0), gy + 0.019);
-      vec2 mh = vec2(mw, 0.017);
-      mDrop(p, sdRound(p - (mc + vec2(0.008, -0.010)), mh, 0.009), 0.022, 0.20);
-      mBody(p, mc, sdRound(p - mc, mh, 0.009), 0.026, cMat);
+      vec2 c = vec2(0.008 + fi * 0.122, ground + 0.022);
+      LIN += frame(p, c, vec2(0.058, 0.018), 0.0013) * t;
+      INK += box(p, c, vec2(0.058, 0.018)) * t * 0.08;
     }
 
-    // --- 躙口のある壁。開口のぶんを抜く。
-    vec2 wallC = vec2(wx, (gy + roof) * 0.5);
-    vec2 wallH = vec2(0.026, (roof - gy) * 0.5);
-    float openY = gy + mix(0.118, 0.048, t);
-    float openH = mix(0.094, 0.032, t);
-    float dWall = sdRound(p - wallC, wallH, 0.013);
-    vec2 holeC = vec2(wx, openY);
-    float dHole = sdRound(p - holeC, vec2(0.030, openH), 0.010);
-    // 入口の奥。抜いた先が暗いことで、くぐる口だと分かる。
-    mBody(p, holeC, dHole, 0.030, mix(uPaper, uInk, 0.46));
-    mDrop(p, sdRound(p - (wallC + vec2(0.014, -0.014)), wallH, 0.013), 0.032, 0.20);
-    mPanel(p, max(dWall, -dHole), 0.014, cWall, gy, roof);
-
+    // 壁。開口のぶんだけ抜く。
+    float wallTop = 0.300;
+    float openH = mix(0.128, 0.040, t);            // 開口の半分の高さ
+    float openY = mix(ground + 0.132, ground + 0.050, t);
+    float wall = box(p, vec2(wx, (ground + wallTop) * 0.5),
+                        vec2(wt, (wallTop - ground) * 0.5));
+    float hole = box(p, vec2(wx, openY), vec2(wt + 0.004, openH));
+    INK += max(wall - hole, 0.0) * 0.30;
+    LIN += (strokeOf(sdBox(p - vec2(wx, (ground + wallTop) * 0.5),
+                           vec2(wt, (wallTop - ground) * 0.5)), 0.0013)
+            ) * max(1.0 - hole, 0.0);
     // 鴨居と敷居。開口の上下を朱で押さえる。
-    vec2 kamoi = vec2(wx, openY + openH + 0.006);
-    vec2 shiki = vec2(wx, openY - openH - 0.006);
-    mBody(p, kamoi, sdRound(p - kamoi, vec2(0.032, 0.0065), 0.006), 0.014, uAccent);
-    mBody(p, shiki, sdRound(p - shiki, vec2(0.032, 0.0065), 0.006), 0.014, uAccent);
+    ACC += seg(p, vec2(wx - wt - 0.004, openY + openH),
+                  vec2(wx + wt + 0.004, openY + openH), 0.0022);
+    ACC += seg(p, vec2(wx - wt - 0.004, openY - openH),
+                  vec2(wx + wt + 0.004, openY - openH), 0.0022);
 
-    // --- 屋根。天井が下りてくる。
-    vec2 roofC = vec2((wx + back) * 0.5, roof + 0.014);
-    vec2 roofH = vec2((back - wx) * 0.5 + 0.034, 0.015);
-    mDrop(p, sdRound(p - (roofC + vec2(0.016, -0.022)), roofH, 0.012), 0.040, 0.26);
-    mBody(p, roofC, sdRound(p - roofC, roofH, 0.012), 0.024, cRoof);
+    // 開口の高さを測る寸法線
+    float mx = wx + 0.052;
+    LIN += seg(p, vec2(mx, openY - openH), vec2(mx, openY + openH), 0.0009);
+    LIN += seg(p, vec2(mx - 0.008, openY + openH), vec2(mx + 0.008, openY + openH), 0.0009);
+    LIN += seg(p, vec2(mx - 0.008, openY - openH), vec2(mx + 0.008, openY - openH), 0.0009);
 
-    // --- 飛石。露地から躙口へ寄る。
-    for (int i = 0; i < 2; i++) {
+    // 客。直立のまま通れる姿勢から、身をかがめる姿勢へ。
+    float sx = mix(-0.196, -0.150, t);
+    vec2 foot = vec2(sx, ground);
+    vec2 hip = foot + mix(vec2(0.0, 0.104), vec2(0.010, 0.052), t);
+    vec2 neck = hip + mix(vec2(0.0, 0.098), vec2(0.060, 0.026), t);
+    vec2 head = neck + mix(vec2(0.0, 0.036), vec2(0.030, 0.006), t);
+    // 脚
+    vec2 knee = mix(foot + vec2(0.002, 0.052), foot + vec2(0.030, 0.030), t);
+    INK += seg(p, foot, knee, 0.0110);
+    INK += seg(p, knee, hip, 0.0110);
+    // 胴と腕
+    INK += seg(p, hip, neck, 0.0145);
+    INK += seg(p, neck, neck + mix(vec2(0.010, -0.058), vec2(0.046, -0.030), t), 0.0080);
+    // 頭
+    INK += fillOf(length(p - head) - 0.025);
+
+    // 外の敷石。露地から躙口へ寄る。
+    for (int i = 0; i < 3; i++) {
       float fi = float(i);
-      vec2 sc = vec2(-0.226 + fi * 0.036, gy + 0.007);
-      vec2 sh = vec2(0.015, 0.007);
-      mDrop(p, sdRound(p - (sc + vec2(0.006, -0.007)), sh, 0.007), 0.016, 0.20);
-      mBody(p, sc, sdRound(p - sc, sh, 0.007), 0.014, cStone);
+      vec2 c = vec2(-0.252 + fi * 0.060, ground - 0.030);
+      LIN += frame(p, c, vec2(0.022, 0.010), 0.0011);
     }
-
-    // --- 客。直立の姿から、身をかがめる姿へ。
-    vec2 foot  = vec2(mix(-0.172, -0.158, t), gy + 0.013);
-    vec2 hip   = foot  + mix(vec2(0.0, 0.050), vec2(0.013, 0.028), t);
-    vec2 chest = hip   + mix(vec2(0.0, 0.058), vec2(0.048, 0.010), t);
-    vec2 head  = chest + mix(vec2(0.0, 0.045), vec2(0.038, -0.008), t);
-    float rHead = mix(0.029, 0.027, t);
-    mDrop(p, sdSeg(p - vec2(0.012, -0.014), foot, chest) - 0.028, 0.032, 0.24);
-    mDrop(p, length(p - head - vec2(0.012, -0.014)) - rHead, 0.028, 0.24);
-    mBody(p, mix(foot, hip, 0.5), sdSeg(p, foot, hip) - 0.020, 0.028, cFig);
-    mBody(p, mix(hip, chest, 0.5), sdSeg(p, hip, chest) - 0.028, 0.036, cFig);
-    mBody(p, head, length(p - head) - rHead, 0.032, cFig);
   }
 
   // ======================================================================
@@ -536,15 +462,6 @@ export const plateFragmentShader = /* glsl */ `
 
     INK = 0.0; ACC = 0.0; LIN = 0.0;
 
-    // ---- 紙 ----
-    vec3 col = uPaper;
-    float grain = vnoise(vUv * 430.0) * 0.55 + vnoise(vUv * 1150.0) * 0.45;
-    col -= (grain - 0.5) * uGrain;
-    col -= (vnoise(vUv * 3.0 + uSeed * 3.0) - 0.5) * 0.014;
-
-    // 模型として描く版は、線ではなく、この紙の上へ直接面を置く
-    MC = col;
-
     float id = uPlate;
     if      (id < 0.5) plateNijiri(pa, te);
     else if (id < 1.5) plateFountain(pa, te);
@@ -554,59 +471,15 @@ export const plateFragmentShader = /* glsl */ `
     else if (id < 5.5) plateShred(pa, te);
     else               plateStreets(pa, te);
 
+    // ---- 紙 ----
+    vec3 col = uPaper;
+    float grain = vnoise(vUv * 430.0) * 0.55 + vnoise(vUv * 1150.0) * 0.45;
+    col -= (grain - 0.5) * uGrain;
+    col -= (vnoise(vUv * 3.0 + uSeed * 3.0) - 0.5) * 0.014;
+
     // ---- 版面の柱 ----
     float hx = 0.5 * ar - 0.040;
     float hy = 0.462;
-
-    // 絵を版にする CASE は、作図のかわりに二枚を溶かし合わせて敷く。
-    // 絵がまだ来ていないあいだは、作図プログラムの模型をそのまま見せる。
-    // 絵を版にするCASEは、版の面をそのまま床とみなして、その上に立体を立てる。
-    // 版の判面・角度はほかの版と揃える（四角いまま）。
-    // 絵が来ていないあいだだけ、作図プログラムの絵を見せる。
-    // 絵を敷くCASEでは、下に残っている線画を捨てる。残すと、
-    // 絵の透けたところから前の作図が覗く。
-    if (uHasArt < 0.5 && id < 0.5) col = MC;
-    if (uHasArt > 0.5) { INK = 0.0; ACC = 0.0; LIN = 0.0; }
-    {
-      if (uHasArt > 0.5 && uArtOnPlate > 0.5) {
-        // 地は抜いてある。版面いっぱいに、まるごと収めて敷く。
-        // 小口が片側へ出るぶん、絵の側をその半分だけ戻して中央に置く。
-        vec2 EXT = vec2(-0.015, 0.018);    // 小口の出る向き
-        // 小口が片側へ出るぶん、置き場を少し縮めてから半分だけ寄せる。
-        // こうしないと、出たぶんが版の外へはみ出して切れる。
-        // 実測して合わせた寄せ。組みの中心が版の作画域の中心に来る量。
-        vec2 NUDGE = vec2(0.009, 0.0096);
-        vec2 rh = vec2(hx, 0.398) * (1.0 - abs(EXT)) - abs(NUDGE);
-        vec2 rc = vec2(0.0, -0.012) + EXT * rh + NUDGE;
-        vec2 auv = (pa - rc) / (rh * 2.0) + 0.5;
-
-        // まるごと収める。余った側は透過なので、版の紙が出る。
-        float ra = rh.x / rh.y;
-        if (uArtAspect > ra) auv.y = 0.5 + (auv.y - 0.5) * (uArtAspect / ra);
-        else                 auv.x = 0.5 + (auv.x - 0.5) * (ra / uArtAspect);
-
-        // 立ち上がりの小口。まっすぐ見る版でも厚みが分かるように、
-        // 同じ形を少しずつずらして重ね、色紙を積んだ側面をつくる。
-        for (int i = 12; i >= 1; i--) {
-          float d = float(i) / 12.0;
-          vec2 uv2 = auv - EXT * d;
-          if (uv2.x <= 0.0 || uv2.x >= 1.0 || uv2.y <= 0.0 || uv2.y >= 1.0) continue;
-          vec4 sm = mix(texture2D(uArtA, uv2), texture2D(uArtB, uv2), te);
-          // 縁のぼかしは地の色を含むので、しっかり不透明なところだけ小口にする
-          if (sm.a < 0.92) continue;
-          float f = fract(d * 6.0);
-          float seam = smoothstep(0.0, 0.18, f) * (1.0 - smoothstep(0.78, 1.0, f));
-          vec3 sheet = mix(sm.rgb, uInk, 0.10 + 0.26 * d);
-          col = mix(mix(sheet, uInk, 0.20), sheet, seam);
-        }
-
-        if (auv.x > 0.0 && auv.x < 1.0 && auv.y > 0.0 && auv.y < 1.0) {
-          // 地は抜いてあるので、紙がそのまま地になる
-          vec4 a = mix(texture2D(uArtA, auv), texture2D(uArtB, auv), te);
-          col = mix(col, a.rgb, clamp(a.a, 0.0, 1.0));
-        }
-      }
-    }
 
     float head = box(pa, vec2(-hx + 0.026, hy - 0.020), vec2(0.026, 0.0072));
     // 版番号を刻む。図版ごとに本数が変わる。
@@ -695,63 +568,5 @@ export const shadowFragmentShader = /* glsl */ `
     a *= uFade * uAppear;
     if (a < 0.002) discard;
     gl_FragColor = vec4(0.07, 0.065, 0.06, a);
-  }
-`;
-
-/**
- * 版から浮かせて置く組み。
- * 帯では版の面より手前に出すので、斜めから見ると版から出っ張って見える。
- * uMode で、表の面／胴（側面をつくる層）／接地の影 を描き分ける。
- */
-export const artVertexShader = plateVertexShader;
-
-export const artFragmentShader = /* glsl */ `
-  precision highp float;
-
-  uniform sampler2D uArtA;
-  uniform sampler2D uArtB;
-  uniform vec3  uPaper;
-  uniform vec3  uInk;
-  uniform float uProgress;
-  uniform float uFade;
-  uniform float uAppear;
-  uniform float uMode;   // 0=表の面 / 1=胴（側面をつくる層） / 2=接地の影
-  uniform float uDepth;  // 胴のどのあたりか。0=手前 1=版に接する側
-
-  varying vec2 vUv;
-
-  void main() {
-    float t = uProgress;
-    float te = t * t * (3.0 - 2.0 * t);
-    vec4 c = mix(texture2D(uArtA, vUv), texture2D(uArtB, vUv), te);
-    float a = clamp(c.a, 0.0, 1.0);
-
-    if (uMode > 1.5) {
-      // 版に接するところの、ごく浅い影
-      float al = a * 0.16 * uFade * uAppear;
-      if (al < 0.003) discard;
-      gl_FragColor = vec4(0.34, 0.32, 0.30, al);
-      return;
-    }
-
-    if (uMode > 0.5) {
-      // 胴。同じ形を奥へ重ねて、斜めから見たとき側面として見えるようにする。
-      // 色はその駒の色を引き継ぎ、奥ほど沈ませる。
-      // 何枚かごとに境目の線を入れて、紙を重ねた小口に見せる。
-      if (a < 0.92) discard;
-      float sheets = 8.0;
-      float f = fract(uDepth * sheets);
-      float seam = smoothstep(0.0, 0.16, f) * (1.0 - smoothstep(0.80, 1.0, f));
-      vec3 sheet = mix(c.rgb, uInk, 0.08 + 0.26 * uDepth);
-      vec3 side = mix(mix(sheet, uInk, 0.20), sheet, seam);
-      float al = uFade * uAppear;
-      if (al < 0.003) discard;
-      gl_FragColor = vec4(side, al);
-      return;
-    }
-
-    float al = a * uFade * uAppear;
-    if (al < 0.003) discard;
-    gl_FragColor = vec4(c.rgb, al);
   }
 `;
