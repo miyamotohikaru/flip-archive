@@ -56,7 +56,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
             世界のFLIP図鑑
           </span>
           <span className="label hidden sm:inline">
-            WORLD FLIP ARCHIVE<sup className="text-[0.62em] align-super">®</sup>
+            WORLD FLIP ARCHIVE
           </span>
         </Link>
 
