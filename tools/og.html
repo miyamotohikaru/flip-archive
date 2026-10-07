@@ -1,15 +1,20 @@
 <!--
   SNSのサムネ（public/og.png）の原版。
 
-  1. トップを 1200x630 のビューポートで撮り、og-1200.png としてこの隣に置く
+  1. トップを **1200x1140** のビューポートで撮る。630 で撮ると帯の版の
+     上が切れるので、縦を広く取ってから縮めて敷く。
      node ~/.claude/skills/shot/shot.mjs http://localhost:3010/ \
-       --w 1200 --vh 630 --viewport --scale 1 --name og
+       --w 1200 --vh 1140 --viewport --scale 1 --name tall
      ※ WebGLを描かせるので --use-angle=swiftshader に差し替えた shot.mjs を使う
+  1b. 撮った絵の左上（x 0-545 / y 0-185）を地色 #eae7e0 で塗りつぶし、
+     og-src.png としてこの隣に置く。サイトのヘッダとタグラインが
+     帯の向こうに透けて写るのを消すため。版はこの範囲に入っていない。
   2. このファイルを同じ大きさで撮り、public/og.png に置く
   3. python3 で sha1 を取り、src/app/og-version.ts を書き換える
      （Xは og:image を URL 単位で覚えるので、版番号なしでは古い絵が出続ける）
 
-  背景を下へずらしているのは、トップ右下の書誌と七角形を画面外へ逃がすため。
+  背景を右端に寄せて少し下まで伸ばしているのは、トップ右下の書誌と
+  七角形を画面の外へ逃がすため。残る頭は .veil2 で地色に溶かす。
 -->
 <!doctype html><html lang="ja"><head><meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,16 +25,16 @@
   body{width:1200px;height:630px;overflow:hidden;position:relative;background:#eae7e0;
        font-family:Inter,"Noto Sans JP",system-ui,sans-serif;font-feature-settings:"palt" 1;
        -webkit-font-smoothing:antialiased;color:#121110}
-  .shot{position:absolute;inset:0;background:url(og-1200.png) 10px 240px/1200px 630px no-repeat}
+  .shot{position:absolute;inset:0;background:url(og-src.png) right top/700px 665px no-repeat}
   /* 左半分だけ地色をかぶせて、呼び名が沈まないようにする */
   .veil{position:absolute;inset:0;
-        background:linear-gradient(100deg,#eae7e0 0%,#eae7e0 41%,rgba(234,231,224,.94) 53%,rgba(234,231,224,0) 69%)}
+        background:linear-gradient(100deg,#eae7e0 0%,#eae7e0 43%,rgba(234,231,224,.9) 50%,rgba(234,231,224,0) 60%)}
   /* 右下に出る書誌と七角形は、サムネでは要らないので地色へ溶かす */
   .veil2{position:absolute;right:0;bottom:0;width:620px;height:300px;
          background:radial-gradient(135% 135% at 100% 100%,#eae7e0 46%,rgba(234,231,224,0) 76%)}
   /* 右下隅にだけ、帯の下に残る文字の頭が覗くので消す */
-  .veil2{position:absolute;right:0;bottom:0;width:300px;height:110px;
-         background:radial-gradient(130% 130% at 100% 100%,#eae7e0 52%,rgba(234,231,224,0) 82%)}
+  .veil2{position:absolute;right:0;bottom:0;width:430px;height:190px;
+         background:radial-gradient(125% 125% at 100% 100%,#eae7e0 50%,rgba(234,231,224,0) 80%)}
   .box{position:absolute;left:72px;top:0;height:630px;width:560px;
        display:flex;flex-direction:column;justify-content:center}
   h1{font-size:67px;font-weight:500;letter-spacing:-.035em;line-height:1.08}
