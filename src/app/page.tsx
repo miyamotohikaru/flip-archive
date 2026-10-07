@@ -35,9 +35,6 @@ export default function Home() {
           <br />
           その当たり前の別の姿を立ち上げた企画の記録。
         </p>
-        <p className="label mt-3 hidden opacity-0 [animation:fadeIn_1.4s_2.1s_forwards] lg:block">
-          KOSU.KUMA / PLACEBO v1.3
-        </p>
       </div>
 
       {/* 手前の版の書誌と評価。帯が通らない右下の隅にまとめる。 */}

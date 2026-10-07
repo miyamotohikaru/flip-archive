@@ -115,8 +115,8 @@ export default function IndexPage() {
             <h1 className="text-[1.6rem] font-medium tracking-[-0.02em] sm:text-[2rem]">
               索引
             </h1>
-            <p className="label mt-1 tnum">
-              INDEX OF CASES / 先行7事例 / {String(cases.length).padStart(2, "0")} CASES
+            <p className="copy-sm mt-1 text-mute tnum">
+              先行{cases.length}事例
             </p>
           </div>
           {/* 押せるものは、枠のある丸で示す。件数は押せないので、左の見出しへ回した。 */}
@@ -222,7 +222,7 @@ export default function IndexPage() {
                 <thead>
                   <tr className="border-b border-ink">
                     <th className="py-2.5 pr-4">
-                      <span className="label">事例 CASE</span>
+                      <span className="tag">事例</span>
                     </th>
                     {AXIS_ORDER.map((id, i) => {
                       const a = axes[i];
@@ -247,7 +247,7 @@ export default function IndexPage() {
                               {a.letter}
                             </span>
                             <span
-                              className={`label mt-0.5 block ${on ? "!text-accent" : ""}`}
+                              className={`tag mt-0.5 block ${on ? "!text-accent" : "!text-mute"}`}
                             >
                               {a.jaShort}
                             </span>
@@ -297,7 +297,7 @@ export default function IndexPage() {
                 </tbody>
               </table>
             </div>
-            <p className="label mt-3 leading-[2]">
+            <p className="copy-sm mt-3 text-mute">
               P 再知覚性／L 遊戯性／A 当事者性／C 必然性／E 誘発性／B 創発性／O 独創性。
               <br />
               列の見出しを押すと、その軸だけを刷り分ける。合計・平均・総合順位は作らない。

@@ -51,12 +51,14 @@ export default function CaseHero({ c }: { c: Case }) {
   return (
     <div className="select-none">
       <div className="mb-2.5 flex items-baseline justify-between gap-3">
-        <p className="label">
+        <p className="tag !text-mute">
           <span className={on ? "" : "!text-ink"}>変容前</span>
           <span className="mx-1.5 opacity-50">／</span>
           <span className={on ? "!text-ink" : ""}>実行後</span>
         </p>
-        <p className="label opacity-70">{canHover ? "HOVER" : auto ? "AUTO" : "TAP"}</p>
+        <p className="tag !text-faint">
+          {canHover ? "触れると切り替わる" : auto ? "切り替わります" : "押すと切り替わる"}
+        </p>
       </div>
       <button
         type="button"
@@ -75,7 +77,7 @@ export default function CaseHero({ c }: { c: Case }) {
           <Plate c={c} active={on} className="block aspect-[1/1.38] w-full" />
         </div>
       </button>
-      <p className="label mt-2.5 leading-[1.9] opacity-70">
+      <p className="copy-sm mt-2.5 text-mute">
         本図鑑が生成した配置図。実物の写真ではない。
       </p>
     </div>

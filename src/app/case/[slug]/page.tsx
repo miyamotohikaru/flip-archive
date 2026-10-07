@@ -74,10 +74,9 @@ export default async function CasePage({
               <p className="copy mt-5 max-w-[40rem]">{c.outline}</p>
 
               <div className="mt-8">
-                <div className="mb-2.5 flex items-baseline gap-2.5">
-                  <h2 className="text-13 font-medium tracking-[0.02em]">短評</h2>
-                  <span className="label">WHAT IT DOES</span>
-                </div>
+                <h2 className="mb-2.5 text-13 font-medium tracking-[0.02em]">
+                  短評
+                </h2>
                 <p className="max-w-[40rem] text-[1.02rem] leading-[2.1] tracking-[0.02em] sm:text-[1rem] sm:leading-[2] sm:tracking-[0.005em]">
                   {c.body}
                 </p>
@@ -87,7 +86,7 @@ export default async function CasePage({
             {/* 評価。見出しと同じ高さに置く。 */}
             <div className="lg:pt-1">
               <div className="flex items-baseline justify-between gap-3 border-b border-ink pb-1.5">
-                <p className="label !text-ink">評価 PLACEBO</p>
+                <p className="tag !text-ink">評価</p>
                 <p className="label tnum opacity-70">1–5 / R04-5</p>
               </div>
               <Heptagon
@@ -105,7 +104,7 @@ export default async function CasePage({
                   </span>
                 ))}
               </p>
-              <p className="label mt-2.5 leading-[1.9] opacity-70">
+              <p className="copy-sm mt-2.5 text-mute">
                 こす.くまの基準による企画の特徴の評価。作品の総合点ではありません。
               </p>
             </div>
@@ -119,15 +118,15 @@ export default async function CasePage({
 
             <div className="mt-8 border-t border-line">
               <div className="grid grid-cols-[5.5rem_1fr] gap-3 border-b border-line py-2.5">
-                <dt className="label pt-0.5">評価対象</dt>
+                <dt className="tag pt-0.5">評価対象</dt>
                 <dd className="copy-sm">{c.target}</dd>
               </div>
               <div className="grid grid-cols-[5.5rem_1fr] gap-3 border-b border-line py-2.5">
-                <dt className="label pt-0.5">場所</dt>
+                <dt className="tag pt-0.5">場所</dt>
                 <dd className="copy-sm">{c.place}</dd>
               </div>
               <div className="grid grid-cols-[5.5rem_1fr] gap-3 border-b border-line py-2.5">
-                <dt className="label pt-0.5">制作者</dt>
+                <dt className="tag pt-0.5">制作者</dt>
                 <dd className="copy-sm">{c.author}</dd>
               </div>
             </div>
@@ -137,13 +136,10 @@ export default async function CasePage({
           <div className="space-y-14">
             {/* 項目別の審査 */}
             <section>
-              <div className="mb-1.5 flex flex-wrap items-baseline gap-x-2.5">
-                <h2 className="text-13 font-medium tracking-[0.02em]">
-                  内部審査｜理由・根拠・留保
-                </h2>
-                <span className="label">TRIAL ASSESSMENT</span>
-              </div>
-              <p className="label mb-6 max-w-[42rem] leading-[1.9]">
+              <h2 className="mb-1.5 text-13 font-medium tracking-[0.02em]">
+                内部審査｜理由・根拠・留保
+              </h2>
+              <p className="copy-sm mb-6 max-w-[42rem] text-mute">
                 評点／当てはまる目盛り／具体的な理由／留保／出典IDを一組にする。
                 v1.2から継承した試行値であり、新たな独立再採点の結果ではない。
               </p>
@@ -191,7 +187,6 @@ export default async function CasePage({
                               {a.ja}
                             </h3>
                           </div>
-                          <p className="label mt-0.5">{a.en}</p>
                         </div>
                         <p className="shrink-0 text-right leading-none">
                           <span className="text-[2.1rem] font-medium tnum sm:text-[1.8rem]">
@@ -209,14 +204,14 @@ export default async function CasePage({
                       {/* その点が指す目盛りと留保は、理由のうしろに小さく添える */}
                       {rv.score != null && (
                         <p className="copy-sm mt-4 bg-paper px-4 py-3.5 text-mute">
-                          <span className="label mr-2 !text-faint">
+                          <span className="tag mr-2 !text-faint">
                             目盛り{rv.score}
                           </span>
                           {a.levels[rv.score - 1]}
                         </p>
                       )}
                       <p className="copy-sm mt-3 text-mute">
-                        <span className="label mr-2">留保</span>
+                        <span className="tag mr-2 !text-faint">留保</span>
                         {rv.caveat}
                       </p>
                       <p className="mt-3 flex flex-wrap gap-x-2 gap-y-1">
@@ -238,13 +233,10 @@ export default async function CasePage({
 
             {/* 出典 */}
             <section>
-              <div className="mb-1.5 flex items-baseline gap-2.5">
-                <h2 className="text-13 font-medium tracking-[0.02em]">
-                  出典索引・継承の記録
-                </h2>
-                <span className="label">SOURCES</span>
-              </div>
-              <p className="label mb-5 max-w-[42rem] leading-[1.9]">
+              <h2 className="mb-1.5 text-13 font-medium tracking-[0.02em]">
+                出典索引・継承の記録
+              </h2>
+              <p className="copy-sm mb-5 max-w-[42rem] text-mute">
                 発信者・リンク・支持範囲・留保はv1.2の出典台帳から継承した。
                 確認日は2026-09-20であり、今回すべてを再閲覧したという意味ではない。
               </p>
@@ -266,13 +258,13 @@ export default async function CasePage({
                         >
                           {s.title}
                         </a>
-                        <p className="label mt-1 leading-[1.8]">{s.by}</p>
+                        <p className="copy-sm mt-1 text-mute">{s.by}</p>
                         <p className="copy-sm mt-2 text-sub">
-                          <span className="label mr-2">支持</span>
+                          <span className="tag mr-2 !text-faint">支持</span>
                           {s.support}
                         </p>
                         <p className="copy-sm mt-1 text-mute">
-                          <span className="label mr-2">留保</span>
+                          <span className="tag mr-2 !text-faint">留保</span>
                           {s.caveat}
                         </p>
                       </div>
@@ -280,12 +272,12 @@ export default async function CasePage({
                   </li>
                 ))}
               </ol>
-              <p className="label mt-3 leading-[1.9]">
+              <p className="copy-sm mt-3 text-mute">
                 事実の根拠と、画像の掲載権利は別に扱う。本CASEに実物の写真は掲載していない。
               </p>
             </section>
 
-            <p className="label max-w-[42rem] leading-[2]">
+            <p className="copy-sm max-w-[42rem] text-mute">
               人物や作品全体ではなく、上に明記した版と受け手の経験を読む。
               低い項目を含むこと自体は、掲載価値の否定ではない。
               訂正・追加情報は編集部まで。
