@@ -7,11 +7,10 @@ export const metadata: Metadata = {
     "何を読み、何を読まないか。先行7事例の試行審査を読むときの前提と、今回の確かさと限界。",
 };
 
-function H2({ ja, latin }: { ja: string; latin: string }) {
+function H2({ ja }: { ja: string }) {
   return (
-    <div className="mb-5 flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-line pb-2.5">
+    <div className="mb-5 border-b border-line pb-2.5">
       <h2 className="text-[1.05rem] font-medium tracking-[-0.01em]">{ja}</h2>
-      <span className="label">{latin}</span>
     </div>
   );
 }
@@ -59,8 +58,7 @@ export default function AboutPage() {
     <main className="px-4 pb-4 pt-20 sm:px-6 sm:pt-24">
       <div className="mx-auto max-w-[68rem]">
         <header className="border-b border-line pb-8">
-          <p className="label !text-accent">ABOUT / TRIAL ASSESSMENTS</p>
-          <h1 className="mt-3 text-[2rem] font-medium leading-[1.15] tracking-[-0.025em] sm:text-[2.6rem]">
+          <h1 className=" text-[2rem] font-medium leading-[1.15] tracking-[-0.025em] sm:text-[2.6rem]">
             方針
           </h1>
           <p className="mt-7 max-w-[44rem] text-[1.05rem] leading-[2.1] tracking-[0.02em] sm:leading-[2] sm:tracking-[0.005em]">
@@ -76,7 +74,7 @@ export default function AboutPage() {
         </header>
 
         <section className="pt-12">
-          <H2 ja="読むときの前提" latin="BEFORE YOU READ" />
+          <H2 ja="読むときの前提" />
           <dl className="max-w-[46rem] space-y-8">
             {PREMISES.map(([k, v]) => (
               <div key={k}>
@@ -88,7 +86,7 @@ export default function AboutPage() {
         </section>
 
         <section className="pt-14">
-          <H2 ja="収録した7件" latin="SEVEN CASES" />
+          <H2 ja="収録した7件" />
           <ol className="max-w-[46rem] border-t border-line">
             {cases.map((c) => (
               <li
@@ -110,14 +108,14 @@ export default function AboutPage() {
         </section>
 
         <section className="pt-14">
-          <H2 ja="今回の扱い" latin="CHANGE LOG" />
+          <H2 ja="今回の扱い" />
           <dl className="max-w-[46rem] border-t border-line">
             {CHANGES.map(([k, v]) => (
               <div
                 key={k}
                 className="grid gap-1 border-b border-line py-3.5 sm:grid-cols-[7rem_1fr] sm:gap-5"
               >
-                <dt className="label pt-0.5">{k}</dt>
+                <dt className="tag pt-0.5">{k}</dt>
                 <dd className="copy-sm">{v}</dd>
               </div>
             ))}
@@ -130,7 +128,7 @@ export default function AboutPage() {
         </section>
 
         <section className="pt-14">
-          <H2 ja="今回の確かさと限界" latin="REVIEW LIMITS" />
+          <H2 ja="今回の確かさと限界" />
           <div className="copy max-w-[44rem] space-y-5">
             <p>
               軸の意味と値を固定した上で、表示名と並びを変更した。7件の点数と理由を資料へ揃えて載せられることは、
@@ -154,7 +152,7 @@ export default function AboutPage() {
         </section>
 
         <section className="pt-14">
-          <H2 ja="図版について" latin="ON THE PLATES" />
+          <H2 ja="図版について" />
           <div className="copy max-w-[44rem] space-y-4">
             <p>
               実物の写真は権利処理が必要なため一切掲載していない。
@@ -168,7 +166,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <p className="label mt-16 max-w-[42rem] leading-[2]">
+        <p className="copy-sm mt-16 max-w-[42rem] text-mute">
           ここに収録した制作者が、自らの活動をFLIPと呼んでいるわけではない。
           収録は賞賛・推奨・免責を意味しない。訂正・追加情報は編集部まで。
         </p>

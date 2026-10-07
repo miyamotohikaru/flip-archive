@@ -81,7 +81,23 @@ body.locked {
   }
 }
 
-/* --- モノスペースの小ラベル。図鑑全体の共通言語 --- */
+/* --- 和文の小見出し。「留保」「支持」「定義」のような札。
+   英字を添えたり大文字へ寄せたりしない。本文と同じ書体で、少しだけ小さく。 --- */
+.tag {
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+  color: var(--color-sub);
+  font-weight: 500;
+}
+
+@media (min-width: 640px) {
+  .tag {
+    font-size: 0.75rem;
+  }
+}
+
+/* --- モノスペースの小ラベル。番号・年・記号など、読むのでなく引くもの --- */
 .label {
   font-family: var(--font-mono);
   font-size: 0.6875rem;

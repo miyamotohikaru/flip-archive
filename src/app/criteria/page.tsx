@@ -8,12 +8,9 @@ export const metadata: Metadata = {
     "PLACEBO 7軸（再知覚性・遊戯性・当事者性・必然性・誘発性・創発性・独創性）の定義と、5段階の目盛り、審査の考え方と手順。",
 };
 
-function Head({ ja, latin }: { ja: string; latin: string }) {
+function Head({ ja }: { ja: string }) {
   return (
-    <div className="mb-3 flex flex-wrap items-baseline gap-x-2.5">
-      <h2 className="text-13 font-medium tracking-[0.02em]">{ja}</h2>
-      <span className="label">{latin}</span>
-    </div>
+    <h2 className="mb-3 text-13 font-medium tracking-[0.02em]">{ja}</h2>
   );
 }
 
@@ -22,11 +19,10 @@ export default function CriteriaPage() {
     <main className="px-4 pb-4 pt-20 sm:px-6 sm:pt-24">
       <div className="mx-auto max-w-[68rem]">
         <header className="border-b border-line pb-8">
-          <p className="label !text-accent">CRITERIA / PLACEBO v1.3</p>
-          <h1 className="mt-3 text-[2rem] font-medium leading-[1.15] tracking-[-0.025em] sm:text-[2.6rem]">
+          <h1 className=" text-[2rem] font-medium leading-[1.15] tracking-[-0.025em] sm:text-[2.6rem]">
             評価について
           </h1>
-          <p className="label mt-3 tnum">
+          <p className="copy-sm mt-3 text-mute tnum">
             7軸 × 5段階 ／ 目盛り R04-5 ／ 2026年9月21日
           </p>
           <p className="mt-7 max-w-[44rem] text-[1.05rem] leading-[2.1] tracking-[0.02em] sm:leading-[2] sm:tracking-[0.005em]">
@@ -42,7 +38,7 @@ export default function CriteriaPage() {
 
         {/* 7行の公開説明 */}
         <section className="pt-12">
-          <Head ja="7つの項目" latin="THE SEVEN" />
+          <Head ja="7つの項目" />
           <ol className="max-w-[48rem] border-t border-line">
             {axes.map((a) => (
               <li
@@ -67,14 +63,14 @@ export default function CriteriaPage() {
               </li>
             ))}
           </ol>
-          <p className="label mt-3 leading-[1.9]">
+          <p className="copy-sm mt-3 text-mute">
             表示順は P・L・A・C・E・B・O で固定する。行の順序と各説明の冒頭は入れ替えない。
           </p>
         </section>
 
         {/* 各軸の定義と目盛り */}
         <section className="pt-16">
-          <Head ja="項目ごとの定義と目盛り" latin="DEFINITIONS AND SCALES" />
+          <Head ja="項目ごとの定義と目盛り" />
           <div className="space-y-16 pt-4">
             {axes.map((a) => (
               <article key={a.id} className="border-t border-ink pt-6">
@@ -94,7 +90,7 @@ export default function CriteriaPage() {
 
                 <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-12">
                   <div>
-                    <p className="label mb-2">定義 DEFINITION</p>
+                    <p className="tag mb-2">定義</p>
                     <p className="copy max-w-[40rem]">
                       {a.definition}
                     </p>
@@ -114,7 +110,7 @@ export default function CriteriaPage() {
 
                   <aside className="space-y-6 lg:pt-1">
                     <div>
-                      <p className="label mb-2">読み違えないための境界</p>
+                      <p className="tag mb-2">読み違えないための境界</p>
                       {a.boundary.map((b, i) => (
                         <p key={i} className="copy-sm mt-2 text-mute">
                           {b}
@@ -122,11 +118,11 @@ export default function CriteriaPage() {
                       ))}
                     </div>
                     <div>
-                      <p className="label mb-2">採点理由に残すこと</p>
+                      <p className="tag mb-2">採点理由に残すこと</p>
                       <p className="copy-sm text-sub">{a.keep}</p>
                     </div>
                     <div>
-                      <p className="label mb-2">ほかの軸との違い</p>
+                      <p className="tag mb-2">ほかの軸との違い</p>
                       {a.distinct.map((d, i) => (
                         <p key={i} className="copy-sm mt-2 text-mute">
                           {d}
@@ -142,7 +138,7 @@ export default function CriteriaPage() {
 
         {/* 表示の扱い */}
         <section className="pt-16">
-          <Head ja="点の扱い" latin="HOW VALUES ARE READ" />
+          <Head ja="点の扱い" />
           <dl className="max-w-[46rem] border-t border-line">
             {[
               [
@@ -162,7 +158,7 @@ export default function CriteriaPage() {
                 key={k}
                 className="grid gap-1 border-b border-line py-3.5 sm:grid-cols-[8rem_1fr] sm:gap-5"
               >
-                <dt className="label pt-0.5">{k}</dt>
+                <dt className="tag pt-0.5">{k}</dt>
                 <dd className="copy-sm">{v}</dd>
               </div>
             ))}
@@ -171,7 +167,7 @@ export default function CriteriaPage() {
 
         {/* 七角形の共通仕様 */}
         <section className="pt-16">
-          <Head ja="七角形の共通仕様" latin="THE HEPTAGON" />
+          <Head ja="七角形の共通仕様" />
           <div className="copy max-w-[44rem] space-y-4">
             <p>
               上端をPとし、時計回りにP・L・A・C・E・B・Oを置く。最大値は全軸5、目盛りは5段階。
@@ -191,7 +187,7 @@ export default function CriteriaPage() {
 
         {/* 審査の考え方と手順 */}
         <section className="pt-16">
-          <Head ja="審査の考え方と手順" latin="HOW TO READ A FLIP" />
+          <Head ja="審査の考え方と手順" />
           <div className="max-w-[44rem] space-y-8">
             <div>
               <p className="text-13 font-medium">まず、誰の・どの経験を読むか</p>
@@ -237,7 +233,7 @@ export default function CriteriaPage() {
           </div>
         </section>
 
-        <p className="label mt-16 max-w-[42rem] leading-[2]">
+        <p className="copy-sm mt-16 max-w-[42rem] text-mute">
           1〜5の整数、合計・平均・総合順位を作らないこと、根拠不足を未評価として扱うこと、
           公開は短く・内部は根拠を残す二層構造。これらは変更しない。
         </p>
