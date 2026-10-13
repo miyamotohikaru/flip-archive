@@ -77,7 +77,7 @@ export default async function CasePage({
                 <h2 className="mb-2.5 text-13 font-medium tracking-[0.02em]">
                   短評
                 </h2>
-                <p className="max-w-[40rem] text-[1.02rem] leading-[2.1] tracking-[0.02em] sm:text-[1rem] sm:leading-[2] sm:tracking-[0.005em]">
+                <p className="copy max-w-[40rem]">
                   {c.body}
                 </p>
               </div>

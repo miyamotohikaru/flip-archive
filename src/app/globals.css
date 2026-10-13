@@ -58,25 +58,37 @@ body.locked {
    行間を広げるほど読みやすいわけではなく、長文では行が散って追えなくなる。 */
 .copy {
   font-size: 1rem;
+  line-height: 1.68;
+  letter-spacing: 0.01em;
+}
+
+/* 各ページの導入の一段。本文より少しだけ大きく組むが、行間は本文に揃える。 */
+.lead {
+  font-size: 1.0625rem;
   line-height: 1.75;
   letter-spacing: 0.01em;
 }
 
 .copy-sm {
   font-size: 0.90625rem;
-  line-height: 1.7;
+  line-height: 1.65;
   letter-spacing: 0.01em;
 }
 
 @media (min-width: 640px) {
   .copy {
     font-size: 0.9375rem;
+    line-height: 1.8;
+    letter-spacing: 0.005em;
+  }
+  .lead {
+    font-size: 1.05rem;
     line-height: 1.85;
     letter-spacing: 0.005em;
   }
   .copy-sm {
     font-size: 0.8125rem;
-    line-height: 1.8;
+    line-height: 1.75;
     letter-spacing: 0.005em;
   }
 }

@@ -61,7 +61,7 @@ export default function AboutPage() {
           <h1 className=" text-[2rem] font-medium leading-[1.15] tracking-[-0.025em] sm:text-[2.6rem]">
             方針
           </h1>
-          <p className="mt-7 max-w-[44rem] text-[1.05rem] leading-[2.1] tracking-[0.02em] sm:leading-[2] sm:tracking-[0.005em]">
+          <p className="lead mt-7 max-w-[44rem]">
             世界のFLIP図鑑は、現実の当たり前に具体的な仕掛けを置き、
             人が関わる経験を通して、その当たり前の別の姿を立ち上げた企画を記録する。
             いま公開しているのは、評価基準 v1.3 とその目盛りで読み直した
