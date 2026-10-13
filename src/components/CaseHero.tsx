@@ -77,7 +77,7 @@ export default function CaseHero({ c }: { c: Case }) {
           <Plate c={c} active={on} className="block aspect-[1/1.38] w-full" />
         </div>
       </button>
-      <p className="copy-sm mt-2.5 text-mute">
+      <p className="fineprint mt-2.5">
         本図鑑が生成した配置図。実物の写真ではない。
       </p>
     </div>
