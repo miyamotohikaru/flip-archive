@@ -8,11 +8,7 @@ export const metadata: Metadata = {
 };
 
 function H2({ ja }: { ja: string }) {
-  return (
-    <div className="mb-5 border-b border-line pb-2.5">
-      <h2 className="text-[1.05rem] font-medium tracking-[-0.01em]">{ja}</h2>
-    </div>
-  );
+  return <h2 className="h-sec">{ja}</h2>;
 }
 
 const PREMISES: [string, string][] = [
@@ -75,11 +71,11 @@ export default function AboutPage() {
 
         <section className="pt-12">
           <H2 ja="読むときの前提" />
-          <dl className="max-w-[46rem] space-y-8">
+          <dl className="max-w-[46rem] space-y-10">
             {PREMISES.map(([k, v]) => (
               <div key={k}>
-                <dt className="text-13 font-medium">{k}</dt>
-                <dd className="copy mt-2">{v}</dd>
+                <dt className="h-item">{k}</dt>
+                <dd className="copy mt-2.5">{v}</dd>
               </div>
             ))}
           </dl>

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 function Head({ ja }: { ja: string }) {
   return (
-    <h2 className="mb-3 text-13 font-medium tracking-[0.02em]">{ja}</h2>
+    <h2 className="h-sec">{ja}</h2>
   );
 }
 
@@ -188,16 +188,16 @@ export default function CriteriaPage() {
         {/* 審査の考え方と手順 */}
         <section className="pt-16">
           <Head ja="審査の考え方と手順" />
-          <div className="max-w-[44rem] space-y-8">
+          <div className="max-w-[44rem] space-y-10">
             <div>
-              <p className="text-13 font-medium">まず、誰の・どの経験を読むか</p>
+              <p className="h-item">まず、誰の・どの経験を読むか</p>
               <p className="copy mt-2">
                 作品名だけでは採点しない。実施版・時期・場所・主な受け手・接触方法・必要情報・含める範囲・除外する範囲を先に記録する。
                 購入者、実参加者、記録の視聴者を足し合わせない。人物の全活動、ゲームの後年機能、後世の名声を当初の仕掛けへ合算しない。
               </p>
             </div>
             <div>
-              <p className="text-13 font-medium">点数の前に、作意記述を書く</p>
+              <p className="h-item">点数の前に、作意記述を書く</p>
               <p className="copy-sm mt-2 text-accent">
                 当たり前 → 変えた条件 → 関わる理由と負担 → 起きる経験 → 次に生まれること → 見え直すもの
               </p>
@@ -207,7 +207,7 @@ export default function CriteriaPage() {
               </p>
             </div>
             <div>
-              <p className="text-13 font-medium">各項目を、根拠と一緒に判定する</p>
+              <p className="h-item">各項目を、根拠と一緒に判定する</p>
               <p className="copy mt-2">
                 評点／当てはまる目盛り／具体的な理由／出典ID／留保を一組にする。
                 隣の点と迷う場合は、何が確認できれば判定が変わるかを残す。
@@ -215,7 +215,7 @@ export default function CriteriaPage() {
               </p>
             </div>
             <div>
-              <p className="text-13 font-medium">隣の軸を、同じ理由で上げない</p>
+              <p className="h-item">隣の軸を、同じ理由で上げない</p>
               <p className="copy mt-2">
                 誘発性は関わる動機、遊戯性は過程の戯れ。再知覚性は別の輪郭、必然性はそこへ至る接続。
                 当事者性は受け手に与える作用の位置、創発性は入力の後に生まれる内容と次への返り方。
@@ -223,7 +223,7 @@ export default function CriteriaPage() {
               </p>
             </div>
             <div>
-              <p className="text-13 font-medium">内部の記録は捨てない</p>
+              <p className="h-item">内部の記録は捨てない</p>
               <p className="copy mt-2">
                 自由・負担・越境・波及などを公開の固定欄や追加タグへ増やさない。
                 ただし重要な注意や制約は内部に保存し、必要なものを短評へ織り込む。
