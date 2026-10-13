@@ -74,9 +74,7 @@ export default async function CasePage({
               <p className="copy mt-5 max-w-[40rem]">{c.outline}</p>
 
               <div className="mt-8">
-                <h2 className="mb-2.5 text-13 font-medium tracking-[0.02em]">
-                  短評
-                </h2>
+                <h2 className="h-sec">短評</h2>
                 <p className="copy max-w-[40rem]">
                   {c.body}
                 </p>
@@ -136,9 +134,7 @@ export default async function CasePage({
           <div className="space-y-14">
             {/* 項目別の審査 */}
             <section>
-              <h2 className="mb-1.5 text-13 font-medium tracking-[0.02em]">
-                内部審査｜理由・根拠・留保
-              </h2>
+              <h2 className="h-sec !mb-2">内部審査｜理由・根拠・留保</h2>
               <p className="copy-sm mb-6 max-w-[42rem] text-mute">
                 評点／当てはまる目盛り／具体的な理由／留保／出典IDを一組にする。
                 v1.2から継承した試行値であり、新たな独立再採点の結果ではない。
@@ -233,9 +229,7 @@ export default async function CasePage({
 
             {/* 出典 */}
             <section>
-              <h2 className="mb-1.5 text-13 font-medium tracking-[0.02em]">
-                出典索引・継承の記録
-              </h2>
+              <h2 className="h-sec !mb-2">出典索引・継承の記録</h2>
               <p className="copy-sm mb-5 max-w-[42rem] text-mute">
                 発信者・リンク・支持範囲・留保はv1.2の出典台帳から継承した。
                 確認日は2026-09-20であり、今回すべてを再閲覧したという意味ではない。
