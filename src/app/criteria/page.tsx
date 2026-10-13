@@ -25,7 +25,7 @@ export default function CriteriaPage() {
           <p className="copy-sm mt-3 text-mute tnum">
             7軸 × 5段階 ／ 目盛り R04-5 ／ 2026年9月21日
           </p>
-          <p className="mt-7 max-w-[44rem] text-[1.05rem] leading-[2.1] tracking-[0.02em] sm:leading-[2] sm:tracking-[0.005em]">
+          <p className="lead mt-7 max-w-[44rem]">
             現実の当たり前に具体的な仕掛けを置き、人が関わる経験を通して、
             その当たり前の別の姿を立ち上げる企画を読む。
             媒体や作者の権威ではなく、何の条件を変えると、何が起きるかを記述する。
