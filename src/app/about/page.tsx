@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { cases } from "@/data/cases";
+import DefTable from "@/components/DefTable";
 
 export const metadata: Metadata = {
   title: "方針 — 世界のFLIP図鑑",
@@ -105,17 +106,7 @@ export default function AboutPage() {
 
         <section className="pt-14">
           <H2 ja="今回の扱い" />
-          <dl className="max-w-[46rem] border-t border-line">
-            {CHANGES.map(([k, v]) => (
-              <div
-                key={k}
-                className="grid gap-1 border-b border-line py-3.5 sm:grid-cols-[7rem_1fr] sm:gap-5"
-              >
-                <dt className="tag pt-0.5">{k}</dt>
-                <dd className="copy-sm">{v}</dd>
-              </div>
-            ))}
-          </dl>
+          <DefTable head={["項目", "今回の扱い"]} rows={CHANGES} />
           <p className="copy-sm mt-5 max-w-[44rem] text-mute">
             前版までの変更を、今回の変更と混ぜない。v1.1→v1.2では、越境性を七角形から外して当事者性を新設し、
             Banksy と Pokémon GO の必然性を5から4へ変更している。
@@ -162,7 +153,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <p className="copy-sm mt-16 max-w-[42rem] text-mute">
+        <p className="fineprint mt-16 max-w-[42rem]">
           ここに収録した制作者が、自らの活動をFLIPと呼んでいるわけではない。
           収録は賞賛・推奨・免責を意味しない。訂正・追加情報は編集部まで。
         </p>
