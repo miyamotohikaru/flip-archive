@@ -104,7 +104,7 @@ export default async function CasePage({
                   </span>
                 ))}
               </p>
-              <p className="copy-sm mt-2.5 text-mute">
+              <p className="fineprint mt-2.5">
                 こす.くまの基準による企画の特徴の評価。作品の総合点ではありません。
               </p>
             </div>

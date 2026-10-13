@@ -93,6 +93,21 @@ body.locked {
   }
 }
 
+/* --- 図や表に添える断り書き。読ませるためではなく、必要だから置くもの。
+   本文の流れを止めないよう、小さく薄く。 --- */
+.fineprint {
+  font-size: 0.75rem;
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+  color: var(--color-faint);
+}
+
+@media (min-width: 640px) {
+  .fineprint {
+    font-size: 0.6875rem;
+  }
+}
+
 /* --- 和文の小見出し。「留保」「支持」「定義」のような札。
    英字を添えたり大文字へ寄せたりしない。本文と同じ書体で、少しだけ小さく。 --- */
 .tag {
