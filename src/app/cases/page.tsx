@@ -198,9 +198,10 @@ export default function IndexPage() {
                     {c.title}
                   </p>
                   <p className="label mt-0.5">{c.author}</p>
-                  <p className="mt-2 flex flex-wrap gap-x-2 gap-y-0.5">
+                  {/* 7軸ぶんを一行に収める。折り返すと点の並びとして読めない。 */}
+                  <p className="label tnum mt-2 flex justify-between gap-x-1 !tracking-[0.01em] text-10 sm:!tracking-[0.06em] sm:text-11">
                     {AXIS_ORDER.map((id, i) => (
-                      <span key={id} className="label tnum">
+                      <span key={id} className="whitespace-nowrap">
                         {axes[i].letter}
                         <span className="ml-0.5 !text-ink">
                           {c.review[id].score ?? "—"}
@@ -297,7 +298,7 @@ export default function IndexPage() {
                 </tbody>
               </table>
             </div>
-            <p className="copy-sm mt-3 text-mute">
+            <p className="fineprint mt-3">
               P 再知覚性／L 遊戯性／A 当事者性／C 必然性／E 誘発性／B 創発性／O 独創性。
               <br />
               列の見出しを押すと、その軸だけを刷り分ける。合計・平均・総合順位は作らない。
@@ -328,7 +329,7 @@ export default function IndexPage() {
           </>
         )}
 
-        <p className="mt-16 max-w-[40rem] text-11 leading-[2] text-mute">
+        <p className="fineprint mt-16 max-w-[40rem]">
           こす.くまの基準による企画の特徴の評価であり、作品の総合点ではありません。
           点数は企画の特徴を読むための編集判断で、作者の偉大さ、作品全体の価値、
           参加者の心理変化の測定値ではない。低い項目を含むこと自体は、掲載価値の否定ではない。

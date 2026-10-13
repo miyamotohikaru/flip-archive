@@ -266,12 +266,12 @@ export default async function CasePage({
                   </li>
                 ))}
               </ol>
-              <p className="copy-sm mt-3 text-mute">
+              <p className="fineprint mt-3">
                 事実の根拠と、画像の掲載権利は別に扱う。本CASEに実物の写真は掲載していない。
               </p>
             </section>
 
-            <p className="copy-sm max-w-[42rem] text-mute">
+            <p className="fineprint max-w-[42rem]">
               人物や作品全体ではなく、上に明記した版と受け手の経験を読む。
               低い項目を含むこと自体は、掲載価値の否定ではない。
               訂正・追加情報は編集部まで。

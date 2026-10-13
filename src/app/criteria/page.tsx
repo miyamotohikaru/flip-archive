@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { axes } from "@/data/axes";
 import AxisMark from "@/components/AxisMark";
+import DefTable from "@/components/DefTable";
 
 export const metadata: Metadata = {
   title: "評価について — 世界のFLIP図鑑",
@@ -139,8 +140,9 @@ export default function CriteriaPage() {
         {/* 表示の扱い */}
         <section className="pt-16">
           <Head ja="点の扱い" />
-          <dl className="max-w-[46rem] border-t border-line">
-            {[
+          <DefTable
+            head={["値", "扱い"]}
+            rows={[
               [
                 "1〜5",
                 "根拠に基づき、指定した働きの強さ・役割を判定できる状態。順序尺度であり、4が2の倍の価値ではない。",
@@ -153,16 +155,8 @@ export default function CriteriaPage() {
                 "適用対象外",
                 "問い自体が対象に適用できない場合に理由付きで使う。固定画像の創発性が低い、といった低得点を避ける用途では使わない。",
               ],
-            ].map(([k, v]) => (
-              <div
-                key={k}
-                className="grid gap-1 border-b border-line py-3.5 sm:grid-cols-[8rem_1fr] sm:gap-5"
-              >
-                <dt className="tag pt-0.5">{k}</dt>
-                <dd className="copy-sm">{v}</dd>
-              </div>
-            ))}
-          </dl>
+            ]}
+          />
         </section>
 
         {/* 七角形の共通仕様 */}
@@ -233,7 +227,7 @@ export default function CriteriaPage() {
           </div>
         </section>
 
-        <p className="copy-sm mt-16 max-w-[42rem] text-mute">
+        <p className="fineprint mt-16 max-w-[42rem]">
           1〜5の整数、合計・平均・総合順位を作らないこと、根拠不足を未評価として扱うこと、
           公開は短く・内部は根拠を残す二層構造。これらは変更しない。
         </p>
