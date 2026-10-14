@@ -97,6 +97,10 @@ body.locked {
    本文を大きくしたぶん、見出しがそれより小さいと階層が消える。
    節は下に罫を引き、節の中の項目は上に朱の短い罫を立てて区切る。 */
 .h-sec {
+  display: inline-block;
+  background: var(--color-ink);
+  color: var(--color-bg);
+  padding: 0.16em 0.46em 0.22em;
   font-size: 1.2rem;
   line-height: 1.4;
   letter-spacing: -0.015em;
