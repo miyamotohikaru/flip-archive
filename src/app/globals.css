@@ -101,8 +101,6 @@ body.locked {
   line-height: 1.4;
   letter-spacing: -0.015em;
   font-weight: 500;
-  border-top: 2px solid var(--color-ink);
-  padding-top: 0.75rem;
   margin-bottom: 1.5rem;
 }
 
@@ -113,18 +111,23 @@ body.locked {
 }
 
 .h-item {
+  position: relative;
+  padding-left: 1.15em;
   font-size: 1.0625rem;
   line-height: 1.5;
   letter-spacing: -0.005em;
   font-weight: 500;
 }
 
+/* 行頭の小さな四角。二行になっても頭が揃うよう、字送りから外して置く。 */
 .h-item::before {
   content: "";
-  display: block;
-  width: 1.75rem;
-  border-top: 2px solid var(--color-accent);
-  margin-bottom: 0.625rem;
+  position: absolute;
+  left: 0;
+  top: 0.56em;
+  width: 0.5em;
+  height: 0.5em;
+  background: var(--color-accent);
 }
 
 @media (min-width: 640px) {
