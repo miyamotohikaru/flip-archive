@@ -139,7 +139,7 @@ export default function Intro() {
         </div>
 
         {/* 一枚。携帯は図が上・字が下、パソコンは字が左・図が右 */}
-        <div className="mx-auto grid w-full max-w-[76rem] flex-1 content-center items-center gap-y-4 py-4 lg:grid-cols-2 lg:gap-x-16 lg:py-8">
+        <div className="mx-auto grid w-full max-w-[76rem] flex-1 content-center items-center gap-y-7 py-4 lg:grid-cols-2 lg:gap-x-16 lg:py-8">
           {/* 図。事例のカードと七角形を並べ、7件ぶん順に替える */}
           <div className="lg:order-2">
             <div className="mx-auto flex max-w-[34rem] items-end justify-center gap-3 sm:gap-5 lg:max-w-[42rem] lg:gap-8">
@@ -172,12 +172,12 @@ export default function Intro() {
             >
               {t.title}
             </h1>
-            <p className="mt-3 text-[0.92rem] font-medium leading-[1.5] tracking-[-0.01em] lg:mt-8 lg:text-[1.6rem]">
+            <p className="mt-2 text-[0.92rem] font-medium leading-[1.4] tracking-[-0.01em] lg:mt-5 lg:text-[1.6rem]">
               {t.catch[0]}
               <br />
               {t.catch[1]}
             </p>
-            <p className="mt-2.5 text-[0.75rem] leading-[1.75] text-sub lg:mt-5 lg:text-[1rem] lg:leading-[1.9]">
+            <p className="mt-2 text-[0.75rem] leading-[1.65] text-sub lg:mt-3.5 lg:text-[1rem] lg:leading-[1.8]">
               {t.lead.map((line, i) => (
                 <span key={line}>
                   {i > 0 && <br />}
@@ -185,12 +185,12 @@ export default function Intro() {
                 </span>
               ))}
             </p>
-            <p className="label tnum mt-3 lg:mt-5">{t.spec}</p>
+            <p className="label tnum mt-2 lg:mt-3">{t.spec}</p>
 
             <button
               type="button"
               onClick={start}
-              className="mt-5 flex w-full max-w-[22rem] items-center justify-center gap-3 rounded-[0.6rem] border border-ink bg-accent py-3.5 text-paper shadow-[0_4px_0_0_var(--color-ink)] transition-[transform,box-shadow] duration-150 hover:-translate-y-px active:translate-y-[3px] active:shadow-[0_1px_0_0_var(--color-ink)] lg:mt-10"
+              className="mt-4 flex w-full max-w-[22rem] items-center justify-center gap-3 rounded-[0.6rem] border border-ink bg-accent py-3.5 text-paper shadow-[0_4px_0_0_var(--color-ink)] transition-[transform,box-shadow] duration-150 hover:-translate-y-px active:translate-y-[3px] active:shadow-[0_1px_0_0_var(--color-ink)] lg:mt-7"
             >
               <span className="font-mono text-11 tracking-[0.14em] opacity-80">OPEN ▸</span>
               <span className="text-[0.95rem] font-medium tracking-[0.04em] lg:text-[1.05rem]">{t.start}</span>
