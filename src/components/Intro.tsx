@@ -143,7 +143,7 @@ export default function Intro() {
           {/* 図。事例のカードと七角形を並べ、7件ぶん順に替える */}
           <div className="lg:order-2">
             <div className="mx-auto flex max-w-[34rem] items-center justify-center gap-3 sm:gap-5 lg:max-w-[42rem] lg:gap-8">
-              <div className="w-[38%] max-w-[13rem] shrink-0 lg:w-[44%] lg:max-w-[19rem]">
+              <div className="w-[47%] max-w-[16rem] shrink-0 lg:w-[44%] lg:max-w-[19rem]">
                 <Plate c={c} lang={lang} active={after} className="block aspect-[1/1.38] w-full" />
               </div>
               <div
@@ -166,18 +166,18 @@ export default function Intro() {
               id="intro-title"
               className={`font-medium leading-[1.05] tracking-[-0.035em] ${
                 lang === "en"
-                  ? "text-[2.3rem] sm:text-[2.8rem] xl:text-[3.6rem]"
-                  : "text-[2.5rem] sm:text-[3rem] xl:text-[4.6rem]"
+                  ? "text-[1.85rem] sm:text-[2.8rem] xl:text-[3.6rem]"
+                  : "text-[2rem] sm:text-[3rem] xl:text-[4.6rem]"
               }`}
             >
               {t.title}
             </h1>
-            <p className="mt-4 text-[1.2rem] font-medium leading-[1.5] tracking-[-0.01em] lg:mt-8 lg:text-[1.6rem]">
+            <p className="mt-3 text-[1.02rem] font-medium leading-[1.5] tracking-[-0.01em] lg:mt-8 lg:text-[1.6rem]">
               {t.catch[0]}
               <br />
               {t.catch[1]}
             </p>
-            <p className="mt-3 text-[0.875rem] leading-[1.75] text-sub lg:mt-5 lg:text-[1rem] lg:leading-[1.9]">
+            <p className="mt-2.5 text-[0.8125rem] leading-[1.75] text-sub lg:mt-5 lg:text-[1rem] lg:leading-[1.9]">
               {t.lead.map((line, i) => (
                 <span key={line}>
                   {i > 0 && <br />}
@@ -190,7 +190,7 @@ export default function Intro() {
             <button
               type="button"
               onClick={start}
-              className="mt-6 flex w-full max-w-[22rem] items-center justify-center gap-3 rounded-[0.6rem] border border-ink bg-accent py-3.5 text-paper shadow-[0_4px_0_0_var(--color-ink)] transition-[transform,box-shadow] duration-150 hover:-translate-y-px active:translate-y-[3px] active:shadow-[0_1px_0_0_var(--color-ink)] lg:mt-10"
+              className="mt-5 flex w-full max-w-[22rem] items-center justify-center gap-3 rounded-[0.6rem] border border-ink bg-accent py-3.5 text-paper shadow-[0_4px_0_0_var(--color-ink)] transition-[transform,box-shadow] duration-150 hover:-translate-y-px active:translate-y-[3px] active:shadow-[0_1px_0_0_var(--color-ink)] lg:mt-10"
             >
               <span className="font-mono text-11 tracking-[0.14em] opacity-80">OPEN ▸</span>
               <span className="text-[1.05rem] font-medium tracking-[0.04em]">{t.start}</span>
