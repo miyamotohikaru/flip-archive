@@ -229,7 +229,18 @@ export default function IndexPage({ lang }: { lang: Lang }) {
         {mode === "SCORES" && (
           <>
             <div className="-mx-4 mt-6 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-              <table className="w-full min-w-[40rem] border-collapse text-left">
+              {/* 7軸の列は同じ幅にそろえる。英語は軸名の長さがまちまちで、中身なりだと列がばらつく */}
+              <table
+                className={`w-full table-fixed border-collapse text-left ${
+                  en ? "min-w-[58rem]" : "min-w-[40rem]"
+                }`}
+              >
+                <colgroup>
+                  <col />
+                  {AXIS_ORDER.map((id) => (
+                    <col key={id} className={en ? "w-[6.75rem]" : "w-[4.5rem]"} />
+                  ))}
+                </colgroup>
                 <thead>
                   <tr className="border-b border-ink">
                     <th className="py-2.5 pr-4">
