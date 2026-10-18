@@ -108,8 +108,8 @@ body.intro-open {
    節は下に罫を引き、節の中の項目は上に朱の短い罫を立てて区切る。 */
 .h-sec {
   display: inline-block;
-  /* 墨のベタだと強すぎるので、地の白抜きが読める濃さのグレーに留める */
-  background: var(--color-mute);
+  /* 墨のベタだと強すぎ、グレーだと弱い。そのあいだの焦げ茶の墨に置く */
+  background: #2e2910;
   color: var(--color-bg);
   padding: 0.16em 0.46em 0.22em;
   font-size: 1.2rem;
