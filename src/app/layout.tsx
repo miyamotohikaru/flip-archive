@@ -3,6 +3,7 @@ import { OG_VERSION } from "./og-version";
 import { Inter, IBM_Plex_Mono, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import SiteChrome from "@/components/SiteChrome";
+import { INTRO_PRELUDE } from "@/lib/intro";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -61,7 +62,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ja">
+    // html の class は描画前の印（intro-seen）で書き換わるので、食い違いを咎めない
+    <html lang="ja" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: INTRO_PRELUDE }} />
+      </head>
       <body
         className={`${inter.variable} ${plexMono.variable} ${notoSansJp.variable}`}
       >

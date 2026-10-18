@@ -7,7 +7,8 @@ import * as THREE from "three";
 // 版の色をCSSのトークンとそのまま一致させる（線形化させない）
 THREE.ColorManagement.enabled = false;
 import gsap from "gsap";
-import { cases } from "@/data/cases";
+import { casesFor } from "@/data/i18n";
+import { path, type Lang } from "@/i18n/lang";
 import {
   plateFragmentShader,
   plateVertexShader,
@@ -62,13 +63,17 @@ export type RibbonHandle = {
 };
 
 export default function Ribbon({
+  lang = "ja",
   onFocusChange,
   onHoverChange,
 }: {
+  lang?: Lang;
   onFocusChange?: (index: number) => void;
   onHoverChange?: (index: number | null) => void;
 }) {
   const router = useRouter();
+  // 版面に刷る事例名も言語に合わせる。言語を替えると頁ごと替わるので、作り直しは要らない。
+  const cases = casesFor(lang);
   const hostRef = useRef<HTMLDivElement>(null);
   const [supported, setSupported] = useState(true);
   const [cursor, setCursor] = useState<"grab" | "grabbing" | "pointer">("grab");
@@ -80,15 +85,15 @@ export default function Ribbon({
 
   const navigate = useCallback(
     (slug: string) => {
-      router.push(`/case/${slug}`);
+      router.push(path(lang, `/case/${slug}`));
     },
-    [router],
+    [router, lang],
   );
 
   // 押してから開くまでの間を詰めるため、収録分をあらかじめ取りにいく。
   useEffect(() => {
-    cases.forEach((c) => router.prefetch(`/case/${c.slug}`));
-  }, [router]);
+    cases.forEach((c) => router.prefetch(path(lang, `/case/${c.slug}`)));
+  }, [router, cases, lang]);
 
   useEffect(() => {
     const host = hostRef.current;

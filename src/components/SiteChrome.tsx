@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import Intro from "@/components/Intro";
+import { LANGS, langOf, path, stripLang } from "@/i18n/lang";
 
 const NAV = [
   { href: "/", label: "OVERVIEW", ja: "図版" },
@@ -12,8 +14,15 @@ const NAV = [
 ];
 
 export default function SiteChrome({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const isHome = pathname === "/";
+  const pathname = usePathname() ?? "/";
+  const lang = langOf(pathname);
+  const here = stripLang(pathname);
+  const isHome = here === "/";
+
+  // <html lang> は layout で ja に固定しているので、英語の頁ではここで直す
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
   const [scrolled, setScrolled] = useState(false);
 
   // 本文が頭の下をくぐると読めなくなるので、送ったときだけ地色を敷く。
@@ -49,29 +58,32 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
         />
 
         <Link
-          href="/"
-          className="pointer-events-auto group flex items-baseline gap-2"
+          href={path(lang, "/")}
+          className="pointer-events-auto group order-1 flex items-baseline gap-2"
         >
           <span className="text-13 font-medium tracking-[-0.01em]">
-            世界のFLIP図鑑
+            {lang === "en" ? "World FLIP Archive" : "世界のFLIP図鑑"}
           </span>
-          <span className="label hidden sm:inline">
-            WORLD FLIP ARCHIVE
-          </span>
+          {lang === "ja" && (
+            <span className="label hidden sm:inline">
+              WORLD FLIP ARCHIVE
+            </span>
+          )}
         </Link>
 
-        <nav className="pointer-events-auto flex items-baseline gap-3 sm:gap-6">
+        {/* 携帯は名と言語を一行目に、ナビを二行目に置く。一行には収まらない */}
+        <nav className="pointer-events-auto order-3 flex w-full items-baseline gap-3 sm:order-2 sm:w-auto sm:gap-6">
           {NAV.map((n) => {
             const active =
               n.href === "/"
                 ? isHome
                 : n.href === "/cases"
-                  ? pathname.startsWith("/cases") || pathname.startsWith("/case/")
-                  : pathname.startsWith(n.href);
+                  ? here.startsWith("/cases") || here.startsWith("/case/")
+                  : here.startsWith(n.href);
             return (
               <Link
                 key={n.href}
-                href={n.href}
+                href={path(lang, n.href)}
                 className="group relative block"
                 aria-current={active ? "page" : undefined}
               >
@@ -91,6 +103,25 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
             );
           })}
         </nav>
+
+        {/* 言語。いま見ている頁のまま移る */}
+        {/* 帯の版が右上を通るので、地色の札を敷いて字を浮かせる */}
+        <span className="pointer-events-auto order-2 -my-1 ml-auto flex items-baseline gap-2 rounded-full bg-bg/90 px-2.5 py-1 sm:order-3">
+          {LANGS.map((l) => (
+            <Link
+              key={l}
+              href={path(l, here)}
+              hrefLang={l}
+              scroll={false}
+              aria-current={l === lang ? "true" : undefined}
+              className={`label transition-colors duration-300 ${
+                l === lang ? "!text-ink" : "hover:!text-ink"
+              }`}
+            >
+              {l === "ja" ? "JA" : "EN"}
+            </Link>
+          ))}
+        </span>
       </header>
 
       {children}
@@ -101,9 +132,13 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
           <span className="label">
             KOSU.KUMA<span className="hidden sm:inline"> / INTERNAL WORKING DRAFT</span>
           </span>
-          <span className="label hidden sm:inline">PLACEBO 評価基準 v1.3 ・ R04-5</span>
+          <span className="label hidden sm:inline">
+            {lang === "en" ? "PLACEBO CRITERIA v1.3 · R04-5" : "PLACEBO 評価基準 v1.3 ・ R04-5"}
+          </span>
         </footer>
       )}
+
+      <Intro />
     </>
   );
 }

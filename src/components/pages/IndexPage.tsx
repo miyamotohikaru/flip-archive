@@ -1,0 +1,393 @@
+"use client";
+
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { axesFor, casesFor } from "@/data/i18n";
+import { path, type Lang } from "@/i18n/lang";
+import { AXIS_ORDER, type AxisId, type Case } from "@/data/types";
+import Plate from "@/components/Plate";
+import Heptagon from "@/components/Heptagon";
+import AxisMark from "@/components/AxisMark";
+import { clearReturn, loadReturn, saveReturn } from "@/lib/returnNav";
+
+export default function IndexPage({ lang }: { lang: Lang }) {
+  const cases = casesFor(lang);
+  const axes = axesFor(lang);
+  const en = lang === "en";
+  // CASEを開く直前の状態を覚えてあれば、そこから開き直す
+  const restored = useRef(typeof window === "undefined" ? null : loadReturn());
+  const r = restored.current;
+
+  const [hovered, setHovered] = useState<Case | null>(null);
+  const [mode, setMode] = useState<"PLATES" | "SCORES">(
+    (r?.mode as "PLATES" | "SCORES") ?? "PLATES",
+  );
+  const [played, setPlayed] = useState(r?.played ?? false);
+  // 列の読み比べ用。並べ替えではないので、順序は動かさない。
+  const [markedAxis, setMarkedAxis] = useState<AxisId | null>(null);
+  const [canHover, setCanHover] = useState(true);
+  const [manual, setManual] = useState(false);
+  const loop = useRef<number | null>(null);
+  const floatRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  // 開いていたCASEの位置へ、アニメーションなしで戻す
+  useLayoutEffect(() => {
+    const st = restored.current;
+    if (!st) return;
+    restored.current = null;
+    clearReturn();
+
+    const jump = () => {
+      const card = listRef.current?.querySelector<HTMLElement>(
+        `[data-case="${st.slug}"]`,
+      );
+      if (card) {
+        const top =
+          card.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.28;
+        window.scrollTo({ top: Math.max(0, top), behavior: "instant" as ScrollBehavior });
+      } else {
+        window.scrollTo({ top: st.y, behavior: "instant" as ScrollBehavior });
+      }
+    };
+    jump();
+    // 図版のキャンバスが寸法を確定させたあと、もう一度合わせる
+    const id = requestAnimationFrame(jump);
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  useEffect(() => {
+    setCanHover(window.matchMedia("(hover: hover) and (pointer: fine)").matches);
+  }, []);
+
+  // ホバーのない端末では、図版が《変容前》と《実行後》を自分で往復する。
+  // 触れる手がかりがないので、二つの状態を見せてしまう。
+  useEffect(() => {
+    if (canHover || manual || mode !== "PLATES") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let alive = true;
+    const step = (next: boolean) => {
+      if (!alive) return;
+      setPlayed(next);
+      loop.current = window.setTimeout(() => step(!next), next ? 2600 : 2000);
+    };
+    loop.current = window.setTimeout(() => step(true), 1100);
+
+    return () => {
+      alive = false;
+      if (loop.current) window.clearTimeout(loop.current);
+    };
+  }, [canHover, manual, mode]);
+
+  // ブラウザの復元と競合させない
+  useEffect(() => {
+    if ("scrollRestoration" in history) {
+      const prev = history.scrollRestoration;
+      history.scrollRestoration = "manual";
+      return () => {
+        history.scrollRestoration = prev;
+      };
+    }
+  }, []);
+
+  const remember = (slug: string) => {
+    saveReturn({
+      slug,
+      y: window.scrollY,
+      mode,
+      filters: {},
+      opFilter: null,
+      panelOpen: false,
+      played,
+    });
+  };
+
+  const onMove = (e: React.MouseEvent) => {
+    const el = floatRef.current;
+    if (el) {
+      el.style.transform = `translate3d(${e.clientX + 24}px, ${e.clientY - 130}px, 0)`;
+    }
+  };
+
+  return (
+    <main className="min-h-screen px-4 pb-4 pt-20 sm:px-6 sm:pt-24" onMouseMove={onMove}>
+      <div ref={listRef} className="mx-auto max-w-[68rem]">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-3 border-b border-line pb-4">
+          <div>
+            <h1 className="text-[1.6rem] font-medium tracking-[-0.02em] sm:text-[2rem]">
+              {en ? "Index" : "索引"}
+            </h1>
+            <p className="copy-sm mt-1 text-mute tnum">
+              {en ? `${cases.length} precedents` : `先行${cases.length}事例`}
+            </p>
+          </div>
+          {/* 押せるものは、枠のある丸で示す。件数は押せないので、左の見出しへ回した。 */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            <div className="flex items-center rounded-full border border-line p-0.5">
+              {(["PLATES", "SCORES"] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setMode(m)}
+                  aria-pressed={mode === m}
+                  className={`rounded-full px-3 py-1 text-11 transition-colors duration-200 ${
+                    mode === m
+                      ? "bg-ink text-bg"
+                      : "text-mute hover:bg-paper hover:text-ink"
+                  }`}
+                >
+                  {m === "PLATES" ? (en ? "Plates" : "図版") : en ? "Scores" : "評点"}
+                  {!en && (
+                    <span className="ml-1.5 font-mono text-10 tracking-[0.11em] opacity-60">
+                      {m}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {mode === "PLATES" && (
+              <button
+                onClick={() => {
+                  if (!canHover) {
+                    if (loop.current) window.clearTimeout(loop.current);
+                    setManual(true);
+                  }
+                  setPlayed((v) => !v);
+                }}
+                aria-pressed={played}
+                className="rounded-full border border-line px-3 py-1 text-11 text-mute transition-colors duration-200 hover:border-ink hover:text-ink"
+                title={
+                  en
+                    ? "Compare each plate before and after the intervention"
+                    : "図版を、変容前と配置操作の実行後で見比べる"
+                }
+              >
+                <span className={played ? "" : "text-ink"}>{en ? "Before" : "変容前"}</span>
+                <span className="mx-1.5 opacity-50">{en ? "/" : "／"}</span>
+                <span className={played ? "text-ink" : ""}>{en ? "After" : "実行後"}</span>
+                {!canHover && !manual && (
+                  <span className="ml-2 font-mono text-10 tracking-[0.11em] opacity-60">
+                    AUTO
+                  </span>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* 図版の一覧 */}
+        {mode === "PLATES" && (
+          <ul className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-6">
+            {cases.map((c) => (
+              <li key={c.slug}>
+                <Link
+                  href={path(lang, `/case/${c.slug}`)}
+                  data-case={c.slug}
+                  className="group block"
+                  onClick={() => remember(c.slug)}
+                  onMouseEnter={() => setHovered(c)}
+                  onMouseLeave={() => setHovered((h) => (h === c ? null : h))}
+                >
+                  {/* ゲームの札のように、持ち上がって少し傾き、押すと沈む */}
+                  <div className="[transition:transform_340ms_cubic-bezier(0.34,1.56,0.64,1)] will-change-transform group-hover:-translate-y-2 group-hover:rotate-[-1.3deg] group-hover:scale-[1.035] group-active:translate-y-0 group-active:rotate-0 group-active:scale-[0.985]">
+                    <Plate
+                      lang={lang}
+                      c={c}
+                      active={played || hovered === c}
+                      className="block aspect-[1/1.38] w-full"
+                    />
+                  </div>
+                  <div className="mt-2.5 flex items-baseline gap-2">
+                    <span className="label tnum transition-colors duration-300 group-hover:!text-accent">
+                      CASE {c.id}
+                    </span>
+                    <span className="label tnum">{c.yearLabel}</span>
+                  </div>
+                  <p className="mt-0.5 text-13 font-medium leading-snug tracking-[-0.01em]">
+                    {c.title}
+                  </p>
+                  <p className="label mt-0.5">{c.author}</p>
+                  {/* 7軸ぶんを一行に収める。折り返すと点の並びとして読めない。 */}
+                  <p className="label tnum mt-2 flex justify-between gap-x-1 !tracking-[0.01em] text-10 sm:!tracking-[0.06em] sm:text-11">
+                    {AXIS_ORDER.map((id, i) => (
+                      <span key={id} className="whitespace-nowrap">
+                        {axes[i].letter}
+                        <span className="ml-0.5 !text-ink">
+                          {c.review[id].score ?? "—"}
+                        </span>
+                      </span>
+                    ))}
+                  </p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {/* 7件の評点一覧 */}
+        {mode === "SCORES" && (
+          <>
+            <div className="-mx-4 mt-6 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+              <table className="w-full min-w-[40rem] border-collapse text-left">
+                <thead>
+                  <tr className="border-b border-ink">
+                    <th className="py-2.5 pr-4">
+                      <span className="tag">{en ? "Case" : "事例"}</span>
+                    </th>
+                    {AXIS_ORDER.map((id, i) => {
+                      const a = axes[i];
+                      const on = markedAxis === id;
+                      return (
+                        <th key={id} className="py-2.5 text-center">
+                          <button
+                            onClick={() => setMarkedAxis(on ? null : id)}
+                            className="block w-full"
+                            title={a.publicText}
+                          >
+                            <AxisMark
+                              axis={id}
+                              size={20}
+                              className={`mx-auto mb-1.5 block ${
+                                on ? "text-accent" : "text-sub"
+                              }`}
+                            />
+                            <span
+                              className={`label block ${on ? "!text-accent" : "!text-ink"}`}
+                            >
+                              {a.letter}
+                            </span>
+                            <span
+                              className={`tag mt-0.5 block ${on ? "!text-accent" : "!text-mute"}`}
+                            >
+                              {a.jaShort}
+                            </span>
+                          </button>
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+                <tbody>
+                  {cases.map((c) => (
+                    <tr
+                      key={c.slug}
+                      className="border-b border-line transition-colors duration-300 hover:bg-paper"
+                      onMouseEnter={() => setHovered(c)}
+                      onMouseLeave={() => setHovered((h) => (h === c ? null : h))}
+                    >
+                      <td className="py-3 pr-4">
+                        <Link
+                          href={path(lang, `/case/${c.slug}`)}
+                          data-case={c.slug}
+                          onClick={() => remember(c.slug)}
+                          className="group flex flex-wrap items-baseline gap-x-2.5"
+                        >
+                          <span className="label tnum transition-colors duration-300 group-hover:!text-accent">
+                            {c.id}
+                          </span>
+                          <span className="text-[1.02rem] font-medium leading-tight tracking-[-0.015em]">
+                            {c.title}
+                          </span>
+                          <span className="label">{c.author}</span>
+                          <span className="label tnum">{c.yearLabel}</span>
+                        </Link>
+                      </td>
+                      {AXIS_ORDER.map((id) => (
+                        <td
+                          key={id}
+                          className={`py-3 text-center text-13 tnum ${
+                            markedAxis === id ? "text-accent" : ""
+                          }`}
+                        >
+                          {c.review[id].score ?? "—"}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {en ? (
+              <p className="fineprint mt-3">
+                {axes.map((a) => `${a.letter} ${a.ja}`).join(" / ")}.
+                <br />
+                Click a column heading to pick out that axis alone. No totals, averages or overall rankings.
+              </p>
+            ) : (
+              <p className="fineprint mt-3">
+                P 再知覚性／L 遊戯性／A 当事者性／C 必然性／E 誘発性／B 創発性／O 独創性。
+                <br />
+                列の見出しを押すと、その軸だけを刷り分ける。合計・平均・総合順位は作らない。
+              </p>
+            )}
+
+            {/* 七角形の一覧 */}
+            <ul className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
+              {cases.map((c) => (
+                <li key={c.slug}>
+                  <Link
+                    href={path(lang, `/case/${c.slug}`)}
+                    onClick={() => remember(c.slug)}
+                    className="group block"
+                  >
+                    <Heptagon c={c} lang={lang} size={220} className="w-full" />
+                    <div className="mt-1 flex items-baseline gap-2">
+                      <span className="label tnum transition-colors duration-300 group-hover:!text-accent">
+                        {c.id}
+                      </span>
+                      <span className="text-13 font-medium leading-snug">
+                        {c.title}
+                      </span>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+
+        {en ? (
+          <p className="fineprint mt-16 max-w-[40rem]">
+            A reading of each project&rsquo;s character by kosu.kuma&rsquo;s criteria, not an overall rating of the work.
+            Scores are editorial judgements made to read a project&rsquo;s character; they do not measure the greatness of the maker,
+            the value of the work as a whole, or any change in participants&rsquo; minds. A low score on some axis is not a judgement against inclusion.
+            <br />
+            The makers collected here do not themselves call their work a FLIP.
+          </p>
+        ) : (
+          <p className="fineprint mt-16 max-w-[40rem]">
+            こす.くまの基準による企画の特徴の評価であり、作品の総合点ではありません。
+            点数は企画の特徴を読むための編集判断で、作者の偉大さ、作品全体の価値、
+            参加者の心理変化の測定値ではない。低い項目を含むこと自体は、掲載価値の否定ではない。
+            <br />
+            ここに収録した制作者が、自らの活動をFLIPと呼んでいるわけではない。
+          </p>
+        )}
+      </div>
+
+      {/* カーソルに付く図版 */}
+      <div
+        ref={floatRef}
+        className="pointer-events-none fixed left-0 top-0 z-40 hidden lg:block"
+        style={{ willChange: "transform" }}
+      >
+        <div
+          className={`transition-opacity duration-300 ${
+            hovered && mode === "SCORES" ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          {hovered && mode === "SCORES" && (
+            <Plate
+              key={hovered.slug}
+              lang={lang}
+              c={hovered}
+              active
+              className="block h-[17rem] w-[12.3rem]"
+            />
+          )}
+        </div>
+      </div>
+    </main>
+  );
+}
