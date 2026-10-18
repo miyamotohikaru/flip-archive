@@ -161,7 +161,7 @@ export default function Intro() {
           </div>
 
           {/* 字 */}
-          <div className="text-center lg:order-1 lg:text-left">
+          <div className="text-left lg:order-1">
             <h1
               id="intro-title"
               className={`font-medium leading-[1.05] tracking-[-0.035em] ${
@@ -190,7 +190,7 @@ export default function Intro() {
             <button
               type="button"
               onClick={start}
-              className="mx-auto mt-6 flex w-full max-w-[22rem] items-center justify-center gap-3 rounded-[0.6rem] border border-ink bg-accent py-3.5 text-paper shadow-[0_4px_0_0_var(--color-ink)] transition-[transform,box-shadow] duration-150 hover:-translate-y-px active:translate-y-[3px] active:shadow-[0_1px_0_0_var(--color-ink)] lg:mx-0 lg:mt-10"
+              className="mt-6 flex w-full max-w-[22rem] items-center justify-center gap-3 rounded-[0.6rem] border border-ink bg-accent py-3.5 text-paper shadow-[0_4px_0_0_var(--color-ink)] transition-[transform,box-shadow] duration-150 hover:-translate-y-px active:translate-y-[3px] active:shadow-[0_1px_0_0_var(--color-ink)] lg:mt-10"
             >
               <span className="font-mono text-11 tracking-[0.14em] opacity-80">OPEN ▸</span>
               <span className="text-[1.05rem] font-medium tracking-[0.04em]">{t.start}</span>
