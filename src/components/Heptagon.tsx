@@ -36,9 +36,12 @@ export default function Heptagon({
   labels = true,
   labelSize = 9.5,
   lang = "ja",
+  tightBottom = false,
   className = "",
 }: {
   lang?: Lang;
+  /** 下の余白を、いちばん下の点数の字のところで切る。ほかの図と下端を揃えたいときに使う。 */
+  tightBottom?: boolean;
   c: Case;
   size?: number;
   /** 頂点の軸名と点数を刷るか。索引の小さい図では落とす。 */
@@ -52,6 +55,11 @@ export default function Heptagon({
   // 英語の軸名は和文より長いので、そのぶん外枠を広げる
   const pad = labelSize * (lang === "en" ? 5.4 : 4);
   const padTop = labelSize * 3.2;
+  const vbW = 300 + pad * 2;
+  // 下の二頂点（E・C）の点数の字の下端。名と点は図の外へ 0.34 ぶん逃がしてある。
+  const lowestY = Math.max(...AXIS_ORDER.map((_, i) => point(i, 5)[1]));
+  const textBottom = lowestY + (lowestY - CY) * 0.34 + labelSize * 1.68 + labelSize * 0.25;
+  const vbH = labels && tightBottom ? textBottom + padTop : vbW;
   const scores: Score[] = AXIS_ORDER.map((id) => c.review[id].score);
 
   // 隣り合う評点のあいだだけを結ぶ。未評価の頂点は連結しない。
@@ -74,11 +82,11 @@ export default function Heptagon({
     <svg
       viewBox={
         labels
-          ? `${-pad} ${-padTop} ${300 + pad * 2} ${300 + pad * 2}`
+          ? `${-pad} ${-padTop} ${vbW} ${vbH}`
           : "0 0 300 300"
       }
       width={size}
-      height={size}
+      height={labels ? (size * vbH) / vbW : size}
       className={className}
       role="img"
       aria-label={

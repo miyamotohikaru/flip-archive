@@ -142,7 +142,7 @@ export default function Intro() {
         <div className="mx-auto grid w-full max-w-[76rem] flex-1 content-center items-center gap-y-4 py-4 lg:grid-cols-2 lg:gap-x-16 lg:py-8">
           {/* 図。事例のカードと七角形を並べ、7件ぶん順に替える */}
           <div className="lg:order-2">
-            <div className="mx-auto flex max-w-[34rem] items-center justify-center gap-3 sm:gap-5 lg:max-w-[42rem] lg:gap-8">
+            <div className="mx-auto flex max-w-[34rem] items-end justify-center gap-3 sm:gap-5 lg:max-w-[42rem] lg:gap-8">
               <div className="w-[47%] max-w-[16rem] shrink-0 lg:w-[44%] lg:max-w-[19rem]">
                 <Plate c={c} lang={lang} active={after} className="block aspect-[1/1.38] w-full" />
               </div>
@@ -150,7 +150,7 @@ export default function Intro() {
                 key={c.slug}
                 className="min-w-0 flex-1 [animation:riseIn_0.8s_cubic-bezier(0.16,1,0.3,1)_forwards]"
               >
-                <Heptagon c={c} lang={lang} size={300} labelSize={lang === "en" ? 15 : 17} className="h-auto w-full" />
+                <Heptagon c={c} lang={lang} size={300} labelSize={lang === "en" ? 15 : 17} tightBottom className="block h-auto w-full" />
               </div>
             </div>
             <p className="label tnum mt-3 text-center">
