@@ -1,0 +1,324 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { axesFor, casesFor, getCaseIn } from "@/data/i18n";
+import { AXIS_ORDER } from "@/data/types";
+import { path, type Lang } from "@/i18n/lang";
+import CaseHero from "@/components/CaseHero";
+import Heptagon from "@/components/Heptagon";
+import AxisMark from "@/components/AxisMark";
+import ScoreBar from "@/components/ScoreBar";
+import BackToIndex from "@/components/BackToIndex";
+
+export default function CasePage({ slug, lang }: { slug: string; lang: Lang }) {
+  const cases = casesFor(lang);
+  const axes = axesFor(lang);
+  const en = lang === "en";
+  const c = getCaseIn(slug, lang);
+  if (!c) notFound();
+
+  const i = cases.findIndex((x) => x.slug === c.slug);
+  const prev = cases[(i - 1 + cases.length) % cases.length];
+  const next = cases[(i + 1) % cases.length];
+
+  return (
+    <main className="px-4 pb-4 pt-20 sm:px-6 sm:pt-24">
+      <div className="mx-auto max-w-[68rem]">
+        <BackToIndex slug={c.slug} lang={lang} />
+
+        {/* 見出しと評価 */}
+        <header className="mt-6 border-b border-line pb-8">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start lg:gap-12">
+            <div>
+              <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                <span className="label !text-accent tnum text-12">
+                  CASE {c.id} / {c.code}
+                </span>
+                <span className="label tnum">{c.yearLabel}</span>
+                <span className="label">{c.place}</span>
+              </div>
+              <div className="mt-3 flex flex-wrap items-baseline gap-x-5 gap-y-1">
+                <h1 className="text-[2rem] font-medium leading-[1.15] tracking-[-0.025em] sm:text-[3rem]">
+                  {c.title}
+                </h1>
+                <p className="label text-11">
+                  {c.author} <span className="mx-1 opacity-50">|</span>{" "}
+                  {c.yearLabel}
+                </p>
+              </div>
+              <p className="mt-6 max-w-[40rem] text-[1.25rem] font-medium leading-[1.8] tracking-[-0.01em] sm:text-[1.45rem]">
+                {c.headline}
+              </p>
+
+              {/* 初めて見る人に、何をした企画かを先に渡す。見出しは立てない。 */}
+              <p className="copy mt-5 max-w-[40rem]">{c.outline}</p>
+
+              <div className="mt-8">
+                <h2 className="h-sec">{en ? "Commentary" : "短評"}</h2>
+                <p className="copy max-w-[40rem]">
+                  {c.body}
+                </p>
+              </div>
+            </div>
+
+            {/* 評価。見出しと同じ高さに置く。 */}
+            <div className="lg:pt-1">
+              <div className="flex items-baseline justify-between gap-3 border-b border-ink pb-1.5">
+                <p className="tag !text-ink">{en ? "Evaluation" : "評価"}</p>
+                <p className="label tnum opacity-70">1–5 / R04-5</p>
+              </div>
+              <Heptagon
+                c={c}
+                lang={lang}
+                size={320}
+                className="-mx-3 mt-1 w-[calc(100%+1.5rem)] max-w-[23rem]"
+              />
+              <p className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
+                {AXIS_ORDER.map((id, idx) => (
+                  <span key={id} className="label tnum">
+                    <span className="!text-ink">{axes[idx].letter}</span>
+                    <span className="ml-0.5 !text-accent">
+                      {c.review[id].score ?? "—"}
+                    </span>
+                  </span>
+                ))}
+              </p>
+              <p className="fineprint mt-2.5">
+                {en
+                  ? "A reading of the project’s character by kosu.kuma’s criteria. Not an overall rating of the work."
+                  : "こす.くまの基準による企画の特徴の評価。作品の総合点ではありません。"}
+              </p>
+            </div>
+          </div>
+        </header>
+
+        <div className="grid gap-12 pt-10 lg:grid-cols-[23rem_minmax(0,1fr)] lg:gap-14">
+          {/* 左：図版と七角形 */}
+          <aside className="lg:sticky lg:top-20 lg:self-start">
+            <CaseHero c={c} lang={lang} />
+
+            <div className="mt-8 border-t border-line">
+              <div className="grid grid-cols-[5.5rem_1fr] gap-3 border-b border-line py-2.5">
+                <dt className="tag pt-0.5">{en ? "Evaluated" : "評価対象"}</dt>
+                <dd className="copy-sm">{c.target}</dd>
+              </div>
+              <div className="grid grid-cols-[5.5rem_1fr] gap-3 border-b border-line py-2.5">
+                <dt className="tag pt-0.5">{en ? "Place" : "場所"}</dt>
+                <dd className="copy-sm">{c.place}</dd>
+              </div>
+              <div className="grid grid-cols-[5.5rem_1fr] gap-3 border-b border-line py-2.5">
+                <dt className="tag pt-0.5">{en ? "Maker" : "制作者"}</dt>
+                <dd className="copy-sm">{c.author}</dd>
+              </div>
+            </div>
+          </aside>
+
+          {/* 右：審査と出典 */}
+          <div className="space-y-14">
+            {/* 項目別の審査 */}
+            <section>
+              <h2 className="h-sec !mb-2">
+                {en ? "Internal review: reasons, evidence, caveats" : "内部審査｜理由・根拠・留保"}
+              </h2>
+              <p className="copy-sm mb-6 max-w-[42rem] text-mute">
+                {en ? (
+                  <>
+                    Each axis pairs a score, the matching scale level, a concrete reason, caveats and source IDs.
+                    These are trial values carried over from v1.2, not the result of a new independent re-scoring.
+                  </>
+                ) : (
+                  <>
+                    評点／当てはまる目盛り／具体的な理由／留保／出典IDを一組にする。
+                    v1.2から継承した試行値であり、新たな独立再採点の結果ではない。
+                  </>
+                )}
+              </p>
+
+              {/* 7軸を先に一度に見渡す。どこが強い企画かを一目で渡す。 */}
+              <ul className="mb-10 max-w-[46rem] border-t border-line">
+                {AXIS_ORDER.map((id, idx) => (
+                  <li
+                    key={id}
+                    className="flex items-center gap-3 border-b border-line py-2.5 sm:gap-4"
+                  >
+                    <span className="label !text-accent tnum w-3 shrink-0">
+                      {axes[idx].letter}
+                    </span>
+                    <span
+                      className={`shrink-0 text-13 ${
+                        en ? "w-[6.5rem] sm:w-[8.5rem]" : "w-[4.25rem] sm:w-[5rem]"
+                      }`}
+                    >
+                      {en ? axes[idx].jaShort : axes[idx].ja}
+                    </span>
+                    <ScoreBar score={c.review[id].score} className="min-w-0 flex-1" />
+                    <span className="w-4 shrink-0 text-right text-13 font-medium tnum">
+                      {c.review[id].score ?? "—"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+              <ol className="max-w-[46rem] border-t border-line">
+                {AXIS_ORDER.map((id, idx) => {
+                  const a = axes[idx];
+                  const rv = c.review[id];
+                  return (
+                    <li key={id} className="border-b border-line py-8 sm:py-7">
+                      {/* しるし・軸名・評点 */}
+                      <div className="flex items-start gap-3">
+                        <AxisMark
+                          axis={id}
+                          size={28}
+                          className="mt-0.5 shrink-0 text-faint"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-baseline gap-2">
+                            <span className="label !text-accent tnum">
+                              {a.letter}
+                            </span>
+                            <h3 className="text-[1.05rem] font-medium tracking-[-0.01em] sm:text-[1rem]">
+                              {a.ja}
+                            </h3>
+                          </div>
+                        </div>
+                        <p className="shrink-0 text-right leading-none">
+                          <span className="text-[2.1rem] font-medium tnum sm:text-[1.8rem]">
+                            {rv.score ?? "—"}
+                          </span>
+                          <span className="label ml-0.5">/5</span>
+                        </p>
+                      </div>
+
+                      <ScoreBar score={rv.score} className="mt-4" />
+
+                      {/* 理由を主文として置く */}
+                      <p className="copy mt-5">{rv.reason}</p>
+
+                      {/* その点が指す目盛りと留保は、理由のうしろに小さく添える */}
+                      {rv.score != null && (
+                        <p className="copy-sm mt-4 bg-paper px-4 py-3.5 text-mute">
+                          <span className="tag mr-2 !text-faint">
+                            {en ? `Level ${rv.score}` : `目盛り${rv.score}`}
+                          </span>
+                          {a.levels[rv.score - 1]}
+                        </p>
+                      )}
+                      <p className="copy-sm mt-3 text-mute">
+                        <span className="tag mr-2 !text-faint">{en ? "Caveat" : "留保"}</span>
+                        {rv.caveat}
+                      </p>
+                      <p className="mt-3 flex flex-wrap gap-x-2 gap-y-1">
+                        {rv.sourceIds.map((sid) => (
+                          <a
+                            key={sid}
+                            href={`#${sid}`}
+                            className="label tnum rounded-full border border-line px-2 py-0.5 transition-colors hover:!text-ink"
+                          >
+                            {sid}
+                          </a>
+                        ))}
+                      </p>
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
+
+            {/* 出典 */}
+            <section>
+              <h2 className="h-sec !mb-2">
+                {en ? "Source index and inheritance record" : "出典索引・継承の記録"}
+              </h2>
+              <p className="copy-sm mb-5 max-w-[42rem] text-mute">
+                {en ? (
+                  <>
+                    Publishers, links, scope of support and caveats are carried over from the v1.2 source ledger.
+                    They were checked on 2026-09-20; this does not mean every source was revisited this time.
+                  </>
+                ) : (
+                  <>
+                    発信者・リンク・支持範囲・留保はv1.2の出典台帳から継承した。
+                    確認日は2026-09-20であり、今回すべてを再閲覧したという意味ではない。
+                  </>
+                )}
+              </p>
+              <ol className="max-w-[46rem] border-t border-line">
+                {c.sources.map((s) => (
+                  <li
+                    key={s.id}
+                    id={s.id}
+                    className="scroll-mt-24 border-b border-line py-4"
+                  >
+                    <div className="grid gap-2 sm:grid-cols-[5rem_1fr] sm:gap-4">
+                      <span className="label tnum pt-0.5">{s.id}</span>
+                      <div>
+                        <a
+                          href={s.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="copy-sm font-medium underline decoration-line underline-offset-[3px] transition-colors hover:decoration-ink"
+                        >
+                          {s.title}
+                        </a>
+                        <p className="copy-sm mt-1 text-mute">{s.by}</p>
+                        <p className="copy-sm mt-2 text-sub">
+                          <span className="tag mr-2 !text-faint">{en ? "Supports" : "支持"}</span>
+                          {s.support}
+                        </p>
+                        <p className="copy-sm mt-1 text-mute">
+                          <span className="tag mr-2 !text-faint">{en ? "Caveat" : "留保"}</span>
+                          {s.caveat}
+                        </p>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+              <p className="fineprint mt-3">
+                {en
+                  ? "Factual evidence and image rights are handled separately. No photographs of the actual work appear in this case."
+                  : "事実の根拠と、画像の掲載権利は別に扱う。本CASEに実物の写真は掲載していない。"}
+              </p>
+            </section>
+
+            <p className="fineprint max-w-[42rem]">
+              {en ? (
+                <>
+                  We read the version and audience experience stated above, not the person or the work as a whole.
+                  A low score on some axis is not a judgement against inclusion.
+                  Corrections and further information are welcome via the editors.
+                </>
+              ) : (
+                <>
+                  人物や作品全体ではなく、上に明記した版と受け手の経験を読む。
+                  低い項目を含むこと自体は、掲載価値の否定ではない。
+                  訂正・追加情報は編集部まで。
+                </>
+              )}
+            </p>
+          </div>
+        </div>
+
+        {/* 前後 */}
+        <nav className="mt-20 grid grid-cols-2 gap-4 border-t border-line pt-5">
+          <Link href={path(lang, `/case/${prev.slug}`)} className="group">
+            <span className="label transition-colors group-hover:!text-ink">
+              ← CASE {prev.id}
+            </span>
+            <p className="mt-1 text-13 text-mute transition-colors group-hover:text-ink">
+              {prev.title}
+            </p>
+          </Link>
+          <Link href={path(lang, `/case/${next.slug}`)} className="group text-right">
+            <span className="label transition-colors group-hover:!text-ink">
+              CASE {next.id} →
+            </span>
+            <p className="mt-1 text-13 text-mute transition-colors group-hover:text-ink">
+              {next.title}
+            </p>
+          </Link>
+        </nav>
+      </div>
+    </main>
+  );
+}

@@ -1,4 +1,5 @@
-import { axes } from "@/data/axes";
+import { axesFor } from "@/data/i18n";
+import type { Lang } from "@/i18n/lang";
 import { AXIS_ORDER, type Case, type Score } from "@/data/types";
 
 /**
@@ -34,8 +35,10 @@ export default function Heptagon({
   size = 300,
   labels = true,
   labelSize = 9.5,
+  lang = "ja",
   className = "",
 }: {
+  lang?: Lang;
   c: Case;
   size?: number;
   /** 頂点の軸名と点数を刷るか。索引の小さい図では落とす。 */
@@ -45,7 +48,9 @@ export default function Heptagon({
   className?: string;
 }) {
   // 名と点は図の外へ出るので、その分だけ外枠を広げる
-  const pad = labelSize * 4;
+  const axes = axesFor(lang);
+  // 英語の軸名は和文より長いので、そのぶん外枠を広げる
+  const pad = labelSize * (lang === "en" ? 5.4 : 4);
   const padTop = labelSize * 3.2;
   const scores: Score[] = AXIS_ORDER.map((id) => c.review[id].score);
 
@@ -62,8 +67,8 @@ export default function Heptagon({
   const labelSummary = AXIS_ORDER.map((id, i) => {
     const a = axes[i];
     const s = c.review[id].score;
-    return `${a.letter} ${a.ja} ${s ?? "未評価"}`;
-  }).join("／");
+    return `${a.letter} ${a.ja} ${s ?? (lang === "en" ? "not rated" : "未評価")}`;
+  }).join(lang === "en" ? "; " : "／");
 
   return (
     <svg
@@ -76,7 +81,11 @@ export default function Heptagon({
       height={size}
       className={className}
       role="img"
-      aria-label={`${c.title}のPLACEBO七角形。${labelSummary}。こす.くまの基準による企画の特徴の評価で、作品の総合点ではない。`}
+      aria-label={
+        lang === "en"
+          ? `PLACEBO heptagon for ${c.title}. ${labelSummary}. A reading of the project's character by kosu.kuma's criteria, not an overall rating of the work.`
+          : `${c.title}のPLACEBO七角形。${labelSummary}。こす.くまの基準による企画の特徴の評価で、作品の総合点ではない。`
+      }
     >
       {/* 目盛り。5段階の同心七角形。 */}
       {[1, 2, 3, 4, 5].map((lv) => (
