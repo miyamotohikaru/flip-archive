@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Heptagon from "@/components/Heptagon";
+import Plate from "@/components/Plate";
 import { casesFor } from "@/data/i18n";
 import { LANGS, langOf, path, stripLang } from "@/i18n/lang";
 import { INTRO_KEY } from "@/lib/intro";
@@ -26,7 +27,12 @@ const COPY = {
     kicker: "WORLD FLIP ARCHIVE",
     title: "世界のFLIP図鑑",
     catch: ["当たり前には、", "別の姿がある。"],
-    lead: ["当たり前をひっくり返した企画を集めて、", "7つの軸で読み解く図鑑。"],
+    lead: [
+      "世界のFLIP図鑑は、",
+      "現実の当たり前に具体的な仕掛けを置き、",
+      "人が関わる経験を通して、",
+      "その当たり前の別の姿を立ち上げた企画を記録する。",
+    ],
     spec: "先行7事例 ・ 7軸 × 5段階",
     start: "図鑑をひらく",
   },
@@ -34,7 +40,12 @@ const COPY = {
     kicker: "WORLD FLIP ARCHIVE",
     title: "World FLIP Archive",
     catch: ["Every given", "has another face."],
-    lead: ["An archive of projects that flipped", "something taken for granted, read on seven axes."],
+    lead: [
+      "The World FLIP Archive records projects",
+      "that place a concrete device in an everyday given",
+      "and, through people\u2019s engagement,",
+      "bring another face of that given into view.",
+    ],
     spec: "7 CASES · 7 AXES × 5 LEVELS",
     start: "Open the archive",
   },
@@ -51,6 +62,8 @@ export default function Intro() {
   const [open, setOpen] = useState(true);
   const [leaving, setLeaving] = useState(false);
   const [shown, setShown] = useState(0);
+  // カードは《変容前》で少し止まってから《実行後》へ動く
+  const [after, setAfter] = useState(false);
 
   useEffect(() => {
     let seen = false;
@@ -66,13 +79,20 @@ export default function Intro() {
     return () => document.body.classList.remove("intro-open");
   }, [open]);
 
-  // 七角形を7件ぶん順に替えて、事例ごとに形が違うことを見せる
+  // カードと七角形を7件ぶん順に替えて、事例ごとに仕掛けも形も違うことを見せる
   useEffect(() => {
     if (!open) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const id = window.setInterval(() => setShown((i) => (i + 1) % cases.length), 2400);
-    return () => window.clearInterval(id);
-  }, [open, cases.length]);
+    const flip = window.setTimeout(() => setAfter(true), 1200);
+    const next = window.setTimeout(() => {
+      setAfter(false);
+      setShown((i) => (i + 1) % cases.length);
+    }, 3400);
+    return () => {
+      window.clearTimeout(flip);
+      window.clearTimeout(next);
+    };
+  }, [open, shown, cases.length]);
 
   const start = () => {
     try {
@@ -120,15 +140,20 @@ export default function Intro() {
 
         {/* 一枚。携帯は図が上・字が下、パソコンは字が左・図が右 */}
         <div className="mx-auto grid w-full max-w-[76rem] flex-1 content-center items-center gap-y-4 py-4 lg:grid-cols-2 lg:gap-x-16 lg:py-8">
-          {/* 図。7件の七角形が順に替わる */}
+          {/* 図。事例のカードと七角形を並べ、7件ぶん順に替える */}
           <div className="lg:order-2">
-            <div
-              key={c.slug}
-              className="mx-auto w-full max-w-[17rem] [animation:riseIn_0.8s_cubic-bezier(0.16,1,0.3,1)_forwards] sm:max-w-[20rem] lg:max-w-[32rem]"
-            >
-              <Heptagon c={c} lang={lang} size={440} labelSize={lang === "en" ? 12 : 13} className="h-auto w-full" />
+            <div className="mx-auto flex max-w-[34rem] items-center justify-center gap-3 sm:gap-5 lg:max-w-[42rem] lg:gap-8">
+              <div className="w-[38%] max-w-[13rem] shrink-0 lg:w-[44%] lg:max-w-[19rem]">
+                <Plate c={c} lang={lang} active={after} className="block aspect-[1/1.38] w-full" />
+              </div>
+              <div
+                key={c.slug}
+                className="min-w-0 flex-1 [animation:riseIn_0.8s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+              >
+                <Heptagon c={c} lang={lang} size={300} labelSize={lang === "en" ? 15 : 17} className="h-auto w-full" />
+              </div>
             </div>
-            <p className="label tnum -mt-1 text-center">
+            <p className="label tnum mt-3 text-center">
               <span className="!text-accent">CASE {c.id}</span>
               <span className="mx-2 opacity-50">／</span>
               <span className="!text-ink">{c.title}</span>
@@ -152,10 +177,13 @@ export default function Intro() {
               <br />
               {t.catch[1]}
             </p>
-            <p className="mt-3 text-[0.9rem] leading-[1.8] text-sub lg:mt-5 lg:text-[1rem]">
-              {t.lead[0]}
-              <br />
-              {t.lead[1]}
+            <p className="mt-3 text-[0.875rem] leading-[1.75] text-sub lg:mt-5 lg:text-[1rem] lg:leading-[1.9]">
+              {t.lead.map((line, i) => (
+                <span key={line}>
+                  {i > 0 && <br />}
+                  {line}
+                </span>
+              ))}
             </p>
             <p className="label tnum mt-3 lg:mt-5">{t.spec}</p>
 
