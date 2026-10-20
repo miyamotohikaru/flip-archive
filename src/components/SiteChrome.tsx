@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Intro from "@/components/Intro";
 import { LANGS, langOf, path, stripLang } from "@/i18n/lang";
-import { INTRO_OPEN_EVENT } from "@/lib/intro";
 
 const NAV = [
   { href: "/", label: "OVERVIEW", ja: "図版" },
@@ -74,15 +73,6 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
 
         {/* 携帯は名と言語を一行目に、ナビを二行目に置く。一行には収まらない */}
         <nav className="pointer-events-auto order-3 flex w-full items-baseline gap-3 sm:order-2 sm:w-auto sm:gap-6">
-          {/* スタート画面を開き直す。頁ではないので、印の下線は付けない */}
-          <button
-            type="button"
-            onClick={() => window.dispatchEvent(new Event(INTRO_OPEN_EVENT))}
-            className="group relative block"
-          >
-            <span className="label transition-colors duration-300 group-hover:!text-ink">INTRO</span>
-            <span className="absolute -bottom-1 left-0 block h-px w-0 bg-ink transition-all duration-500 ease-out group-hover:w-full" />
-          </button>
           {NAV.map((n) => {
             const active =
               n.href === "/"
