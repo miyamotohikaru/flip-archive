@@ -7,7 +7,7 @@ import Heptagon from "@/components/Heptagon";
 import Plate from "@/components/Plate";
 import { casesFor } from "@/data/i18n";
 import { LANGS, langOf, path, stripLang } from "@/i18n/lang";
-import { INTRO_KEY } from "@/lib/intro";
+import { INTRO_KEY, INTRO_OPEN_EVENT } from "@/lib/intro";
 
 /**
  * はじめて来た人にだけ出す、企画の説明（スタート画面）。
@@ -71,6 +71,19 @@ export default function Intro() {
       seen = !!localStorage.getItem(INTRO_KEY);
     } catch {}
     if (seen) setOpen(false);
+  }, []);
+
+  // ヘッダーの INTRO から開き直す。二回目以降もカードを見られるように。
+  useEffect(() => {
+    const reopen = () => {
+      document.documentElement.classList.remove("intro-seen");
+      setLeaving(false);
+      setAfter(false);
+      setShown(0);
+      setOpen(true);
+    };
+    window.addEventListener(INTRO_OPEN_EVENT, reopen);
+    return () => window.removeEventListener(INTRO_OPEN_EVENT, reopen);
   }, []);
 
   // 開いているあいだは、下の頁を送らせない
