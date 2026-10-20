@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Intro from "@/components/Intro";
+import { RandomLetterSwap } from "@/components/ui/random-letter-swap";
 import { LANGS, langOf, path, stripLang } from "@/i18n/lang";
 
 const NAV = [
@@ -87,13 +88,15 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
                 className="group relative block"
                 aria-current={active ? "page" : undefined}
               >
-                <span
+                {/* ホバーで一文字ずつ縦に入れ替わる */}
+                <RandomLetterSwap
+                  label={n.label}
+                  staggerDuration={0.025}
+                  transition={{ duration: 0.6, type: "spring" }}
                   className={`label transition-colors duration-300 ${
                     active ? "!text-ink" : "group-hover:!text-ink"
                   }`}
-                >
-                  {n.label}
-                </span>
+                />
                 <span
                   className={`absolute -bottom-1 left-0 block h-px bg-ink transition-all duration-500 ease-out ${
                     active ? "w-full" : "w-0 group-hover:w-full"
